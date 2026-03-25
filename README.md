@@ -235,12 +235,12 @@ BACKEND_URL=http://localhost:5000
 5. Add **Authorized redirect URIs**:
    ```
    http://localhost:5000/api/auth/google/callback     ← development
-   https://journeyrentals.in/api/auth/google/callback  ← production
+   https://journey-henna-omega.vercel.app/api/auth/google/callback  ← production
    ```
 6. Add **Authorized JavaScript origins**:
    ```
    http://localhost:5173
-   https://journeyrentals.in
+   https://journey-henna-omega.vercel.app
    ```
 7. Copy **Client ID** and **Client Secret** into `api/.env` (locally) and Vercel dashboard (production)
 
@@ -347,8 +347,8 @@ In the Vercel dashboard → **Settings** → **Environment Variables**, add all 
 | `OWNER_EMAIL` | Owner dashboard login email |
 | `OWNER_PASSWORD` | Owner dashboard login password |
 | `NODE_ENV` | `production` |
-| `FRONTEND_URL` | `https://journeyrentals.in` |
-| `BACKEND_URL` | `https://journeyrentals.in` |
+| `FRONTEND_URL` | `https://journey-henna-omega.vercel.app` |
+| `BACKEND_URL` | `https://journey-henna-omega.vercel.app` |
 
 > **Generate a strong JWT_SECRET:**
 > ```bash
@@ -388,14 +388,14 @@ Go to your domain registrar and set:
 ### Step 3 — Update Google OAuth
 
 In Google Cloud Console → Credentials → your OAuth client:
-- Add redirect URI: `https://journeyrentals.in/api/auth/google/callback`
-- Add JavaScript origin: `https://journeyrentals.in`
+- Add redirect URI: `https://journey-henna-omega.vercel.app/api/auth/google/callback`
+- Add JavaScript origin: `https://journey-henna-omega.vercel.app`
 
 ### Step 4 — Update Environment Variables
 
 In Vercel dashboard, update:
-- `FRONTEND_URL` = `https://journeyrentals.in`
-- `BACKEND_URL` = `https://journeyrentals.in`
+- `FRONTEND_URL` = `https://journey-henna-omega.vercel.app`
+- `BACKEND_URL` = `https://journey-henna-omega.vercel.app`
 
 Redeploy for changes to take effect.
 
