@@ -1,0 +1,12 @@
+{
+  "name": "journey-rentals",
+  "private": true,
+  "workspaces": [
+    "client",
+    "api"
+  ],
+  "scripts": {
+    "build": "npm run build --prefix client",
+    "vercel-build": "npm install --prefix client && npm install --prefix api && npm run build --prefix client && rm -rf dist && cp -r client/dist dist"
+  }
+}
