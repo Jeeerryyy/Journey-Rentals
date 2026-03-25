@@ -8,5 +8,8 @@
   "scripts": {
     "build": "npm run build --prefix client",
     "vercel-build": "npm install --prefix client --include=dev && npm install --prefix api && npm run build --prefix client && rm -rf dist && cp -r client/dist dist"
+  },
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0"
   }
 }
