@@ -10,7 +10,6 @@ export default defineConfig({
   ],
   server: {
     host: true,
-    allowedHosts: ["unnarrative-elton-ptotic.ngrok-free.dev"],
     proxy: {
       // Forward all /api requests to the Express server during development
       '/api': {
@@ -30,7 +29,11 @@ export default defineConfig({
         },
       },
     },
-    // Drop all console statements from the production build
+    // OPTIMIZATION: Drop all console statements from the production build
     minify: 'esbuild',
+    target: 'es2020',
+  },
+  esbuild: {
+    drop: ['console', 'debugger'],
   },
 })
