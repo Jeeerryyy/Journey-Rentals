@@ -313,11 +313,22 @@ router.post('/owner-login', authLimiter, async (req, res) => {
 })
 
 // ── GET /api/auth/google ── Initiate Google OAuth
-router.get('/google', (req, res, next) => {
+// SECURITY FIX: Bypass Passport.authenticate for the redirect step because
+// Express 5 breaks Passport's middleware chaining, dropping the scope parameter.
+// We construct the Google OAuth URL manually instead.
+router.get('/google', (req, res) => {
   if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
     return res.redirect(`${FRONTEND_URL}/login?error=google_not_configured`)
   }
-  passport.authenticate('google', { scope: ['profile', 'email'], session: false })(req, res, next)
+  const callbackURL = `${BACKEND_URL}/api/auth/google/callback`
+  const googleAuthURL = 'https://accounts.google.com/o/oauth2/v2/auth' +
+    `?client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}` +
+    `&redirect_uri=${encodeURIComponent(callbackURL)}` +
+    `&response_type=code` +
+    `&scope=${encodeURIComponent('profile email')}` +
+    `&access_type=offline` +
+    `&prompt=consent`
+  res.redirect(googleAuthURL)
 })
 
 // ── GET /api/auth/google/callback ── Handle Google OAuth callback
