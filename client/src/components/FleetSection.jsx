@@ -36,29 +36,26 @@ const FleetSection = () => {
   const didDrag      = useRef(false)
   const mouseDown    = useRef(false)
 
-  // Fetch fleet section data from API — replaces fallback when data exists
+  // Fetch real vehicle catalog data — single source of truth for both fleet and catalog
   useEffect(() => {
     const loadFleet = async () => {
       try {
-        const data = await api.vehicles.fleetSection()
-        if (data.section) {
-          setHeading(data.section.heading || 'Our Fleet')
-          setSub(data.section.subheading || 'Best Self-Drive Rentals')
-          const vehicles = (data.section.vehicles || []).map((v, i) => ({
-            id: v._id || `fleet_${i}`,
-            title: v.name,
-            category: v.category || '',
-            seats: v.seats || '',
-            fuel: v.fuel || '',
-            trans: v.transmission || '',
-            price: v.pricePerDay || 0,
-            img: v.image || '',
-            isFeatured: v.isFeatured || false,
-          }))
-          if (vehicles.length > 0) setCars(vehicles)
-        }
+        // Fetch from the real Vehicle catalog — same data the /cars page and owner dashboard use
+        const data = await api.vehicles.getAll('car')
+        const vehicles = (data.vehicles || []).map((v, i) => ({
+          id: v._id,
+          title: `${v.brand} ${v.model}`,
+          category: v.category || '',
+          seats: String(v.sittingCapacity || ''),
+          fuel: v.fuelType || '',
+          trans: v.transmission || '',
+          price: v.pricePerDay || 0,
+          img: v.images?.[0] || v.image || '',
+          isFeatured: false,
+        }))
+        if (vehicles.length > 0) setCars(vehicles)
       } catch {
-        // Silently fail — keep fallback data
+        // Silently fail — keep empty state
       }
     }
     loadFleet()
@@ -434,7 +431,7 @@ const FleetSection = () => {
                   </div>
                   {isCenter && (
                     <Link
-                      to="/cars"
+                      to={`/car-details/${car.id}`}
                       className="cr-btn"
                       onClick={e => didDrag.current && e.preventDefault()}
                     >

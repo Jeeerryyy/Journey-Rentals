@@ -22,47 +22,9 @@ router.get('/', async (req, res) => {
       .lean()
       .exec()
 
-    // Merge in FleetSection cars if type is 'car' or not specified
-    let mergedVehicles = [...dbVehicles]
-    
-    if (!type || type === 'car') {
-      const section = await FleetSection.findOne().lean()
-      if (section && section.vehicles && section.vehicles.length > 0) {
-        const fleetCars = section.vehicles.filter(v => v.isVisible).map(v => ({
-          _id: v._id,
-          type: 'car',
-          brand: ['Swift', 'Ertiga'].includes(v.name) ? 'Maruti' : 
-                 ['Venue', 'Aura'].includes(v.name) ? 'Hyundai' : 
-                 v.name === 'Punch' ? 'Tata' : 
-                 v.name === 'Seltos' ? 'Kia' : 'Unknown',
-          model: v.name,
-          year: 2023,
-          category: v.category || 'SUV',
-          transmission: v.transmission || 'Manual',
-          fuelType: v.fuel || 'Petrol',
-          sittingCapacity: parseInt(v.seats) || 5,
-          pricePerDay: v.pricePerDay || 1500,
-          isAvailable: true,
-          image: v.image,
-          images: [v.image],
-          description: `Enjoy a premium self-drive experience.`,
-          features: ['Air Conditioning', 'Power Steering', 'Music System'],
-          locations: ['Solapur Station', 'Hotgi Road', 'Vijapur Road']
-        }))
-        
-        // Add only if a vehicle with the same model doesn't already exist
-        const existingModels = new Set(mergedVehicles.map(v => v.model))
-        for (const fc of fleetCars) {
-          if (!existingModels.has(fc.model)) {
-            mergedVehicles.push(fc)
-          }
-        }
-      }
-    }
-
     res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
 
-    return res.status(200).json({ vehicles: mergedVehicles })
+    return res.status(200).json({ vehicles: dbVehicles })
   } catch (err) {
     console.error('vehicles/index error:', err)
     return res.status(500).json({ error: 'Failed to fetch vehicles.' })
@@ -93,38 +55,7 @@ router.get('/:id', async (req, res) => {
   try {
     await connectDB()
 
-    let vehicle = await Vehicle.findById(req.params.id).select('-__v').lean()
-
-    // If not found in main catalog, check FleetSection
-    if (!vehicle) {
-      const section = await FleetSection.findOne().lean()
-      if (section && section.vehicles) {
-        const fleetCar = section.vehicles.find(v => v._id.toString() === req.params.id)
-        if (fleetCar) {
-          vehicle = {
-            _id: fleetCar._id,
-            type: 'car',
-            brand: ['Swift', 'Ertiga'].includes(fleetCar.name) ? 'Maruti' : 
-                   ['Venue', 'Aura'].includes(fleetCar.name) ? 'Hyundai' : 
-                   fleetCar.name === 'Punch' ? 'Tata' : 
-                   fleetCar.name === 'Seltos' ? 'Kia' : 'Unknown',
-            model: fleetCar.name,
-            year: 2023,
-            category: fleetCar.category || 'SUV',
-            transmission: fleetCar.transmission || 'Manual',
-            fuelType: fleetCar.fuel || 'Petrol',
-            sittingCapacity: parseInt(fleetCar.seats) || 5,
-            pricePerDay: fleetCar.pricePerDay || 1500,
-            isAvailable: true,
-            image: fleetCar.image,
-            images: [fleetCar.image],
-            description: `Enjoy a premium self-drive experience.`,
-            features: ['Air Conditioning', 'Power Steering', 'Music System'],
-            locations: ['Solapur Station', 'Hotgi Road', 'Vijapur Road']
-          }
-        }
-      }
-    }
+    const vehicle = await Vehicle.findById(req.params.id).select('-__v').lean()
 
     if (!vehicle) {
       return res.status(404).json({ error: 'Vehicle not found.' })

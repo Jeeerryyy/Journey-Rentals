@@ -3,7 +3,6 @@ import { connectDB } from '../_lib/mongodb.js'
 import Booking from '../_lib/models/Booking.js'
 import Vehicle from '../_lib/models/Vehicle.js'
 import User from '../_lib/models/User.js'
-import FleetSection from '../_lib/models/FleetSection.js'
 import { requireAuth } from '../_lib/auth.js'
 
 const router = Router()
@@ -34,28 +33,6 @@ router.post('/create-order', requireAuth, async (req, res) => {
     }
 
     let vehicle = await Vehicle.findById(vehicleId)
-    
-    // Fallback: check FleetSection if the car isn't in regular Vehicle catalog
-    if (!vehicle) {
-      const section = await FleetSection.findOne().lean()
-      if (section && section.vehicles) {
-        const fleetCar = section.vehicles.find(v => v._id.toString() === vehicleId)
-        if (fleetCar && fleetCar.isVisible) {
-          vehicle = {
-            _id: fleetCar._id,
-            brand: ['Swift', 'Ertiga'].includes(fleetCar.name) ? 'Maruti' : 
-                   ['Venue', 'Aura'].includes(fleetCar.name) ? 'Hyundai' : 
-                   fleetCar.name === 'Punch' ? 'Tata' : 
-                   fleetCar.name === 'Seltos' ? 'Kia' : 'Unknown',
-            model: fleetCar.name,
-            type: 'car',
-            category: fleetCar.category || 'SUV',
-            image: fleetCar.image,
-            isAvailable: true
-          }
-        }
-      }
-    }
 
     if (!vehicle) return res.status(404).json({ error: 'Vehicle not found.' })
     if (!vehicle.isAvailable) return res.status(400).json({ error: 'Vehicle is not available.' })
