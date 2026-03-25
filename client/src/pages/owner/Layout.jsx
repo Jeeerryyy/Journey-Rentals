@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { NavLink, Outlet, Link } from 'react-router-dom'
+import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom'
 import { animateThemeToggle } from '../../utils/themeToggle'
+import { useAuth } from '../../context/AuthContext'
 
 const menuItems = [
   { name: 'Dashboard', path: '/owner', icon: (
@@ -22,6 +23,13 @@ const menuItems = [
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { owner, ownerLogout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    ownerLogout()
+    navigate('/owner-login', { replace: true })
+  }
 
   // Theme state — defaults to OS preference, persists in localStorage
   const [theme, setTheme] = useState(() => {
@@ -169,15 +177,17 @@ const Layout = () => {
 
         /* Mobile */
         @media (max-width: 768px) {
-          .owner-sidebar { transform: translateX(-100%); }
+          .owner-sidebar { transform: translateX(-100%); width: 260px; box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
           .owner-sidebar.open { transform: translateX(0); }
-          .owner-main { margin-left: 0; }
-          .owner-topbar { padding: 0 16px; height: 56px; }
-          .owner-topbar__title { font-size: 17px; }
-          .owner-content { padding: 16px 12px; }
-          .owner-hamburger { display: block; }
-          .owner-sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 499; }
+          .owner-main { margin-left: 0; width: 100vw; overflow-x: hidden; }
+          .owner-topbar { padding: 0 16px; height: 60px; gap: 8px; }
+          .owner-topbar__title { font-size: 16px; margin-right: auto; margin-left: 8px; }
+          .owner-content { padding: 20px 16px; }
+          .owner-hamburger { display: flex; align-items: center; justify-content: center; padding: 8px; margin-left: -8px; }
+          .owner-sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 499; backdrop-filter: blur(3px); }
           .owner-topbar__view-site span { display: none; }
+          .owner-nav-link { padding: 14px 12px; font-size: 15px; } /* Larger touch targets */
+          .owner-sidebar__footer { padding: 20px 16px; }
         }
       `}</style>
 
@@ -209,12 +219,22 @@ const Layout = () => {
           </nav>
 
           <div className="owner-sidebar__footer">
-            <div className="owner-sidebar__user">
-              <div className="owner-sidebar__avatar">A</div>
+            <div className="owner-sidebar__user" style={{ marginBottom: '16px' }}>
+              <div className="owner-sidebar__avatar">{owner?.name ? owner.name.charAt(0).toUpperCase() : 'O'}</div>
               <div>
-                <div className="owner-sidebar__user-name">Arbaz Shaikh</div>
+                <div className="owner-sidebar__user-name">{owner?.name || 'Owner'}</div>
                 <div className="owner-sidebar__user-role">Owner</div>
               </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <Link to="/owner/profile" className="owner-nav-link" style={{ padding: '8px 12px', marginBottom: 0 }} onClick={() => setSidebarOpen(false)}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Edit Profile
+              </Link>
+              <button className="owner-nav-link" style={{ width: '100%', textAlign: 'left', cursor: 'pointer', padding: '8px 12px', marginBottom: 0 }} onClick={handleLogout}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Log Out
+              </button>
             </div>
           </div>
         </aside>

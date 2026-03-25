@@ -29,7 +29,9 @@ const ManageBookings = () => {
         amount: b.totalPrice,
         advance: b.advancePaid,
         status: b.status,
-        docs: !!(b.documents?.aadharUrl || b.documents?.licenseUrl)
+        docs: !!(b.documents?.aadharUrl || b.documents?.licenseUrl),
+        aadharUrl: b.documents?.aadharUrl || '',
+        licenseUrl: b.documents?.licenseUrl || ''
       }))
       setBookings(formatted)
     } catch (err) {
@@ -53,6 +55,107 @@ const ManageBookings = () => {
     }
   }
 
+  const exportToExcel = () => {
+    try {
+      let tableHTML = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="utf-8" />
+          <style>
+            table { border-collapse: collapse; font-family: Calibri, sans-serif; }
+            th { background-color: #1F2937; color: #ffffff; font-weight: bold; padding: 10px; height: 30px; text-align: center; border: 1px solid #d1d5db; vertical-align: middle; }
+            td { padding: 10px; text-align: left; vertical-align: middle; height: 35px; border: 1px solid #e5e7eb; }
+            .col-date { width: 120px; mso-number-format: "\\@"; }
+            .col-name { width: 200px; mso-number-format: "\\@"; }
+            .col-phone { width: 130px; mso-number-format: "\\@"; }
+            .col-details { width: 280px; mso-number-format: "\\@"; }
+            .col-tenure { width: 300px; mso-number-format: "\\@"; }
+            .col-amount { width: 140px; mso-number-format: "[$₹-en-IN]\\ #\\,##0"; text-align: left; }
+            .col-status { width: 150px; text-align: center; }
+            .col-doc { width: 120px; text-align: center; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <col class="col-date" />
+            <col class="col-name" />
+            <col class="col-phone" />
+            <col class="col-details" />
+            <col class="col-tenure" />
+            <col class="col-amount" />
+            <col class="col-status" />
+            <col class="col-doc" />
+            <col class="col-doc" />
+            <tr>
+               <th>Booking Date</th>
+               <th>Customer Name</th>
+               <th>Phone Number</th>
+               <th>Booking Details</th>
+               <th>Tenure</th>
+               <th>Amount</th>
+               <th>Status</th>
+               <th>Aadhar</th>
+               <th>License</th>
+            </tr>
+      `;
+
+      bookings.forEach(b => {
+        const date = b.createdAt ? new Date(b.createdAt).toLocaleDateString('en-GB') : '—';
+        const name = (b.customer || '—').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const phone = (b.phone || '—').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const details = `${b.car} (Ref: ${b.refId})`.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        let tenure = b.bookingType === 'bike' 
+          ? `${b.bikeSlot} on ${b.pickup}` 
+          : `${b.days} Days (${b.pickup} ${b.pickupTime ? `at ${b.pickupTime}` : ''} to ${b.ret})`;
+        tenure = tenure.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const amt = b.amount || 0;
+
+        const rawStatus = (b.status || 'pending').toLowerCase();
+        const isConfirmed = rawStatus === 'confirmed' || rawStatus === 'completed';
+        const statusLabel = isConfirmed ? 'Confirmed' : 'Unconfirmed';
+        const statusBg = isConfirmed ? '#dcfce7' : '#fee2e2'; // Light green / Light red
+        const statusColor = isConfirmed ? '#166534' : '#991b1b'; // Dark green / Dark red
+
+        const aadharLink = b.aadharUrl ? `<a href="${b.aadharUrl}" style="color: #2563eb; text-decoration: underline;">View Aadhar</a>` : '—';
+        const licenseLink = b.licenseUrl ? `<a href="${b.licenseUrl}" style="color: #2563eb; text-decoration: underline;">View License</a>` : '—';
+        
+        tableHTML += `
+            <tr>
+              <td>${date}</td>
+              <td>${name}</td>
+              <td>${phone}</td>
+              <td>${details}</td>
+              <td>${tenure}</td>
+              <td class="col-amount">${amt}</td>
+              <td style="background-color: ${statusBg}; color: ${statusColor}; font-weight: bold; text-align: center;">${statusLabel}</td>
+              <td style="text-align: center;">${aadharLink}</td>
+              <td style="text-align: center;">${licenseLink}</td>
+            </tr>
+        `;
+      });
+
+      tableHTML += `
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob([tableHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Journey_Rentals_Bookings_${new Date().toISOString().split('T')[0]}.xls`;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export Error:', err);
+      alert('Failed to export bookings. Please try again.');
+    }
+  }
+
   return (
     <>
       <style>{`
@@ -60,6 +163,9 @@ const ManageBookings = () => {
         .mb-title { font-family: var(--font-display); font-size: 40px; letter-spacing: 0.02em; color: var(--text); line-height: 1; }
         .mb-title span { color: var(--accent); }
         .mb-sub { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+
+        .mb-export-btn { padding: 10px 18px; display: inline-flex; align-items: center; gap: 8px; background: var(--bg-soft); color: var(--text); font-family: var(--font-body); font-weight: 700; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .mb-export-btn:hover { background: var(--accent); color: #0c0c0c; border-color: var(--accent); }
 
         .mb-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
         .mb-filter { padding: 7px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: transparent; border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
@@ -113,6 +219,12 @@ const ManageBookings = () => {
           <div className="mb-title">Manage <span>Bookings</span></div>
           <div className="mb-sub">{loading ? 'Loading...' : `${bookings.length} total bookings · Click any row for details`}</div>
         </div>
+        {!loading && bookings.length > 0 && (
+          <button className="mb-export-btn" onClick={exportToExcel}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export to Excel
+          </button>
+        )}
       </div>
 
       {error && <div style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '16px', marginBottom: '24px', border: '1px solid rgba(239,68,68,0.3)' }}>{error}</div>}
@@ -149,7 +261,7 @@ const ManageBookings = () => {
                   <td style={{ color: 'var(--accent)', fontWeight: 700 }}>{b.refId}</td>
                   <td>{b.customer}</td>
                   <td style={{ color: 'var(--text-muted)' }}>{b.car}</td>
-                  <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{b.pickup}</td>
+                  <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{b.pickup} {b.pickupTime && <span style={{fontSize:'10px', opacity:0.8}}><br/>{b.pickupTime}</span>}</td>
                   <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{b.ret}</td>
                   <td style={{ fontWeight: 700 }}>₹{b.amount.toLocaleString()}</td>
                   <td><span className="mb-badge" style={{ color: st.color, background: st.bg, borderColor: st.border }}>{st.label}</span></td>
@@ -194,7 +306,7 @@ const ManageBookings = () => {
 
               <div className="mb-panel__section">Booking Details</div>
               <div className="mb-panel__row"><span>Car</span><span>{selected.car}</span></div>
-              <div className="mb-panel__row"><span>Pickup</span><span>{selected.pickup}</span></div>
+              <div className="mb-panel__row"><span>Pickup</span><span>{selected.pickup} {selected.pickupTime ? `at ${selected.pickupTime}` : ''}</span></div>
               <div className="mb-panel__row"><span>Return</span><span>{selected.ret}</span></div>
               <div className="mb-panel__row"><span>Duration</span><span>{selected.days} days</span></div>
 

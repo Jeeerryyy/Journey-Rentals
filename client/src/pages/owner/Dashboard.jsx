@@ -83,10 +83,18 @@ const Dashboard = () => {
         .dash-loading { display: flex; align-items: center; justify-content: center; min-height: 300px; font-family: var(--font-display); font-size: 28px; color: var(--accent); }
         .dash-empty { padding: 32px; text-align: center; color: var(--text-muted); font-size: 13px; }
 
-        @media (max-width: 600px) {
-          .dash-header__title { font-size: 30px; }
-          .dash-stats { grid-template-columns: 1fr 1fr; }
-          .dash-stat__value { font-size: 28px; }
+        @media (max-width: 768px) {
+          .dash-header__title { font-size: 28px; line-height: 1.15; }
+          .dash-stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+          .dash-stat { padding: 14px; gap: 8px; }
+          .dash-stat__icon { width: 34px; height: 34px; }
+          .dash-stat__icon svg { width: 18px; height: 18px; }
+          .dash-stat__value { font-size: 24px; }
+          .dash-stat__label { font-size: 9px; }
+          .dash-stat__sub { font-size: 10px; }
+          .dash-section-title { font-size: 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
+          .dash-quick { grid-template-columns: 1fr; }
+          .dash-quick-btn { padding: 16px; flex-direction: row; align-items: center; }
         }
       `}</style>
 

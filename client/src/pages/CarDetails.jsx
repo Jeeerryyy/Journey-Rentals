@@ -36,6 +36,7 @@ const CarDetails = () => {
 
   // Car scheduling state
   const [pickupDate, setPickupDate]     = useState('')
+  const [pickupTime, setPickupTime]     = useState('')
   const [returnDate, setReturnDate]     = useState('')
   const [selectedDays, setSelectedDays] = useState(null)
   const [totalDays, setTotalDays]       = useState(0)
@@ -123,7 +124,7 @@ const CarDetails = () => {
   // Step 1 valid? (includes phone validation)
   const step1Valid = isBike
     ? bikeDate && bikeSlot && validatePhone(phone) && (vehicle?.locations?.length > 0 ? pickupLocation : true)
-    : pickupDate && returnDate && totalDays > 0 && validatePhone(phone) && (vehicle?.locations?.length > 0 ? pickupLocation : true)
+    : pickupDate && pickupTime && returnDate && totalDays > 0 && validatePhone(phone) && (vehicle?.locations?.length > 0 ? pickupLocation : true)
 
   const totalBookingPrice = isBike ? bikePrice : totalPrice
 
@@ -157,6 +158,7 @@ const CarDetails = () => {
         bookingType:    isBike ? 'bike' : 'car',
         pickupLocation,
         pickupDate:     isBike ? bikeDate    : pickupDate,
+        pickupTime:     isBike ? null        : pickupTime,
         returnDate:     isBike ? null        : returnDate,
         totalDays:      isBike ? null        : totalDays,
         bikeDate:       isBike ? bikeDate    : null,
@@ -481,6 +483,8 @@ const CarDetails = () => {
                         <label>Pickup Date</label>
                         <input type="date" min={today} value={pickupDate}
                           onChange={e => { setPickupDate(e.target.value); setSelectedDays(null); if (returnDate && e.target.value >= returnDate) setReturnDate('') }} />
+                        <label>Pickup Time</label>
+                        <input type="time" value={pickupTime} onChange={e => setPickupTime(e.target.value)} style={{ width: '100%', padding: '12px 14px', background: 'var(--bg-soft)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'var(--font-body)', fontSize: '16px', outline: 'none', marginBottom: '16px', boxSizing: 'border-box' }} />
                         <label>Return Date</label>
                         <input type="date" min={pickupDate || today} value={returnDate}
                           onChange={e => { setReturnDate(e.target.value); setSelectedDays(null) }} />
@@ -547,6 +551,7 @@ const CarDetails = () => {
                           <>
                             <div className="booking-summary-row"><span>Rate</span><span>₹{vehicle.pricePerDay?.toLocaleString()} / day</span></div>
                             <div className="booking-summary-row"><span>Duration</span><span>{totalDays} day{totalDays > 1 ? 's' : ''}</span></div>
+                            {pickupTime && <div className="booking-summary-row"><span>Time</span><span>{pickupTime}</span></div>}
                             {pickupLocation && <div className="booking-summary-row"><span>Pickup at</span><span>📍 {pickupLocation}</span></div>}
                             <div className="booking-summary-total"><span>Total</span><span>₹{totalPrice.toLocaleString()}</span></div>
                           </>
@@ -609,7 +614,7 @@ const CarDetails = () => {
                       {isBike
                         ? <div className="booking-summary-row"><span>Date</span><span style={{ color: 'var(--text)' }}>{bikeDate}</span></div>
                         : <>
-                            <div className="booking-summary-row"><span>Pickup</span><span style={{ color: 'var(--text)' }}>{pickupDate}</span></div>
+                            <div className="booking-summary-row"><span>Pickup</span><span style={{ color: 'var(--text)' }}>{pickupDate} {pickupTime ? `at ${pickupTime}` : ''}</span></div>
                             <div className="booking-summary-row"><span>Return</span><span style={{ color: 'var(--text)' }}>{returnDate}</span></div>
                           </>
                       }
@@ -719,7 +724,7 @@ const CarDetails = () => {
                       Your <strong style={{ color: 'var(--text)' }}>{vehicle.brand} {vehicle.model}</strong> is booked for{' '}
                       {isBike
                         ? <><strong style={{ color: 'var(--text)' }}>{BIKE_SLOTS.find(s => s.id === bikeSlot)?.label}</strong> on <strong style={{ color: 'var(--text)' }}>{bikeDate}</strong>.</>
-                        : <>pickup on <strong style={{ color: 'var(--text)' }}>{pickupDate}</strong>, return on <strong style={{ color: 'var(--text)' }}>{returnDate}</strong>.</>
+                        : <>pickup on <strong style={{ color: 'var(--text)' }}>{pickupDate} {pickupTime ? `at ${pickupTime}` : ''}</strong>, return on <strong style={{ color: 'var(--text)' }}>{returnDate}</strong>.</>
                       }
                       {pickupLocation && <><br />Pickup at <strong style={{ color: 'var(--text)' }}>📍 {pickupLocation}</strong>.</>}
                       <br />Advance of <strong style={{ color: 'var(--accent)' }}>₹{Math.min(ADVANCE, totalBookingPrice)}</strong> paid successfully.

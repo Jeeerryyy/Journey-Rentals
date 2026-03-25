@@ -203,7 +203,7 @@ router.put('/profile/avatar', requireAuth, upload.single('avatar'), async (req, 
     const user = await User.findById(req.user.userId)
     if (!user) return res.status(404).json({ error: 'User not found.' })
 
-    const result = await uploadToCloudinary(req.file.buffer, { folder: 'journey-rentals/avatars' })
+    const result = await uploadToCloudinary(req.file.buffer, { folder: 'journey-rentals/profiles' })
     user.avatarUrl = result.secure_url
     await user.save()
 

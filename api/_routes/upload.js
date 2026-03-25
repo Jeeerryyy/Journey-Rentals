@@ -11,7 +11,7 @@ const uploadBase64 = (base64String, fieldname) => {
     cloudinary.uploader.upload(
       base64String,
       {
-        folder:        'journey-rentals/documents',
+        folder:        `journey-rentals/bookings/${new Date().toISOString().split('T')[0]}`,
         public_id:     `${fieldname}_${Date.now()}`,
         resource_type: 'auto'
       },

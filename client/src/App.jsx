@@ -17,6 +17,7 @@ const AddCar = lazy(() => import('./pages/owner/AddCar'))
 const ManageCars = lazy(() => import('./pages/owner/ManageCars'))
 const ManageBookings = lazy(() => import('./pages/owner/ManageBookings'))
 const FleetEditor = lazy(() => import('./pages/owner/FleetEditor'))
+const OwnerProfile = lazy(() => import('./pages/owner/Profile'))
 
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -90,6 +91,7 @@ const AppInner = () => {
             <Route path="manage-cars" element={<ManageCars />} />
             <Route path="manage-bookings" element={<ManageBookings />} />
             <Route path="fleet-editor" element={<FleetEditor />} />
+            <Route path="profile" element={<OwnerProfile />} />
           </Route>
 
           {/* Catch-all 404 → redirect to home */}

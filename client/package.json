@@ -12,6 +12,8 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
     "@vercel/speed-insights": "^2.0.0",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "lightningcss": "^1.32.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
