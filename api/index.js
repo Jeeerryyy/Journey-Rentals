@@ -47,7 +47,7 @@ app.use(compression()) // Gzip all responses
 // SECURITY FIX: Allow both the production Vercel URL and local dev origin
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:5173',
-  'https://journey-henna-omega.vercel.app'
+  'https://journeyrentals.vercel.app'
 ].filter(Boolean)
 
 app.use(cors({
