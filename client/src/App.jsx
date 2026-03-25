@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 
 const Home = lazy(() => import('./pages/Home'))
 const Cars = lazy(() => import('./pages/Cars'))
@@ -103,6 +104,7 @@ const AppInner = () => {
 const App = () => (
   <AuthProvider>
     <AppInner />
+    <SpeedInsights />
   </AuthProvider>
 )
 
