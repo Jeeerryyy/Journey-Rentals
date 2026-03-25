@@ -282,7 +282,7 @@ const CTASection = () => {
                 </svg>
               </span>
             </Link>
-            <a href="tel:+919860333616" className="btn-secondary">
+            <a href="tel:+919604437794" className="btn-secondary">
               <svg className="phone-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M2 2h3l1.5 3.5-1.5 1a8 8 0 003.5 3.5l1-1.5L13 10v3a1 1 0 01-1 1C5.4 13 1 8.6 1 3a1 1 0 011-1z"/>
               </svg>

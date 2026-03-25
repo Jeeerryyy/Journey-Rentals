@@ -25,10 +25,10 @@ const MapPinIcon = () => (
   </svg>
 )
 
-const CONTACT_WHATSAPP = 'https://wa.me/910000000000'
-const CONTACT_PHONE = 'tel:+910000000000'
-const CONTACT_INSTAGRAM = 'https://instagram.com/'
-const CONTACT_MAPS = 'https://maps.google.com/'
+const CONTACT_WHATSAPP = 'https://wa.me/919604437794'
+const CONTACT_PHONE = 'tel:+919604437794'
+const CONTACT_INSTAGRAM = 'https://www.instagram.com/journey_bikes_cars_rental_'
+const CONTACT_MAPS = 'https://maps.app.goo.gl/iPTxydN8fSXKogx1A'
 
 const HelpSupport = () => {
   return (
