@@ -262,7 +262,7 @@ button {
   max-width: 1400px;
   margin: 0 auto;
   background: rgba(12, 12, 12, 0.88);
-  backdrop-filter: blur(40px);
+  backdrop-filter: blur(75px);
   -webkit-backdrop-filter: blur(40px);
   border: 1px solid var(--border);
   padding: 10px 24px;
