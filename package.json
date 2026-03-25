@@ -7,6 +7,6 @@
   ],
   "scripts": {
     "build": "npm run build --prefix client",
-    "vercel-build": "npm install --prefix client && npm install --prefix api && npm run build --prefix client && rm -rf dist && cp -r client/dist dist"
+    "vercel-build": "npm install --prefix client --include=dev && npm install --prefix api && npm run build --prefix client && rm -rf dist && cp -r client/dist dist"
   }
 }
