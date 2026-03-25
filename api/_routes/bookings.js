@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import { connectDB } from '../lib/mongodb.js'
-import Booking from '../lib/models/Booking.js'
-import Vehicle from '../lib/models/Vehicle.js'
-import User from '../lib/models/User.js'
-import FleetSection from '../lib/models/FleetSection.js'
-import { requireAuth } from '../lib/auth.js'
+import { connectDB } from '../_lib/mongodb.js'
+import Booking from '../_lib/models/Booking.js'
+import Vehicle from '../_lib/models/Vehicle.js'
+import User from '../_lib/models/User.js'
+import FleetSection from '../_lib/models/FleetSection.js'
+import { requireAuth } from '../_lib/auth.js'
 
 const router = Router()
 

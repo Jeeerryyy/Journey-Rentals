@@ -1,6 +1,6 @@
 import 'dotenv/config'
-import { connectDB } from './lib/mongodb.js'
-import Vehicle from './lib/models/Vehicle.js'
+import { connectDB } from './_lib/mongodb.js'
+import Vehicle from './_lib/models/Vehicle.js'
 
 const vehicles = [
   // ── CARS ──

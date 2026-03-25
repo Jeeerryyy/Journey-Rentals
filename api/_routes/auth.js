@@ -3,12 +3,12 @@ import bcrypt from 'bcryptjs'
 import passport from 'passport'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import rateLimit from 'express-rate-limit'
-import { connectDB } from '../lib/mongodb.js'
-import User from '../lib/models/User.js'
-import Booking from '../lib/models/Booking.js'
-import { signToken } from '../lib/auth.js'
+import { connectDB } from '../_lib/mongodb.js'
+import User from '../_lib/models/User.js'
+import Booking from '../_lib/models/Booking.js'
+import { signToken } from '../_lib/auth.js'
 import multer from 'multer'
-import { uploadToCloudinary } from '../lib/cloudinary.js'
+import { uploadToCloudinary } from '../_lib/cloudinary.js'
 
 const router = Router()
 const upload = multer({ 
@@ -194,7 +194,7 @@ router.post('/login', authLimiter, async (req, res) => {
 })
 
 // ── PUT /api/auth/profile/avatar ──
-import { requireAuth } from '../lib/auth.js'
+import { requireAuth } from '../_lib/auth.js'
 router.put('/profile/avatar', requireAuth, upload.single('avatar'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No image file provided in the payload.' })

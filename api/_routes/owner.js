@@ -1,11 +1,11 @@
 import { Router } from 'express'
-import cloudinary from '../lib/cloudinary.js'
-import { connectDB } from '../lib/mongodb.js'
-import Booking from '../lib/models/Booking.js'
-import Vehicle from '../lib/models/Vehicle.js'
-import User from '../lib/models/User.js'
-import FleetSection from '../lib/models/FleetSection.js'
-import { requireOwner } from '../lib/auth.js'
+import cloudinary from '../_lib/cloudinary.js'
+import { connectDB } from '../_lib/mongodb.js'
+import Booking from '../_lib/models/Booking.js'
+import Vehicle from '../_lib/models/Vehicle.js'
+import User from '../_lib/models/User.js'
+import FleetSection from '../_lib/models/FleetSection.js'
+import { requireOwner } from '../_lib/auth.js'
 
 const router = Router()
 

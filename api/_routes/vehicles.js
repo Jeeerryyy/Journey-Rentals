@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { connectDB } from '../lib/mongodb.js'
-import Vehicle from '../lib/models/Vehicle.js'
-import FleetSection from '../lib/models/FleetSection.js'
+import { connectDB } from '../_lib/mongodb.js'
+import Vehicle from '../_lib/models/Vehicle.js'
+import FleetSection from '../_lib/models/FleetSection.js'
 
 const router = Router()
 

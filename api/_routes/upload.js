@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import cloudinary from '../lib/cloudinary.js'
-import { requireAuth } from '../lib/auth.js'
+import cloudinary from '../_lib/cloudinary.js'
+import { requireAuth } from '../_lib/auth.js'
 
 const router = Router()
 

@@ -5,13 +5,13 @@ import compression from 'compression'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 import passport from 'passport'
-import { connectDB } from './lib/mongodb.js'
+import { connectDB } from './_lib/mongodb.js'
 
-import authRoutes    from './routes/auth.js'
-import vehicleRoutes from './routes/vehicles.js'
-import bookingRoutes from './routes/bookings.js'
-import uploadRoutes  from './routes/upload.js'
-import ownerRoutes   from './routes/owner.js'
+import authRoutes    from './_routes/auth.js'
+import vehicleRoutes from './_routes/vehicles.js'
+import bookingRoutes from './_routes/bookings.js'
+import uploadRoutes  from './_routes/upload.js'
+import ownerRoutes   from './_routes/owner.js'
 
 const app  = express()
 
