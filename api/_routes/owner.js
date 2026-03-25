@@ -247,6 +247,31 @@ router.delete('/vehicles-item/:id', async (req, res) => {
   }
 })
 
+// ── PATCH /api/owner/vehicles-visibility/:id ──
+// Toggle isAvailable — instantly hides/shows from catalog, fleet section, and booking
+router.patch('/vehicles-visibility/:id', async (req, res) => {
+  try {
+    await connectDB()
+
+    const vehicle = await Vehicle.findById(req.params.id)
+    if (!vehicle) {
+      return res.status(404).json({ error: 'Vehicle not found.' })
+    }
+
+    vehicle.isAvailable = !vehicle.isAvailable
+    await vehicle.save()
+
+    return res.status(200).json({
+      success: true,
+      message: `${vehicle.brand} ${vehicle.model} is now ${vehicle.isAvailable ? 'visible' : 'hidden'}.`,
+      vehicle
+    })
+  } catch (error) {
+    console.error('Vehicle visibility toggle error:', error.message)
+    return res.status(500).json({ error: 'Failed to update vehicle visibility.' })
+  }
+})
+
 // ── GET /api/owner/bookings ──
 router.get('/bookings', async (req, res) => {
   try {

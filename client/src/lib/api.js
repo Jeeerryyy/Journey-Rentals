@@ -106,6 +106,7 @@ export const api = {
     updateVehicle:   (id, body) => request(`/api/owner/vehicles-item/${id}`,     { method: 'PATCH',  body: JSON.stringify(body) }),
     deleteVehicle:   (id)       => request(`/api/owner/vehicles-item/${id}`,     { method: 'DELETE' }),
     uploadImages:    (body)     => request('/api/owner/upload/images',           { method: 'POST',   body: JSON.stringify(body), timeout: 60000 }),
+    toggleVisibility:(id)       => request(`/api/owner/vehicles-visibility/${id}`, { method: 'PATCH' }),
     getFleetSection: ()         => request('/api/owner/fleet-section'),
     updateFleetSection: (body)  => request('/api/owner/fleet-section',           { method: 'PUT',    body: JSON.stringify(body) }),
   },

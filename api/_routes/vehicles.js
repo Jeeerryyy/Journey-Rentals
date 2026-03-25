@@ -1,7 +1,6 @@
 import { Router } from 'express'
 import { connectDB } from '../_lib/mongodb.js'
 import Vehicle from '../_lib/models/Vehicle.js'
-import FleetSection from '../_lib/models/FleetSection.js'
 
 const router = Router()
 
@@ -11,7 +10,7 @@ router.get('/', async (req, res) => {
     await connectDB()
 
     const { type } = req.query
-    const filter = {}
+    const filter = { isAvailable: true }
     if (type && ['car', 'bike'].includes(type)) {
       filter.type = type
     }

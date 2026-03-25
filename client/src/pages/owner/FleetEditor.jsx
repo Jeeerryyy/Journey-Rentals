@@ -19,21 +19,24 @@ const FleetEditor = () => {
   const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
-    const loadSection = async () => {
+    const loadVehicles = async () => {
       try {
-        const data = await api.owner.getFleetSection()
-        if (data.section) {
-          setHeading(data.section.heading || 'Our Fleet')
-          setSubheading(data.section.subheading || 'Best Self-Drive Rentals')
-          setVehicles(data.section.vehicles || [])
-        }
+        // Load from real Vehicle catalog — single source of truth
+        const data = await api.owner.getVehicles()
+        setVehicles((data.vehicles || []).map(v => ({
+          ...v,
+          name: `${v.brand} ${v.model}`,
+          seats: String(v.sittingCapacity || ''),
+          fuel: v.fuelType || '',
+          isVisible: v.isAvailable !== false,
+        })))
       } catch (err) {
         setError(err.message)
       } finally {
         setLoading(false)
       }
     }
-    loadSection()
+    loadVehicles()
   }, [])
 
   const handleSave = async () => {
@@ -131,8 +134,17 @@ const FleetEditor = () => {
     setVehicles(vs => vs.map(v => (v._id || v.tempId) === id ? { ...v, isFeatured: !v.isFeatured } : v))
   }
 
-  const toggleVisible = (id) => {
-    setVehicles(vs => vs.map(v => (v._id || v.tempId) === id ? { ...v, isVisible: !v.isVisible } : v))
+  const toggleVisible = async (id) => {
+    setError(null)
+    try {
+      const data = await api.owner.toggleVisibility(id)
+      // Update local state to reflect the change instantly
+      setVehicles(vs => vs.map(v => v._id === id ? { ...v, isVisible: data.vehicle.isAvailable } : v))
+      setSuccess(data.message)
+      setTimeout(() => setSuccess(null), 2000)
+    } catch (err) {
+      setError('Failed to toggle visibility: ' + err.message)
+    }
   }
 
   // Drag and drop
