@@ -1,4 +1,6 @@
-const BASE_URL = import.meta.env.VITE_API_URL || ''
+let BASE_URL = import.meta.env.VITE_API_URL || ''
+if (BASE_URL.endsWith('/api/')) BASE_URL = BASE_URL.slice(0, -5)
+if (BASE_URL.endsWith('/api')) BASE_URL = BASE_URL.slice(0, -4)
 
 // wrapper for window.fetch that adds auth headers, timeouts, and json parsing
 async function request(endpoint, options = {}) {

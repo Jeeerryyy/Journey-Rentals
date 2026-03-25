@@ -15,7 +15,6 @@ const userSchema = new mongoose.Schema({
   timestamps: true,
 })
 
-userSchema.index({ email: 1 })
 userSchema.index({ googleId: 1 }, { sparse: true })
 
 export default mongoose.models.User || mongoose.model('User', userSchema)
