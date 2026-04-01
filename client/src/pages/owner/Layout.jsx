@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom'
 import { animateThemeToggle } from '../../utils/themeToggle'
 import { useAuth } from '../../context/AuthContext'
+import NotificationToggle from '../../components/owner/NotificationToggle.jsx'
+import BookingPhotoModal from '../../components/owner/BookingPhotoModal.jsx'
 
 const menuItems = [
   { name: 'Dashboard', path: '/owner', icon: (
@@ -25,6 +27,7 @@ const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { owner, ownerLogout } = useAuth()
   const navigate = useNavigate()
+  const [photoModalOpen, setPhotoModalOpen] = useState(false)
 
   const handleLogout = () => {
     ownerLogout()
@@ -216,6 +219,15 @@ const Layout = () => {
                 {item.name}
               </NavLink>
             ))}
+
+            <button 
+              className="owner-nav-link" 
+              style={{ width: '100%', textAlign: 'left', cursor: 'pointer', background: 'none' }}
+              onClick={() => { setPhotoModalOpen(true); setSidebarOpen(false); }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Upload Booking Photo
+            </button>
           </nav>
 
           <div className="owner-sidebar__footer">
@@ -247,6 +259,7 @@ const Layout = () => {
             </button>
             <span className="owner-topbar__title">Journey Rentals</span>
             <div className="owner-topbar__right">
+              <NotificationToggle isNavbar={true} />
               {/* Theme toggle */}
               <button className="owner-theme-toggle" onClick={toggleTheme} title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
                 {theme === 'dark' ? (
@@ -266,6 +279,11 @@ const Layout = () => {
           </div>
         </main>
       </div>
+
+      <BookingPhotoModal 
+        isOpen={photoModalOpen} 
+        onClose={() => setPhotoModalOpen(false)}
+      />
     </>
   )
 }

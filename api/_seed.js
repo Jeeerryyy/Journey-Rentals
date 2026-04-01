@@ -1,4 +1,11 @@
 import 'dotenv/config'
+
+// ── Production guard — never run seed in production ──
+if (process.env.NODE_ENV === 'production') {
+  console.error('❌ Seed script is disabled in production. Aborting.')
+  process.exit(1)
+}
+
 import { connectDB } from './_lib/mongodb.js'
 import Vehicle from './_lib/models/Vehicle.js'
 

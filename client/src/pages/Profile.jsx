@@ -9,7 +9,6 @@ const Profile = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [avatarLoading, setAvatarLoading] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
   const [saveLoading, setSaveLoading] = useState(false)
   
   const [name, setName] = useState(customer?.name || '')
@@ -41,20 +40,6 @@ const Profile = () => {
       setError(err.message || 'Failed to upload profile picture.')
     } finally {
       setAvatarLoading(false)
-    }
-  }
-
-  const handleDeleteAccount = async () => {
-    if (!window.confirm('Are you absolutely sure you want to permanently delete your account? All your booking history will be lost. This cannot be undone.')) return
-    
-    setDeleteLoading(true)
-    try {
-      await api.auth.deleteAccount()
-      customerLogout()
-      navigate('/')
-    } catch (err) {
-      setError(err.message || 'Failed to delete account.')
-      setDeleteLoading(false)
     }
   }
 
@@ -102,8 +87,6 @@ const Profile = () => {
         .btn-accent:hover:not(:disabled) { background: #ffe44d; transform: translateY(-1px); }
         .btn-accent:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; clip-path: none; }
         
-        .danger-zone { margin-top: 32px; padding: 24px; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.02); }
-        
         .error-msg { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 12px; margin-bottom: 16px; font-size: 13px; }
         .success-msg { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; padding: 12px; margin-bottom: 16px; font-size: 13px; }
         .pay-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.2); border-top-color: #0c0c0c; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
@@ -140,7 +123,7 @@ const Profile = () => {
             {customer.name}
           </h2>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
-            {customer.role === 'customer' ? 'MEMBER' : customer.role.toUpperCase()}
+            {customer.role === 'customer' ? 'USER' : customer.role.toUpperCase()}
           </p>
 
           <button 
@@ -200,25 +183,6 @@ const Profile = () => {
               style={{ padding: '14px 24px', fontWeight: 700, fontSize: '11px', letterSpacing: '0.05em', marginTop: '16px' }}
             >
               {saveLoading ? <span className="pay-spinner" style={{ margin: 0 }} /> : 'SAVE CHANGES'}
-            </button>
-          </div>
-
-          <div className="danger-zone">
-            <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-              Danger Zone
-            </h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px', lineHeight: 1.5 }}>
-              Permanently delete your account and clear all associated bookings. This action cannot be undone.
-            </p>
-            <button 
-              onClick={handleDeleteAccount}
-              disabled={deleteLoading}
-              className="btn btn--outline" 
-              style={{ padding: '10px 20px', borderColor: 'rgba(239,68,68,0.3)', color: '#ef4444', fontSize: '12px' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
-            >
-              {deleteLoading ? 'Deleting...' : 'Delete Account'}
             </button>
           </div>
         </div>

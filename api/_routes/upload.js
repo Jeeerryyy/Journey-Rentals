@@ -1,10 +1,17 @@
 import { Router } from 'express'
+import rateLimit from 'express-rate-limit'
 import cloudinary from '../_lib/cloudinary.js'
 import { requireAuth } from '../_lib/auth.js'
 
 const router = Router()
 
-
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  message: { success: false, error: 'Too many upload requests. Please wait before trying again.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
 
 const uploadBase64 = (base64String, fieldname) => {
   return new Promise((resolve, reject) => {
@@ -28,21 +35,21 @@ const MAX_DOC_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_DOC_MIME = /^data:(image\/(jpeg|jpg|png|webp)|application\/pdf);base64,/
 
 // handle document upload
-router.post('/document', requireAuth, async (req, res) => {
+router.post('/document', requireAuth, uploadLimiter, async (req, res) => {
   try {
     const { aadhar, license } = req.body
 
     if (!aadhar || !license) {
-      return res.status(400).json({ error: 'Both aadhar and license are required.' })
+      return res.status(400).json({ success: false, error: 'Both aadhar and license are required.' })
     }
 
     // Validate size and type
     for (const [name, doc] of [['Aadhar', aadhar], ['License', license]]) {
       if (typeof doc !== 'string' || !ALLOWED_DOC_MIME.test(doc)) {
-        return res.status(400).json({ error: `${name}: Invalid format. Accepted: JPEG, PNG, WebP, PDF.` })
+        return res.status(400).json({ success: false, error: `${name}: Invalid format. Accepted: JPEG, PNG, WebP, PDF.` })
       }
       if (doc.length > MAX_DOC_SIZE) {
-        return res.status(400).json({ error: `${name}: File must be under 5MB.` })
+        return res.status(400).json({ success: false, error: `${name}: File must be under 5MB.` })
       }
     }
 
@@ -64,9 +71,9 @@ router.post('/document', requireAuth, async (req, res) => {
         }
       }
     })
-  } catch (error) {
-    console.error('Upload error:', error.message)
-    return res.status(500).json({ error: 'Document upload failed. Please try again.' })
+  } catch (err) {
+    console.error('Upload error:', err.message)
+    return res.status(500).json({ success: false, error: 'Document upload failed. Please try again.' })
   }
 })
 

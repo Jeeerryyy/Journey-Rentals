@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 const Hero = () => {
@@ -53,10 +52,9 @@ const Hero = () => {
                 <div className="hero__stat-label">{stat.label}</div>
               </div>
             ))}
+            </div>
           </div>
-
         </div>
-      </div>
     </section>
   )
 }

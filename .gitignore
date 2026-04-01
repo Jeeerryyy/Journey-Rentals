@@ -1,24 +1,59 @@
+# ═══════════════════════════════════════════════
 # Dependencies
+# ═══════════════════════════════════════════════
 node_modules/
 
-# Environment files
+# ═══════════════════════════════════════════════
+# Environment & Secrets
+# ═══════════════════════════════════════════════
 .env
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+!.env.example
 
-# Build outputs
+# ═══════════════════════════════════════════════
+# Build Outputs
+# ═══════════════════════════════════════════════
 dist/
+build/
+.output/
+.cache/
 
-# Vercel
+# ═══════════════════════════════════════════════
+# Vercel & Render
+# ═══════════════════════════════════════════════
 .vercel/
+.render/
 
+# ═══════════════════════════════════════════════
 # Logs
+# ═══════════════════════════════════════════════
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+build.log
+lint.json
 
-# OS files
+# ═══════════════════════════════════════════════
+# OS Generated Files
+# ═══════════════════════════════════════════════
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# Editor directories
+# ═══════════════════════════════════════════════
+# Editor & IDE
+# ═══════════════════════════════════════════════
 .vscode/
 .idea/
 *.suo
@@ -26,3 +61,38 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+*~
+
+# ═══════════════════════════════════════════════
+# Temporary & Debug Files
+# ═══════════════════════════════════════════════
+*.tmp
+*.bak
+*.orig
+*.seed.js.tmp
+file_map.txt
+project_analysis_report.md
+
+# ═══════════════════════════════════════════════
+# Package Lock (keep only root + subdirectory)
+# Uncomment if you prefer not to track lock files
+# ═══════════════════════════════════════════════
+# package-lock.json
+
+# ═══════════════════════════════════════════════
+# Coverage & Testing
+# ═══════════════════════════════════════════════
+coverage/
+.nyc_output/
+*.lcov
+
+# ═══════════════════════════════════════════════
+# Misc
+# ═══════════════════════════════════════════════
+RESOURCES/
+AUDIT_REPORT.md
+CHANGELOG.md
+HOSTING_GUIDE.md
+MIGRATION.md

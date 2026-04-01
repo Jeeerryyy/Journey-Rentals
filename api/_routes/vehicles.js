@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import { connectDB } from '../_lib/mongodb.js'
 import Vehicle from '../_lib/models/Vehicle.js'
+import FleetSection from '../_lib/models/FleetSection.js'
 
 const router = Router()
 
-// fetch all vehicles
+// fetch all available vehicles
 router.get('/', async (req, res) => {
   try {
     await connectDB()
@@ -23,10 +24,10 @@ router.get('/', async (req, res) => {
 
     res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
 
-    return res.status(200).json({ vehicles: dbVehicles })
+    return res.status(200).json({ success: true, vehicles: dbVehicles })
   } catch (err) {
-    console.error('vehicles/index error:', err)
-    return res.status(500).json({ error: 'Failed to fetch vehicles.' })
+    console.error('vehicles/index error:', err.message)
+    return res.status(500).json({ success: false, error: 'Failed to fetch vehicles.' })
   }
 })
 
@@ -36,16 +37,16 @@ router.get('/fleet-section', async (req, res) => {
     await connectDB()
     let section = await FleetSection.findOne().lean()
     if (!section) {
-      return res.status(200).json({ section: { heading: 'Our Fleet', subheading: 'Best Self-Drive Rentals', vehicles: [] } })
+      return res.status(200).json({ success: true, section: { heading: 'Our Fleet', subheading: 'Best Self-Drive Rentals', vehicles: [] } })
     }
     section.vehicles = (section.vehicles || [])
       .filter(v => v.isVisible)
       .sort((a, b) => a.order - b.order)
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
-    return res.status(200).json({ section })
+    return res.status(200).json({ success: true, section })
   } catch (err) {
-    console.error('fleet-section error:', err)
-    return res.status(500).json({ error: 'Failed to fetch fleet section.' })
+    console.error('fleet-section error:', err.message)
+    return res.status(500).json({ success: false, error: 'Failed to fetch fleet section.' })
   }
 })
 
@@ -57,16 +58,13 @@ router.get('/:id', async (req, res) => {
     const vehicle = await Vehicle.findById(req.params.id).select('-__v').lean()
 
     if (!vehicle) {
-      return res.status(404).json({ error: 'Vehicle not found.' })
+      return res.status(404).json({ success: false, error: 'Vehicle not found.' })
     }
 
-    return res.status(200).json({
-      success: true,
-      vehicle
-    })
-  } catch (error) {
-    console.error('Get vehicle error:', error)
-    return res.status(500).json({ error: 'Failed to fetch vehicle.' })
+    return res.status(200).json({ success: true, vehicle })
+  } catch (err) {
+    console.error('Get vehicle error:', err.message)
+    return res.status(500).json({ success: false, error: 'Failed to fetch vehicle.' })
   }
 })
 

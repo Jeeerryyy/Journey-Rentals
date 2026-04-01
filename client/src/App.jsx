@@ -1,37 +1,63 @@
-import { Suspense, lazy } from 'react'
+import React, { Suspense, lazy } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 
-const Home = lazy(() => import('./pages/Home'))
-const Cars = lazy(() => import('./pages/Cars'))
-const CarDetails = lazy(() => import('./pages/CarDetails'))
-const Account = lazy(() => import('./pages/MyBookings'))
-const Login = lazy(() => import('./pages/Login'))
-const HelpSupport = lazy(() => import('./pages/HelpSupport'))
+const Home             = lazy(() => import('./pages/Home'))
+const Cars             = lazy(() => import('./pages/Cars'))
+const CarDetails       = lazy(() => import('./pages/CarDetails'))
+const Account          = lazy(() => import('./pages/MyBookings'))
+const Login            = lazy(() => import('./pages/Login'))
+const OTPVerification  = lazy(() => import('./pages/OTPVerification'))
+const HelpSupport      = lazy(() => import('./pages/HelpSupport'))
+const NotFound         = lazy(() => import('./pages/NotFound'))
 
-const OwnerLogin = lazy(() => import('./pages/owner/OwnerLogin'))
-const Layout = lazy(() => import('./pages/owner/Layout'))
-const Dashboard = lazy(() => import('./pages/owner/Dashboard'))
-const AddCar = lazy(() => import('./pages/owner/AddCar'))
-const ManageCars = lazy(() => import('./pages/owner/ManageCars'))
-const ManageBookings = lazy(() => import('./pages/owner/ManageBookings'))
-const FleetEditor = lazy(() => import('./pages/owner/FleetEditor'))
-const OwnerProfile = lazy(() => import('./pages/owner/Profile'))
+const OwnerLogin       = lazy(() => import('./pages/owner/OwnerLogin'))
+const Layout           = lazy(() => import('./pages/owner/Layout'))
+const Dashboard        = lazy(() => import('./pages/owner/Dashboard'))
+const AddCar           = lazy(() => import('./pages/owner/AddCar'))
+const ManageCars       = lazy(() => import('./pages/owner/ManageCars'))
+const ManageBookings   = lazy(() => import('./pages/owner/ManageBookings'))
+const FleetEditor      = lazy(() => import('./pages/owner/FleetEditor'))
+const OwnerProfile     = lazy(() => import('./pages/owner/Profile'))
 
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+
+// ── Error Boundary ──
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('Crash caught by ErrorBoundary:', error, errorInfo)
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0a0a', color: '#fff', fontFamily: 'var(--font-display, "Syne", sans-serif)', padding: '24px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '12px', letterSpacing: '0.04em' }}>Oops, something broke</h1>
+          <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '32px', maxWidth: '400px', lineHeight: 1.6 }}>We ran into an unexpected issue. Refreshing the page usually fixes it.</p>
+          <button onClick={() => window.location.reload()} style={{ padding: '14px 28px', background: '#ffd200', color: '#111', border: 'none', fontWeight: 700, cursor: 'pointer', borderRadius: '4px', fontSize: '14px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            Refresh page
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 // Protect customer-only routes
 const CustomerRoute = ({ children }) => {
   const { customer, isLoaded } = useAuth()
   const location = useLocation()
 
-  if (!isLoaded) return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '0.1em' }}>
-      LOADING...
-    </div>
-  )
+  if (!isLoaded) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '0.1em' }}>LOADING...</div>
   if (!customer) return <Navigate to="/login" state={{ from: location.pathname }} replace />
   return children
 }
@@ -43,7 +69,6 @@ const OwnerRoute = ({ children }) => {
   return children
 }
 
-// Redirect already-authenticated users away from login pages
 const GuestRoute = ({ children }) => {
   const { customer, isLoaded } = useAuth()
   if (!isLoaded) return null
@@ -60,31 +85,21 @@ const GuestOwnerRoute = ({ children }) => {
 const AppInner = () => {
   const location = useLocation()
   const isOwnerPath = location.pathname.startsWith('/owner')
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/owner-login'
+  const isAuthPage = ['/login', '/owner-login', '/verify-otp'].includes(location.pathname)
 
   return (
     <div>
       {!isOwnerPath && !isAuthPage && <Navbar />}
-      <Suspense fallback={
-        <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '0.1em' }}>
-          LOADING...
-        </div>
-      }>
+      <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>LOADING...</div>}>
         <Routes>
-          {/* Public */}
           <Route path="/" element={<Home />} />
           <Route path="/cars" element={<Cars />} />
           <Route path="/car-details/:id" element={<CarDetails />} />
           <Route path="/support" element={<HelpSupport />} />
-
-          {/* Auth (guest only — redirect logged-in users) */}
           <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+          <Route path="/verify-otp" element={<OTPVerification />} />
           <Route path="/owner-login" element={<GuestOwnerRoute><OwnerLogin /></GuestOwnerRoute>} />
-
-          {/* Customer protected */}
           <Route path="/account" element={<CustomerRoute><Account /></CustomerRoute>} />
-
-          {/* Owner protected */}
           <Route path="/owner" element={<OwnerRoute><Layout /></OwnerRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="add-car" element={<AddCar />} />
@@ -93,9 +108,7 @@ const AppInner = () => {
             <Route path="fleet-editor" element={<FleetEditor />} />
             <Route path="profile" element={<OwnerProfile />} />
           </Route>
-
-          {/* Catch-all 404 → redirect to home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
       {!isOwnerPath && !isAuthPage && <Footer />}
@@ -104,10 +117,12 @@ const AppInner = () => {
 }
 
 const App = () => (
-  <AuthProvider>
-    <AppInner />
-    <SpeedInsights />
-  </AuthProvider>
+  <ErrorBoundary>
+    <AuthProvider>
+      <AppInner />
+      <SpeedInsights />
+    </AuthProvider>
+  </ErrorBoundary>
 )
 
 export default App

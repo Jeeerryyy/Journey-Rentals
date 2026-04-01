@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import rateLimit from 'express-rate-limit'
 import cloudinary from '../_lib/cloudinary.js'
 import { connectDB } from '../_lib/mongodb.js'
 import Booking from '../_lib/models/Booking.js'
@@ -31,26 +32,35 @@ const uploadBase64 = (base64String, folder) => {
   })
 }
 
+// ── Rate limiter for image uploads ──
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { success: false, error: 'Too many upload requests. Please wait before trying again.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
 // ── POST /api/owner/upload/images ──
 const MAX_IMAGES = 10
 const MAX_BASE64_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_IMAGE_MIME = /^data:image\/(jpeg|jpg|png|webp|gif);base64,/
 
-router.post('/upload/images', async (req, res) => {
+router.post('/upload/images', uploadLimiter, async (req, res) => {
   try {
     const { images } = req.body
     if (!images || !Array.isArray(images) || images.length === 0) {
-      return res.status(400).json({ error: 'Array of images is required.' })
+      return res.status(400).json({ success: false, error: 'Array of images is required.' })
     }
     if (images.length > MAX_IMAGES) {
-      return res.status(400).json({ error: `Maximum ${MAX_IMAGES} images allowed per upload.` })
+      return res.status(400).json({ success: false, error: `Maximum ${MAX_IMAGES} images allowed per upload.` })
     }
     for (const img of images) {
       if (typeof img !== 'string' || !ALLOWED_IMAGE_MIME.test(img)) {
-        return res.status(400).json({ error: 'Invalid image format. Accepted: JPEG, PNG, WebP, GIF.' })
+        return res.status(400).json({ success: false, error: 'Invalid image format. Accepted: JPEG, PNG, WebP, GIF.' })
       }
       if (img.length > MAX_BASE64_SIZE) {
-        return res.status(400).json({ error: 'Each image must be under 5MB.' })
+        return res.status(400).json({ success: false, error: 'Each image must be under 5MB.' })
       }
     }
 
@@ -59,9 +69,9 @@ router.post('/upload/images', async (req, res) => {
     const urls = results.map(r => r.secure_url)
 
     return res.status(200).json({ success: true, urls })
-  } catch (error) {
-    console.error('Owner multi-image upload error:', error.message)
-    return res.status(500).json({ error: 'Image upload failed. Please try again.' })
+  } catch (err) {
+    console.error('Owner multi-image upload error:', err.message)
+    return res.status(500).json({ success: false, error: 'Image upload failed. Please try again.' })
   }
 })
 
@@ -82,7 +92,7 @@ router.get('/dashboard', async (req, res) => {
       recentBookings,
       revenue
     ] = await Promise.all([
-      Booking.countDocuments(),
+      Booking.countDocuments({ status: { $ne: 'pending' } }),
       Booking.countDocuments({ status: 'pending' }),
       Booking.countDocuments({ status: 'confirmed' }),
       Booking.countDocuments({ status: 'completed' }),
@@ -90,7 +100,7 @@ router.get('/dashboard', async (req, res) => {
       Vehicle.countDocuments(),
       Vehicle.countDocuments({ isAvailable: true }),
       User.countDocuments({ role: 'customer' }),
-      Booking.find()
+      Booking.find({ status: { $ne: 'pending' } })
         .sort({ createdAt: -1 })
         .limit(5)
         .select('referenceId vehicleSnapshot userSnapshot status totalPrice createdAt'),
@@ -272,33 +282,68 @@ router.patch('/vehicles-visibility/:id', async (req, res) => {
   }
 })
 
-// ── GET /api/owner/bookings ──
+// ── GET /api/owner/bookings (cursor-based pagination) ──
 router.get('/bookings', async (req, res) => {
   try {
     await connectDB()
 
-    const { status, page = 1, limit = 20 } = req.query
-    const filter = status ? { status } : {}
-    const skip   = (page - 1) * limit
+    const { status, cursor, limit = 20 } = req.query
+    const pageLimit = Math.min(Number(limit) || 20, 100)
+    const filter = { status: { $ne: 'pending' } }
+
+    if (status && ['confirmed', 'completed', 'cancelled'].includes(status)) {
+      filter.status = status
+    }
+
+    // Cursor-based: fetch documents older than the cursor _id
+    if (cursor) {
+      filter._id = { $lt: cursor }
+    }
 
     const [bookings, total] = await Promise.all([
       Booking.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(Number(limit)),
-      Booking.countDocuments(filter)
+        .sort({ _id: -1 })
+        .limit(pageLimit + 1) // fetch one extra to check if there's a next page
+        .select('-__v')
+        .lean(),
+      Booking.countDocuments(status && status !== 'pending' ? { status } : { status: { $ne: 'pending' } }),
     ])
+
+    const hasMore = bookings.length > pageLimit
+    if (hasMore) bookings.pop() // remove the extra
+
+    const nextCursor = hasMore ? bookings[bookings.length - 1]._id : null
 
     return res.status(200).json({
       success: true,
       total,
-      page:    Number(page),
-      pages:   Math.ceil(total / limit),
-      bookings
+      bookings,
+      nextCursor,
+      hasMore,
     })
+  } catch (err) {
+    console.error('Owner bookings error:', err.message)
+    return res.status(500).json({ success: false, error: 'Failed to fetch bookings.' })
+  }
+})
+
+// ── GET /api/owner/bookings/search/:refId ──
+router.get('/bookings/search/:refId', async (req, res) => {
+  try {
+    await connectDB()
+    const refId = req.params.refId
+    // Sanitize: only allow alphanumeric reference IDs (JR12345678 format)
+    if (!refId || !/^[A-Za-z0-9]{1,20}$/.test(refId)) {
+      return res.status(400).json({ success: false, error: 'Invalid booking reference.' })
+    }
+    const booking = await Booking.findOne({ referenceId: { $regex: `^${refId}$`, $options: 'i' } })
+    if (!booking) {
+      return res.status(404).json({ success: false, error: 'Booking not found.' })
+    }
+    return res.status(200).json({ success: true, booking })
   } catch (error) {
-    console.error('Owner bookings error:', error.message)
-    return res.status(500).json({ error: 'Failed to fetch bookings.' })
+    console.error('Search booking error:', error.message)
+    return res.status(500).json({ error: 'Failed to search booking.' })
   }
 })
 
@@ -347,6 +392,73 @@ router.patch('/bookings/:id', async (req, res) => {
   } catch (error) {
     console.error('Update booking error:', error.message)
     return res.status(500).json({ error: 'Failed to update booking.' })
+  }
+})
+
+// ── POST /api/owner/bookings/:id/photo ──
+router.post('/bookings/:id/photo', uploadLimiter, async (req, res) => {
+  try {
+    const { image } = req.body
+    if (!image) {
+      return res.status(400).json({ success: false, error: 'Image is required.' })
+    }
+
+    if (typeof image !== 'string' || !ALLOWED_IMAGE_MIME.test(image)) {
+      return res.status(400).json({ success: false, error: 'Invalid image format.' })
+    }
+
+    await connectDB()
+    const booking = await Booking.findById(req.params.id)
+    if (!booking) {
+      return res.status(404).json({ success: false, error: 'Booking not found.' })
+    }
+
+    const filePrefix = `booking_${booking.referenceId}_${Date.now()}`
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload(
+        image,
+        {
+          folder: 'journey-rentals/admin-attachments',
+          public_id: filePrefix,
+          resource_type: 'auto'
+        },
+        (error, res) => {
+          if (error) reject(error)
+          else resolve(res)
+        }
+      )
+    })
+
+    booking.adminPhotoWithVehicleUrl = result.secure_url
+    await booking.save()
+
+    return res.status(200).json({
+      success: true,
+      message: 'Photo attached to booking.',
+      url: result.secure_url
+    })
+  } catch (err) {
+    console.error('Booking photo upload error:', err.message)
+    return res.status(500).json({ success: false, error: 'Failed to upload photo.' })
+  }
+})
+
+// ── DELETE /api/owner/bookings/:id/photo ──
+router.delete('/bookings/:id/photo', async (req, res) => {
+  try {
+    await connectDB()
+    const booking = await Booking.findById(req.params.id)
+    if (!booking) {
+      return res.status(404).json({ success: false, error: 'Booking not found.' })
+    }
+
+    booking.adminPhotoWithVehicleUrl = undefined
+    await booking.save()
+
+    return res.status(200).json({ success: true, message: 'Photo removed from booking.' })
+  } catch (err) {
+    console.error('Booking photo delete error:', err.message)
+    return res.status(500).json({ success: false, error: 'Failed to delete photo.' })
   }
 })
 

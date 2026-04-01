@@ -10,7 +10,11 @@ const ManageCars = () => {
   const [error, setError] = useState(null)
   const [deleteId, setDeleteId] = useState(null)
   const [editId, setEditId] = useState(null)
+  const [editType, setEditType] = useState('car')
   const [editPrice, setEditPrice] = useState('')
+  const [editBikePrice3hr, setEditBikePrice3hr] = useState('')
+  const [editBikePrice6hr, setEditBikePrice6hr] = useState('')
+  const [editBikePrice12hr, setEditBikePrice12hr] = useState('')
   const [editAvail, setEditAvail] = useState(true)
   const [editLocations, setEditLocations] = useState([])
   const [newLocation, setNewLocation] = useState('')
@@ -42,7 +46,11 @@ const ManageCars = () => {
 
   const openEdit = (car) => {
     setEditId(car._id)
-    setEditPrice(car.pricePerDay)
+    setEditType(car.type)
+    setEditPrice(car.pricePerDay || '')
+    setEditBikePrice3hr(car.bikeSlots?.price3hr || '')
+    setEditBikePrice6hr(car.bikeSlots?.price6hr || '')
+    setEditBikePrice12hr(car.bikeSlots?.price12hr || '')
     setEditAvail(car.isAvailable)
     setEditLocations(car.locations || [])
     setNewLocation('')
@@ -65,9 +73,17 @@ const ManageCars = () => {
   const saveEdit = async () => {
     try {
       const payload = {
-        pricePerDay: Number(editPrice),
         isAvailable: editAvail,
         locations: editLocations
+      }
+      if (editType === 'car') {
+        payload.pricePerDay = Number(editPrice)
+      } else {
+        payload.bikeSlots = {
+          price3hr: Number(editBikePrice3hr),
+          price6hr: Number(editBikePrice6hr),
+          price12hr: Number(editBikePrice12hr)
+        }
       }
       await api.owner.updateVehicle(editId, payload)
       setCars(prev => prev.map(c => c._id === editId ? { ...c, ...payload } : c))
@@ -176,8 +192,8 @@ const ManageCars = () => {
               <div className="mc-card__meta">{car.year} · {car.category} · {car.fuelType} · {car.transmission}</div>
               <div className="mc-card__row">
                 <div className="mc-card__price">
-                  {car.type === 'bike' && car.bikeSlots 
-                    ? `₹${car.bikeSlots.price12hr.toLocaleString()}`
+                  {car.type === 'bike'
+                    ? `₹${(car.bikeSlots?.price12hr || 400).toLocaleString()}`
                     : `₹${(car.pricePerDay || 0).toLocaleString()}`}
                   <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--text-muted)' }}>
                     {car.type === 'bike' ? '/12hrs' : '/day'}
@@ -205,10 +221,29 @@ const ManageCars = () => {
       {editId && (
         <div className="mc-modal-overlay" onClick={() => setEditId(null)}>
           <div className="mc-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div className="mc-modal__title">Edit Car</div>
+            <div className="mc-modal__title">Edit {editType === 'bike' ? 'Bike' : 'Car'}</div>
 
-            <label className="mc-modal__label">Price Per Day (₹)</label>
-            <input className="mc-modal__input" type="number" value={editPrice} onChange={e => setEditPrice(e.target.value)} />
+            {editType === 'car' ? (
+              <>
+                <label className="mc-modal__label">Price Per Day (₹)</label>
+                <input className="mc-modal__input" type="number" value={editPrice} onChange={e => setEditPrice(e.target.value)} />
+              </>
+            ) : (
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                <div style={{ flex: 1 }}>
+                  <label className="mc-modal__label">3 Hrs (₹)</label>
+                  <input className="mc-modal__input" style={{ marginBottom: 0 }} type="number" value={editBikePrice3hr} onChange={e => setEditBikePrice3hr(e.target.value)} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="mc-modal__label">6 Hrs (₹)</label>
+                  <input className="mc-modal__input" style={{ marginBottom: 0 }} type="number" value={editBikePrice6hr} onChange={e => setEditBikePrice6hr(e.target.value)} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="mc-modal__label">12 Hrs (₹)</label>
+                  <input className="mc-modal__input" style={{ marginBottom: 0 }} type="number" value={editBikePrice12hr} onChange={e => setEditBikePrice12hr(e.target.value)} />
+                </div>
+              </div>
+            )}
 
             <label className="mc-modal__label" style={{ marginBottom: '10px' }}>Pickup Locations</label>
             <div className="mc-loc-chips">

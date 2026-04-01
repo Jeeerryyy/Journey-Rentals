@@ -1,443 +1,252 @@
-<div align="center">
-  <h1>🚗 JourneyRentals</h1>
-  <p>A full-stack self-drive vehicle rental web application for cars & bikes — Solapur, India.</p>
-  <img src="https://img.shields.io/badge/React-19-blue?logo=react" />
-  <img src="https://img.shields.io/badge/Vite-7-purple?logo=vite" />
-  <img src="https://img.shields.io/badge/Node.js-Express-green?logo=node.js" />
-  <img src="https://img.shields.io/badge/MongoDB-Atlas-brightgreen?logo=mongodb" />
-  <img src="https://img.shields.io/badge/Deployed_on-Vercel-black?logo=vercel" />
-</div>
+<p align="center">
+  <img src="favicon.svg" width="64" height="64" alt="Journey Rentals Logo" />
+</p>
+
+<h1 align="center">Journey Rentals</h1>
+
+<p align="center">
+  <strong>A premium self-drive car & bike rental platform built for the Indian market.</strong><br/>
+  Real payments · OTP verification · Owner dashboard · WhatsApp notifications
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React 19" />
+  <img src="https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white" alt="Express 5" />
+  <img src="https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Razorpay-Live-0066FF?logo=razorpay&logoColor=white" alt="Razorpay" />
+  <img src="https://img.shields.io/badge/Cloudinary-Storage-3448C5?logo=cloudinary&logoColor=white" alt="Cloudinary" />
+  <img src="https://img.shields.io/badge/Deployed-Vercel%20%2B%20Render-black?logo=vercel&logoColor=white" alt="Deployed" />
+</p>
 
 ---
 
-## 📋 Table of Contents
+## What is Journey Rentals?
 
-- [Architecture](#-architecture)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Quick Start (Local Dev)](#-quick-start-local-dev)
-- [Environment Variables](#-environment-variables)
-- [Google OAuth Setup](#-google-oauth-setup)
-- [API Reference](#-api-reference)
-- [Security](#-security)
-- [Deploy to Vercel](#-deploy-to-vercel)
-- [Custom Domain Setup](#-custom-domain-setup)
+Journey Rentals is a full-stack vehicle rental platform where customers can browse, book, and pay for cars and bikes online. The platform handles the entire lifecycle — from vehicle discovery and document upload to Razorpay-powered payments and real-time owner notifications via email, WhatsApp, and push.
+
+Built as a production-grade SaaS for a real rental business operating in India, it handles both **car bookings** (multi-day with pickup/return dates) and **bike bookings** (hourly slots: 3hr, 6hr, 12hr).
 
 ---
 
-## 🏗️ Architecture
+## Core Features
 
-Everything runs on **one Vercel project** — no separate backend hosting needed.
+### For Customers
+- **Browse & Filter** — Full vehicle catalog with type filtering (car/bike) and detailed vehicle pages with image galleries
+- **Secure Booking Flow** — Multi-step checkout with document upload (Aadhar + License), automatic pricing, and Razorpay payment gateway
+- **Email OTP Verification** — Cryptographically secure 6-digit OTP with bcrypt hashing, 10-minute expiry, and rate limiting
+- **Google OAuth** — One-tap sign-in via Google with automatic account linking
+- **My Bookings** — Track booking status, view details, download invoices as Excel, and cancel active bookings
+- **Profile Management** — Update name, email, profile picture (Cloudinary-stored), and delete account
 
-```
-┌──────────────────────────────────────────────┐
-│              Vercel (Single Project)          │
-│                                              │
-│   journeyrentals.in/*     → React SPA        │
-│   journeyrentals.in/api/* → Express (Serverless)
-│                                              │
-└──────────────┬───────────────────────────────┘
-               │
-         ┌─────┴─────┐
-         ▼           ▼
-    MongoDB       Cloudinary
-    Atlas          (Images)
-```
-
-- **Frontend** (React + Vite) → Built as static files, served from Vercel's CDN
-- **Backend** (Express) → Runs as a Vercel Serverless Function at `/api/*`
-- **No cold starts** — Vercel serverless functions boot in ~200ms (vs Render's ~30s)
+### For the Business Owner
+- **Owner Dashboard** — Live stats: total bookings, revenue, vehicle count, recent activity, and time-aware greetings
+- **Vehicle Management** — Add/edit/delete vehicles with multi-image upload, dynamic pricing per bike slot, toggle availability
+- **Booking Management** — View all bookings with cursor-based pagination, filter by status, search by reference ID, update status, attach pickup photos
+- **Fleet Section Editor** — Drag-and-sort homepage fleet showcase with visibility toggles and live preview
+- **Real-time Notifications** — Push notifications (Web Push API), email alerts, and WhatsApp messages on every new booking
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Frontend (`client/`)
-
-| Layer | Technology | Purpose |
-|---|---|---|
-| Framework | React 19 | Component-based UI |
-| Build Tool | Vite 7 | Fast HMR, dev proxy to backend |
-| Styling | Tailwind CSS v4 + Vanilla CSS | Utility + custom design system |
-| Routing | React Router v7 | SPA routing, protected routes |
-| Auth State | Custom AuthContext | JWT in localStorage |
-| HTTP Client | Custom `api.js` | Fetch + AbortController 10s timeout |
-| Carousel | Swiper.js | 3D fleet carousel on homepage |
-| Fonts | Bebas Neue + Syne | Google Fonts |
-
-### Backend (`api/`)
-
-| Layer | Technology | Purpose |
-|---|---|---|
-| Runtime | Node.js (ESM) | Vercel Serverless Function |
-| Framework | Express.js | REST API routing and middleware |
-| Auth | JSON Web Tokens | 7-day signed tokens |
-| OAuth | Passport.js + Google OAuth 2.0 | Google login |
-| Password | bcryptjs (10 salt rounds) | Password hashing |
-| Security | Helmet + express-rate-limit | HTTP headers, brute-force protection |
-| Images | Cloudinary | Base64 upload → CDN URLs |
-
-### Database
-
-| Service | Details |
+| Layer | Technology |
 |---|---|
-| MongoDB Atlas (Free) | Mongoose ODM, connection pooling via global cache |
-| Cloudinary (Free) | Vehicle images, documents, avatars |
-| Google Cloud | OAuth 2.0 credentials |
+| **Frontend** | React 19, Vite 7, Tailwind CSS 4, React Router 7, Swiper |
+| **Backend** | Node.js, Express 5 (ES Modules) |
+| **Database** | MongoDB Atlas (Mongoose 9) |
+| **Auth** | JWT (httpOnly cookies), Google OAuth 2.0, bcrypt, OTP with TTL |
+| **Payments** | Razorpay (Live mode, HMAC-SHA256 signature verification) |
+| **Storage** | Cloudinary (vehicle images, profile pics, booking documents) |
+| **Email** | Nodemailer (Gmail SMTP with App Passwords) |
+| **Messaging** | Meta WhatsApp Cloud API, Web Push (VAPID) |
+| **Security** | Helmet, CORS, rate limiting, mongo-sanitize, express-validator |
+| **Deployment** | Vercel (frontend) + Render (backend) |
 
 ---
 
-## 📁 Project Structure
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     VERCEL (Frontend)                       │
+│  React 19 + Vite + Tailwind CSS                            │
+│  SPA with lazy-loaded routes, ErrorBoundary, AuthContext    │
+└────────────────────────┬────────────────────────────────────┘
+                         │  HTTPS (credentials: include)
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     RENDER (Backend)                        │
+│  Express 5 API Server                                      │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌───────────────┐  │
+│  │  Helmet  │ │  CORS    │ │  Rate    │ │  Mongo        │  │
+│  │ (headers)│ │ (strict) │ │  Limiter │ │  Sanitize     │  │
+│  └──────────┘ └──────────┘ └──────────┘ └───────────────┘  │
+│                                                             │
+│  Routes: /api/auth · /api/vehicles · /api/bookings          │
+│          /api/upload · /api/owner · /api/notifications       │
+└────┬──────────┬──────────────┬──────────────┬───────────────┘
+     │          │              │              │
+     ▼          ▼              ▼              ▼
+  MongoDB   Cloudinary     Razorpay     Gmail SMTP
+   Atlas    (images)      (payments)    + WhatsApp API
+```
+
+---
+
+## Security
+
+This project implements several production security measures:
+
+- **httpOnly Cookies** — JWT tokens are never exposed to JavaScript. Stored in httpOnly, Secure, SameSite cookies
+- **Helmet** — Full security header suite including CSP, X-Frame-Options, X-Content-Type-Options
+- **Rate Limiting** — Global limiter (300/15min) plus targeted limiters on auth and upload routes
+- **NoSQL Injection Protection** — `express-mongo-sanitize` strips `$` operators from request bodies
+- **Input Validation** — `express-validator` on all auth and booking endpoints with schema-level validation
+- **Timing-Safe Comparison** — Owner credential checks use `crypto.timingSafeEqual` to prevent timing attacks
+- **OTP Security** — OTPs are bcrypt-hashed before storage with automatic TTL expiry (10 minutes)
+- **CORS** — Strict origin policy, only the production frontend URL is allowed
+- **Password Hashing** — bcrypt with cost factor 12
+- **File Validation** — MIME type whitelisting and size limits on all upload endpoints
+
+---
+
+## API Endpoints
+
+### Public
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/healthz` | Health check |
+| `GET` | `/api/vehicles` | List available vehicles |
+| `GET` | `/api/vehicles/:id` | Vehicle details |
+| `GET` | `/api/vehicles/fleet-section` | Homepage fleet data |
+
+### Auth (Rate Limited)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/auth/signup` | Register + send OTP |
+| `POST` | `/api/auth/verify-otp` | Verify email OTP |
+| `POST` | `/api/auth/resend-otp` | Resend OTP |
+| `POST` | `/api/auth/login` | Login (cookie issued) |
+| `POST` | `/api/auth/logout` | Logout (cookie cleared) |
+| `GET` | `/api/auth/google` | Google OAuth initiate |
+| `GET` | `/api/auth/google/callback` | Google OAuth callback |
+| `POST` | `/api/auth/owner-login` | Owner login |
+| `POST` | `/api/auth/owner-logout` | Owner logout |
+
+### Protected (Requires Auth)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/auth/me` | Get current user |
+| `PUT` | `/api/auth/profile` | Update profile |
+| `PUT` | `/api/auth/profile/avatar` | Upload avatar |
+| `DELETE` | `/api/auth/profile` | Delete account |
+| `POST` | `/api/bookings/create-order` | Create booking + Razorpay order |
+| `POST` | `/api/bookings/verify-payment` | Verify Razorpay signature |
+| `GET` | `/api/bookings/mine` | Get user's bookings |
+| `PATCH` | `/api/bookings/cancel` | Cancel booking |
+| `POST` | `/api/upload/document` | Upload Aadhar + License |
+
+### Owner Only
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/owner/dashboard` | Dashboard stats |
+| `GET/POST` | `/api/owner/vehicles` | List / Add vehicles |
+| `PATCH/DELETE` | `/api/owner/vehicles-item/:id` | Edit / Delete vehicle |
+| `PATCH` | `/api/owner/vehicles-visibility/:id` | Toggle vehicle visibility |
+| `GET` | `/api/owner/bookings` | All bookings (paginated) |
+| `PATCH` | `/api/owner/bookings/:id` | Update booking status |
+| `POST` | `/api/owner/bookings/:id/photo` | Attach pickup photo |
+| `GET/PUT` | `/api/owner/fleet-section` | Manage fleet showcase |
+
+---
+
+## Screenshots
+
+The platform features a dark-themed, premium UI optimized for mobile and desktop:
+
+- **Landing Page** — Hero section, fleet showcase, customer reviews, call-to-action
+- **Vehicle Catalog** — Filterable grid with car/bike toggle and instant search
+- **Booking Flow** — Step-by-step: select vehicle → pick dates/slot → upload documents → pay via Razorpay
+- **Owner Dashboard** — Revenue cards, booking pipeline, vehicle management, fleet editor
+
+---
+
+## Project Structure
 
 ```
 JourneyRentals/
+├── api/                        # Express 5 backend
+│   ├── index.js                # Server entry — middleware chain + routes
+│   ├── _routes/
+│   │   ├── auth.js             # Signup, login, OTP, OAuth, profile
+│   │   ├── bookings.js         # Create order, verify payment, cancel
+│   │   ├── vehicles.js         # Public vehicle listing
+│   │   ├── upload.js           # Document upload (Aadhar/License)
+│   │   ├── owner.js            # Owner dashboard, vehicles, bookings
+│   │   └── notifications.js    # Push notification subscriptions
+│   ├── _lib/
+│   │   ├── auth.js             # JWT sign/verify, cookie helpers, middleware
+│   │   ├── mongodb.js          # Mongoose connection with auto-reconnect
+│   │   ├── mailer.js           # Nodemailer email templates
+│   │   ├── cloudinary.js       # Cloudinary upload helpers
+│   │   ├── otp.js              # Crypto OTP generation + bcrypt storage
+│   │   ├── validators.js       # Email + password validation
+│   │   ├── whatsapp.js         # Meta WhatsApp Cloud API
+│   │   └── models/
+│   │       ├── User.js         # User schema (local + Google OAuth)
+│   │       ├── Vehicle.js      # Vehicle schema (car + bike)
+│   │       ├── Booking.js      # Booking schema with Razorpay payment
+│   │       ├── OTP.js          # OTP schema with TTL auto-delete
+│   │       ├── FleetSection.js # Homepage fleet showcase schema
+│   │       └── PushSubscription.js
+│   └── scripts/                # Seed and utility scripts
 │
-├── api/                           # Express backend (Vercel Serverless)
-│   ├── index.js                   # App entry — exports Express app
-│   ├── package.json               # Server dependencies
-│   ├── .env                       # Local env vars (git-ignored)
-│   ├── .env.example               # Template for deployment
-│   ├── routes/
-│   │   ├── auth.js                # Signup, login, Google OAuth
-│   │   ├── vehicles.js            # Public vehicle endpoints
-│   │   ├── bookings.js            # Customer booking endpoints
-│   │   ├── owner.js               # Owner-only management
-│   │   └── upload.js              # Document upload
-│   └── lib/
-│       ├── auth.js                # JWT sign/verify, requireAuth, requireOwner
-│       ├── mongodb.js             # Mongoose connection (serverless-safe)
-│       ├── cloudinary.js          # Cloudinary config + upload helper
-│       └── models/
-│           ├── User.js
-│           ├── Vehicle.js
-│           ├── Booking.js
-│           └── FleetSection.js
-│
-├── client/                        # React frontend (Vite)
+├── client/                     # React 19 + Vite frontend
 │   ├── src/
-│   │   ├── components/
-│   │   ├── context/AuthContext.jsx
-│   │   ├── lib/api.js             # Centralized fetch utility
-│   │   ├── pages/
+│   │   ├── App.jsx             # Route definitions, ErrorBoundary, guards
+│   │   ├── main.jsx            # React DOM entry
+│   │   ├── index.css           # Global styles (Tailwind + custom)
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx # Cookie-based auth state management
+│   │   ├── lib/
+│   │   │   ├── api.js          # Fetch wrapper with timeout + error handling
+│   │   │   └── utils.js        # Shared utilities
+│   │   ├── pages/              # Route-level components (lazy loaded)
 │   │   │   ├── Home.jsx
 │   │   │   ├── Cars.jsx
-│   │   │   ├── CarDetails.jsx
-│   │   │   ├── Login.jsx
+│   │   │   ├── CarDetails.jsx  # Full booking flow
+│   │   │   ├── Login.jsx       # Login + Signup + Google OAuth
+│   │   │   ├── OTPVerification.jsx
 │   │   │   ├── MyBookings.jsx
 │   │   │   ├── Profile.jsx
-│   │   │   └── owner/             # Owner dashboard pages
-│   │   ├── App.jsx
-│   │   └── index.css
+│   │   │   ├── HelpSupport.jsx
+│   │   │   └── owner/          # Owner dashboard pages
+│   │   ├── components/         # Reusable UI components
+│   │   └── utils/
+│   │       └── themeToggle.js
 │   ├── index.html
-│   ├── vite.config.js             # /api proxy → localhost:5000
-│   └── package.json
+│   └── vite.config.js
 │
-├── vercel.json                    # Routes: /api/* → serverless, /* → client
-├── .gitignore
-├── CHANGELOG.md
-├── AUDIT_REPORT.md
-└── README.md
+├── render.yaml                 # Render deployment config
+├── vercel.json                 # Vercel deployment config
+└── .gitignore
 ```
 
 ---
 
-## ⚡ Quick Start (Local Dev)
+## Deployment
 
-### Prerequisites
-
-- Node.js 18+
-- [MongoDB Atlas](https://www.mongodb.com/atlas) account (free tier works)
-- [Cloudinary](https://cloudinary.com/) account (free tier works)
-
-### 1. Clone & Install
-
-```bash
-git clone https://github.com/YOUR_USERNAME/JourneyRentals.git
-cd JourneyRentals
-
-# Install server dependencies
-cd api
-npm install
-cp .env.example .env      # Fill in your values
-
-# Install client dependencies
-cd ../client
-npm install
-```
-
-### 2. Start Development Servers
-
-```bash
-# Terminal 1 — Backend
-cd api
-npm run dev
-
-# Terminal 2 — Frontend
-cd client
-npm run dev
-```
-
-| Service | URL |
-|---|---|
-| Frontend | http://localhost:5173 |
-| Backend API | http://localhost:5000 |
-| Health Check | http://localhost:5000/api/health |
-
-> Vite automatically proxies all `/api/*` requests to `http://localhost:5000` — no CORS issues in development.
+| Component | Platform | URL Pattern |
+|-----------|----------|-------------|
+| Frontend | Vercel | `https://journeyrentals.vercel.app` |
+| Backend | Render | `https://journey-rentals-api.onrender.com` |
+| Database | MongoDB Atlas | Managed cloud cluster |
+| Images | Cloudinary | `res.cloudinary.com/dl7ysqefj/...` |
 
 ---
 
-## 🔐 Environment Variables
+## License
 
-### API (`api/.env`)
+This project is proprietary software. All rights reserved.
 
-```env
-# MongoDB Atlas
-MONGODB_URI=your_mongodb_connection_string
-
-# JWT — use a long random string (min 32 chars)
-JWT_SECRET=your_super_secret_jwt_key
-
-# Cloudinary
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-
-# Google OAuth 2.0 (see setup guide below)
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-
-# Owner dashboard credentials
-OWNER_EMAIL=owner@yourdomain.com
-OWNER_PASSWORD=your_secure_password
-
-# App
-PORT=5000
-NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
-BACKEND_URL=http://localhost:5000
-```
-
-> **For Vercel:** All these variables go in your Vercel project dashboard → Settings → Environment Variables. No `.env` file is used in production.
-
----
-
-## 🔑 Google OAuth Setup
-
-1. Go to [console.cloud.google.com](https://console.cloud.google.com/)
-2. **Create a new project** (or select existing)
-3. Navigate to **APIs & Services → OAuth consent screen**
-   - User type: **External**
-   - Fill in App name, support email, developer email
-4. Navigate to **APIs & Services → Credentials**
-   - Click **Create Credentials → OAuth 2.0 Client ID**
-   - Application type: **Web application**
-5. Add **Authorized redirect URIs**:
-   ```
-   http://localhost:5000/api/auth/google/callback     ← development
-   https://journey-henna-omega.vercel.app/api/auth/google/callback  ← production
-   ```
-6. Add **Authorized JavaScript origins**:
-   ```
-   http://localhost:5173
-   https://journey-henna-omega.vercel.app
-   ```
-7. Copy **Client ID** and **Client Secret** into `api/.env` (locally) and Vercel dashboard (production)
-
----
-
-## 📡 API Reference
-
-### Auth (`/api/auth`)
-
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/signup` | Public | Create customer account |
-| `POST` | `/login` | Public | Login with email + password |
-| `POST` | `/owner-login` | Public | Owner login |
-| `PUT` | `/profile` | Customer | Update name/email |
-| `PUT` | `/profile/avatar` | Customer | Upload avatar |
-| `DELETE` | `/profile` | Customer | Delete account |
-| `GET` | `/google` | Public | Initiate Google OAuth |
-| `GET` | `/google/callback` | Public | Google OAuth callback |
-
-### Vehicles (`/api/vehicles`)
-
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `GET` | `/` | Public | Get all vehicles |
-| `GET` | `/fleet-section` | Public | Fleet section for homepage |
-| `GET` | `/:id` | Public | Get vehicle by ID |
-
-### Bookings (`/api/bookings`)
-
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/create-order` | Customer | Create new booking |
-| `GET` | `/mine` | Customer | Get my bookings |
-| `PATCH` | `/cancel` | Customer | Cancel a booking |
-| `POST` | `/verify-payment` | Customer | Verify payment (not yet implemented) |
-
-### Owner (`/api/owner`)
-
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `GET` | `/dashboard` | Owner | Stats overview |
-| `GET` | `/vehicles` | Owner | All vehicles |
-| `POST` | `/vehicles` | Owner | Add new vehicle |
-| `PATCH` | `/vehicles-item/:id` | Owner | Update vehicle |
-| `DELETE` | `/vehicles-item/:id` | Owner | Delete vehicle |
-| `POST` | `/upload/images` | Owner | Upload images to Cloudinary |
-| `GET` | `/bookings` | Owner | All bookings (paginated) |
-| `GET` | `/bookings/:id` | Owner | Single booking |
-| `PATCH` | `/bookings/:id` | Owner | Update booking status |
-| `GET` | `/fleet-section` | Owner | Fleet CMS |
-| `PUT` | `/fleet-section` | Owner | Update fleet CMS |
-
----
-
-## 🔒 Security
-
-| Feature | Implementation |
-|---|---|
-| HTTP security headers | `helmet()` middleware |
-| Brute-force protection | `express-rate-limit` — 10 req/15min on auth endpoints |
-| Global rate limit | 300 req/15min per IP |
-| CORS | Restricted to `FRONTEND_URL` only |
-| JWT auth | 7-day expiry, `HS256`, verified server-side every request |
-| Role-based access | `requireAuth` (customer) / `requireOwner` (owner) middleware |
-| Password hashing | `bcrypt` with 10 salt rounds |
-| Serverless DB | MongoDB connection cached in global scope (no pool exhaustion) |
-
----
-
-## 🚀 Deploy to Vercel
-
-### Step 1 — Push to GitHub
-
-```bash
-cd d:\JourneyRentals
-git add .
-git commit -m "Refactor: Vercel monorepo with serverless API"
-git push origin main
-```
-
-### Step 2 — Import on Vercel
-
-1. Go to [vercel.com](https://vercel.com) → Log in with GitHub
-2. Click **"Add New..."** → **"Project"**
-3. Import your **JourneyRentals** repository
-4. **Leave "Root Directory" as `.`** (root — the `vercel.json` handles everything)
-5. **Framework Preset**: Other
-6. **No custom build commands needed** — `vercel.json` handles the builds
-
-### Step 3 — Add Environment Variables
-
-In the Vercel dashboard → **Settings** → **Environment Variables**, add all variables from `api/.env.example`:
-
-| Variable | Value |
-|----------|-------|
-| `MONGODB_URI` | Your MongoDB Atlas connection string |
-| `JWT_SECRET` | A strong random 64-char string |
-| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name |
-| `CLOUDINARY_API_KEY` | Your Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | Your Cloudinary API secret |
-| `GOOGLE_CLIENT_ID` | Your Google OAuth client ID |
-| `GOOGLE_CLIENT_SECRET` | Your Google OAuth client secret |
-| `OWNER_EMAIL` | Owner dashboard login email |
-| `OWNER_PASSWORD` | Owner dashboard login password |
-| `NODE_ENV` | `production` |
-| `FRONTEND_URL` | `https://journey-henna-omega.vercel.app` |
-| `BACKEND_URL` | `https://journey-henna-omega.vercel.app` |
-
-> **Generate a strong JWT_SECRET:**
-> ```bash
-> node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-> ```
-
-### Step 4 — Deploy
-
-Click **"Deploy"**. Vercel will:
-1. Build the React frontend (`client/` → `dist/`)
-2. Bundle the Express API (`api/index.js` → serverless function)
-3. Route `/api/*` to the function and `/*` to the static frontend
-
-Your site will be live at `https://your-project.vercel.app`.
-
----
-
-## 🌐 Custom Domain Setup
-
-### Step 1 — Add Domain in Vercel
-
-1. Vercel dashboard → Your project → **Settings** → **Domains**
-2. Add `journeyrentals.in`
-3. Also add `www.journeyrentals.in`
-
-### Step 2 — Update DNS Records
-
-Go to your domain registrar and set:
-
-| Type | Name | Value |
-|------|------|-------|
-| **A** | `@` | `76.76.21.21` |
-| **CNAME** | `www` | `cname.vercel-dns.com` |
-
-> DNS propagation takes 5 min to 48 hours. Usually done within 30 minutes.
-
-### Step 3 — Update Google OAuth
-
-In Google Cloud Console → Credentials → your OAuth client:
-- Add redirect URI: `https://journey-henna-omega.vercel.app/api/auth/google/callback`
-- Add JavaScript origin: `https://journey-henna-omega.vercel.app`
-
-### Step 4 — Update Environment Variables
-
-In Vercel dashboard, update:
-- `FRONTEND_URL` = `https://journey-henna-omega.vercel.app`
-- `BACKEND_URL` = `https://journey-henna-omega.vercel.app`
-
-Redeploy for changes to take effect.
-
----
-
-## 👤 Owner Access
-
-The owner dashboard is at `/owner-login`. Credentials are set via environment variables:
-
-```
-OWNER_EMAIL=your_email@journeyrentals.com
-OWNER_PASSWORD=your_strong_password
-```
-
-**Change these before going to production.**
-
----
-
-## 📦 How `vercel.json` Works
-
-```json
-{
-  "builds": [
-    { "src": "api/index.js", "use": "@vercel/node" },
-    { "src": "client/package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.js" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/client/$1" }
-  ]
-}
-```
-
-- **`@vercel/node`** — Bundles `api/index.js` as a single serverless function
-- **`@vercel/static-build`** — Runs `npm run build` in `client/`, serves `dist/`
-- **Route 1** — All `/api/*` requests hit the Express serverless function
-- **Route 2** — `"handle": "filesystem"` serves actual static files (JS, CSS, images)
-- **Route 3** — Everything else → `client/index.html` (SPA routing)
-
----
-
-<div align="center">
-  <p>Built with ❤️ for JourneyRentals · Solapur, India</p>
-</div>
+Built with ☕ and late nights in Pune, India.

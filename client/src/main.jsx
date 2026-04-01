@@ -11,3 +11,11 @@ createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </StrictMode>
 )
+
+if ('serviceWorker' in navigator && 'PushManager' in window) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+      if (import.meta.env.DEV) console.warn('SW registration failed:', err);
+    });
+  });
+}

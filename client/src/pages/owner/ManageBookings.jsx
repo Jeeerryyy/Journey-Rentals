@@ -23,15 +23,20 @@ const ManageBookings = () => {
         customer: b.userSnapshot?.name || 'Customer',
         phone: b.userSnapshot?.phone || 'N/A',
         car: `${b.vehicleSnapshot?.brand} ${b.vehicleSnapshot?.model}`,
+        vehicleImage: b.vehicleSnapshot?.image || '',
         pickup: b.pickupDate ? new Date(b.pickupDate).toLocaleDateString('en-GB') : (b.bikeDate ? new Date(b.bikeDate).toLocaleDateString('en-GB') : 'N/A'),
+        pickupTime: b.pickupTime || '',
         ret: b.returnDate ? new Date(b.returnDate).toLocaleDateString('en-GB') : (b.bikeSlot || 'N/A'),
+        returnTime: b.returnTime || '',
         days: b.totalDays || 1,
         amount: b.totalPrice,
         advance: b.advancePaid,
+        balance: b.balanceDue || (b.totalPrice - b.advancePaid),
         status: b.status,
         docs: !!(b.documents?.aadharUrl || b.documents?.licenseUrl),
         aadharUrl: b.documents?.aadharUrl || '',
-        licenseUrl: b.documents?.licenseUrl || ''
+        licenseUrl: b.documents?.licenseUrl || '',
+        adminPhotoUrl: b.adminPhotoWithVehicleUrl || ''
       }))
       setBookings(formatted)
     } catch (err) {
@@ -41,7 +46,49 @@ const ManageBookings = () => {
     }
   }
 
-  const filters = ['all', 'pending', 'confirmed', 'completed', 'cancelled']
+  const [uploading, setUploading] = useState(false)
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Photo must be under 5MB')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = async () => {
+      try {
+        setUploading(true)
+        const res = await api.owner.uploadBookingPhoto(selected._id, reader.result)
+        const updatedPhoto = res.url
+        setBookings(prev => prev.map(b => b._id === selected._id ? { ...b, adminPhotoUrl: updatedPhoto } : b))
+        setSelected(prev => ({ ...prev, adminPhotoUrl: updatedPhoto }))
+      } catch (err) {
+        alert(err.message)
+      } finally {
+        setUploading(false)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handlePhotoDelete = async () => {
+    if (!confirm('Are you sure you want to remove this photo?')) return
+    try {
+      setUploading(true)
+      await api.owner.deleteBookingPhoto(selected._id)
+      setBookings(prev => prev.map(b => b._id === selected._id ? { ...b, adminPhotoUrl: null } : b))
+      setSelected(prev => ({ ...prev, adminPhotoUrl: null }))
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const filters = ['all', 'confirmed', 'completed', 'cancelled']
 
   const filtered = filter === 'all' ? bookings : bookings.filter(b => b.status === filter)
 
@@ -65,71 +112,94 @@ const ManageBookings = () => {
             table { border-collapse: collapse; font-family: Calibri, sans-serif; }
             th { background-color: #1F2937; color: #ffffff; font-weight: bold; padding: 10px; height: 30px; text-align: center; border: 1px solid #d1d5db; vertical-align: middle; }
             td { padding: 10px; text-align: left; vertical-align: middle; height: 35px; border: 1px solid #e5e7eb; }
-            .col-date { width: 120px; mso-number-format: "\\@"; }
-            .col-name { width: 200px; mso-number-format: "\\@"; }
+            .col-sno { width: 40px; text-align: center; }
+            .col-date { width: 100px; mso-number-format: "\\@"; }
+            .col-name { width: 180px; mso-number-format: "\\@"; }
             .col-phone { width: 130px; mso-number-format: "\\@"; }
-            .col-details { width: 280px; mso-number-format: "\\@"; }
-            .col-tenure { width: 300px; mso-number-format: "\\@"; }
-            .col-amount { width: 140px; mso-number-format: "[$₹-en-IN]\\ #\\,##0"; text-align: left; }
-            .col-status { width: 150px; text-align: center; }
-            .col-doc { width: 120px; text-align: center; }
+            .col-car { width: 220px; mso-number-format: "\\@"; }
+            .col-ret-date { width: 110px; mso-number-format: "\\@"; }
+            .col-ret-time { width: 90px; mso-number-format: "\\@"; }
+            .col-amount { width: 120px; mso-number-format: "[$₹-en-IN]\\ #\\,##0"; text-align: left; }
+            .col-status { width: 130px; text-align: center; }
+            .col-doc { width: 100px; text-align: center; }
+            .col-photo { width: 100px; text-align: center; }
           </style>
         </head>
         <body>
           <table>
+            <col class="col-sno" />
             <col class="col-date" />
             <col class="col-name" />
             <col class="col-phone" />
-            <col class="col-details" />
-            <col class="col-tenure" />
+            <col class="col-car" />
+            <col class="col-ret-date" />
+            <col class="col-ret-time" />
+            <col class="col-amount" />
             <col class="col-amount" />
             <col class="col-status" />
             <col class="col-doc" />
             <col class="col-doc" />
+            <col class="col-photo" />
+            <col class="col-photo" />
             <tr>
+               <th>S.No</th>
                <th>Booking Date</th>
                <th>Customer Name</th>
                <th>Phone Number</th>
-               <th>Booking Details</th>
-               <th>Tenure</th>
-               <th>Amount</th>
+               <th>Car/Bike Name</th>
+               <th>Return Date</th>
+               <th>Return Time</th>
+               <th>Paid Amount</th>
+               <th>Remaining Amount</th>
                <th>Status</th>
                <th>Aadhar</th>
                <th>License</th>
+               <th>User Photo</th>
+               <th>Vehicle Photo</th>
             </tr>
       `;
 
-      bookings.forEach(b => {
+      bookings.forEach((b, index) => {
+        const sno = index + 1;
         const date = b.createdAt ? new Date(b.createdAt).toLocaleDateString('en-GB') : '—';
         const name = (b.customer || '—').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const phone = (b.phone || '—').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const details = `${b.car} (Ref: ${b.refId})`.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        let tenure = b.bookingType === 'bike' 
-          ? `${b.bikeSlot} on ${b.pickup}` 
-          : `${b.days} Days (${b.pickup} ${b.pickupTime ? `at ${b.pickupTime}` : ''} to ${b.ret})`;
-        tenure = tenure.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const amt = b.amount || 0;
+        const carName = b.car.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        
+        // Handle Return details split
+        const retDate = b.ret;
+        const retTime = b.bookingType === 'bike' ? (b.bikeSlot || '—') : (b.returnTime || '—');
+        
+        const paidAmt = b.advance || 0;
+        const remainingAmt = b.balance || 0;
 
         const rawStatus = (b.status || 'pending').toLowerCase();
         const isConfirmed = rawStatus === 'confirmed' || rawStatus === 'completed';
         const statusLabel = isConfirmed ? 'Confirmed' : 'Unconfirmed';
-        const statusBg = isConfirmed ? '#dcfce7' : '#fee2e2'; // Light green / Light red
-        const statusColor = isConfirmed ? '#166534' : '#991b1b'; // Dark green / Dark red
+        const statusBg = isConfirmed ? '#dcfce7' : '#fee2e2';
+        const statusColor = isConfirmed ? '#166534' : '#991b1b';
 
-        const aadharLink = b.aadharUrl ? `<a href="${b.aadharUrl}" style="color: #2563eb; text-decoration: underline;">View Aadhar</a>` : '—';
-        const licenseLink = b.licenseUrl ? `<a href="${b.licenseUrl}" style="color: #2563eb; text-decoration: underline;">View License</a>` : '—';
+        const aadharLink = b.aadharUrl ? `<a href="${b.aadharUrl}" style="color: #2563eb;">View Aadhar</a>` : '—';
+        const licenseLink = b.licenseUrl ? `<a href="${b.licenseUrl}" style="color: #2563eb;">View License</a>` : '—';
+        const userPhotoLink = b.adminPhotoUrl ? `<a href="${b.adminPhotoUrl}" style="color: #2563eb;">View Photo</a>` : '—';
+        const vehiclePhotoLink = b.vehicleImage ? `<a href="${b.vehicleImage}" style="color: #2563eb;">View Vehicle</a>` : '—';
         
         tableHTML += `
             <tr>
+              <td class="col-sno">${sno}</td>
               <td>${date}</td>
               <td>${name}</td>
               <td>${phone}</td>
-              <td>${details}</td>
-              <td>${tenure}</td>
-              <td class="col-amount">${amt}</td>
+              <td>${carName}</td>
+              <td>${retDate}</td>
+              <td>${retTime}</td>
+              <td class="col-amount">${paidAmt}</td>
+              <td class="col-amount">${remainingAmt}</td>
               <td style="background-color: ${statusBg}; color: ${statusColor}; font-weight: bold; text-align: center;">${statusLabel}</td>
               <td style="text-align: center;">${aadharLink}</td>
               <td style="text-align: center;">${licenseLink}</td>
+              <td style="text-align: center;">${userPhotoLink}</td>
+              <td style="text-align: center;">${vehiclePhotoLink}</td>
             </tr>
         `;
       });
@@ -212,6 +282,16 @@ const ManageBookings = () => {
           .mb-panel__title { font-size: 22px; }
           .mb-panel__btn { min-height: 44px; }
         }
+
+        .mb-photo-wrap { margin-top: 10px; position: relative; border-radius: 8px; overflow: hidden; border: 1px dashed var(--border); aspect-ratio: 16/9; background: var(--bg-soft); display: flex; align-items: center; justify-content: center; }
+        .mb-photo-img { width: 100%; height: 100%; object-fit: cover; }
+        .mb-photo-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-muted); cursor: pointer; padding: 20px; text-align: center; width: 100%; height: 100%; }
+        .mb-photo-empty:hover { background: rgba(255,255,255,0.03); }
+        .mb-photo-empty svg { opacity: 0.5; }
+        .mb-photo-btn-group { position: absolute; bottom: 8px; right: 8px; display: flex; gap: 6px; }
+        .mb-photo-mini-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); color: #fff; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; transition: all 0.2s; }
+        .mb-photo-mini-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+        .mb-photo-loading { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 800; text-transform: uppercase; z-index: 5; }
       `}</style>
 
       <div className="mb-header">
@@ -307,7 +387,7 @@ const ManageBookings = () => {
               <div className="mb-panel__section">Booking Details</div>
               <div className="mb-panel__row"><span>Car</span><span>{selected.car}</span></div>
               <div className="mb-panel__row"><span>Pickup</span><span>{selected.pickup} {selected.pickupTime ? `at ${selected.pickupTime}` : ''}</span></div>
-              <div className="mb-panel__row"><span>Return</span><span>{selected.ret}</span></div>
+              <div className="mb-panel__row"><span>Return</span><span>{selected.ret} {selected.returnTime ? `at ${selected.returnTime}` : ''}</span></div>
               <div className="mb-panel__row"><span>Duration</span><span>{selected.days} days</span></div>
 
               <div className="mb-panel__section">Payment</div>
@@ -320,6 +400,32 @@ const ManageBookings = () => {
                 <span className="mb-badge" style={{ color: statusConfig[selected.status].color, background: statusConfig[selected.status].bg, borderColor: statusConfig[selected.status].border, fontSize: '12px', padding: '5px 14px' }}>
                   {statusConfig[selected.status].label}
                 </span>
+              </div>
+
+              <div className="mb-panel__section">Admin Attachments (Private)</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px' }}>Photo of user with the vehicle. Not visible to customer.</div>
+              <div className="mb-photo-wrap">
+                {uploading && <div className="mb-photo-loading">Processing...</div>}
+                {selected.adminPhotoUrl ? (
+                  <>
+                    <img src={selected.adminPhotoUrl} className="mb-photo-img" alt="User with Vehicle" />
+                    <div className="mb-photo-btn-group">
+                      <label className="mb-photo-mini-btn" title="Replace Photo">
+                        <input type="file" accept="image/*" hidden onChange={handlePhotoUpload} disabled={uploading} />
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17 3a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L17 3z"/></svg>
+                      </label>
+                      <button className="mb-photo-mini-btn" title="Remove Photo" onClick={handlePhotoDelete} disabled={uploading}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <label className="mb-photo-empty">
+                    <input type="file" accept="image/*" hidden onChange={handlePhotoUpload} disabled={uploading} />
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Upload User Photo with Vehicle</span>
+                  </label>
+                )}
               </div>
             </div>
 

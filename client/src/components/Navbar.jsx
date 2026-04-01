@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { animateThemeToggle } from '../utils/themeToggle'
 
@@ -27,6 +27,7 @@ const Navbar = () => {
   const [isLight, setIsLight] = useState(false)
   const { customer, customerLogout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const handleLogout = () => {
     customerLogout()
@@ -70,10 +71,20 @@ const Navbar = () => {
   ]
 
   const NavItem = ({ link, className, onClick }) => {
-    if (link.isRoute) {
-      return <Link to={link.href} className={className} onClick={onClick}>{link.label}</Link>
+    const handleClick = (e) => {
+      onClick && onClick(e)
+      if (!link.isRoute && location.pathname === '/') {
+        e.preventDefault()
+        const targetId = link.href.replace('/#', '')
+        const el = document.getElementById(targetId)
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+      }
     }
-    return <a href={link.href} className={className} onClick={onClick}>{link.label}</a>
+
+    if (link.isRoute) {
+      return <Link to={link.href} className={className} onClick={handleClick}>{link.label}</Link>
+    }
+    return <a href={link.href} className={className} onClick={handleClick}>{link.label}</a>
   }
 
   return (

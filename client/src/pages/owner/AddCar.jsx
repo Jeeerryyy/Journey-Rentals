@@ -26,6 +26,7 @@ const AddCar = () => {
     type: 'car',
     brand: '', model: '', year: '', category: '', transmission: '',
     fuelType: '', sittingCapacity: '', pricePerDay: '', description: '', isAvailable: true,
+    bikePrice3hr: '', bikePrice6hr: '', bikePrice12hr: ''
   })
   const [images, setImages]           = useState([]) // Array of File objects
   const [previews, setPreviews]       = useState([]) // Array of base64 strings
@@ -84,6 +85,11 @@ const AddCar = () => {
     if (!form.fuelType)                                  e.fuelType       = 'Required'
     if (!form.sittingCapacity)                           e.sittingCapacity = 'Required'
     if (form.type === 'car' && (!form.pricePerDay || form.pricePerDay <= 0)) e.pricePerDay = 'Enter valid price'
+    if (form.type === 'bike') {
+      if (!form.bikePrice3hr || form.bikePrice3hr <= 0) e.bikePrice3hr = 'Required'
+      if (!form.bikePrice6hr || form.bikePrice6hr <= 0) e.bikePrice6hr = 'Required'
+      if (!form.bikePrice12hr || form.bikePrice12hr <= 0) e.bikePrice12hr = 'Required'
+    }
     if (images.length === 0)                                             e.images         = 'At least one vehicle image required'
     return e
   }
@@ -125,7 +131,7 @@ const AddCar = () => {
       if (form.type === 'car') {
         payload.pricePerDay = Number(form.pricePerDay)
       } else {
-        payload.bikeSlots = { price3hr: 150, price6hr: 200, price12hr: 400 }
+        payload.bikeSlots = { price3hr: Number(form.bikePrice3hr), price6hr: Number(form.bikePrice6hr), price12hr: Number(form.bikePrice12hr) }
       }
 
       await api.owner.addVehicle(payload)
@@ -139,7 +145,7 @@ const AddCar = () => {
   }
 
   const handleReset = () => {
-    setForm({ type: 'car', brand: '', model: '', year: '', category: '', transmission: '', fuelType: '', sittingCapacity: '', pricePerDay: '', description: '', isAvailable: true })
+    setForm({ type: 'car', brand: '', model: '', year: '', category: '', transmission: '', fuelType: '', sittingCapacity: '', pricePerDay: '', description: '', isAvailable: true, bikePrice3hr: '', bikePrice6hr: '', bikePrice12hr: '' })
     setImages([])
     setPreviews([])
     setSelectedFeatures([])
@@ -335,8 +341,22 @@ const AddCar = () => {
               </div>
             </div>
           ) : (
-            <div style={{ marginBottom: '20px', background: 'var(--bg-soft)', border: '1px solid var(--border)', padding: '14px', fontSize: '13px', color: 'var(--text-muted)' }}>
-              Bike pricing is fixed: <strong style={{ color: 'var(--accent)' }}>₹150 / 3hrs · ₹200 / 6hrs · ₹400 / 12hrs</strong>
+            <div className="addcar-grid-3" style={{ marginBottom: '20px' }}>
+              <div className="addcar-field">
+                <label className="addcar-label">3 Hours Price (₹) *</label>
+                <input type="number" className={`addcar-input ${errors.bikePrice3hr ? 'error' : ''}`} placeholder="150" min="0" value={form.bikePrice3hr} onChange={e => set('bikePrice3hr', e.target.value)} />
+                <FieldError field="bikePrice3hr" />
+              </div>
+              <div className="addcar-field">
+                <label className="addcar-label">6 Hours Price (₹) *</label>
+                <input type="number" className={`addcar-input ${errors.bikePrice6hr ? 'error' : ''}`} placeholder="200" min="0" value={form.bikePrice6hr} onChange={e => set('bikePrice6hr', e.target.value)} />
+                <FieldError field="bikePrice6hr" />
+              </div>
+              <div className="addcar-field">
+                <label className="addcar-label">12 Hours Price (₹) *</label>
+                <input type="number" className={`addcar-input ${errors.bikePrice12hr ? 'error' : ''}`} placeholder="400" min="0" value={form.bikePrice12hr} onChange={e => set('bikePrice12hr', e.target.value)} />
+                <FieldError field="bikePrice12hr" />
+              </div>
             </div>
           )}
 

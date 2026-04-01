@@ -1,13 +1,26 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 import { api } from '../../lib/api.js'
 import { statusConfig } from '../../lib/utils.js'
+import NotificationToggle from '../../components/owner/NotificationToggle.jsx'
+import BookingPhotoModal from '../../components/owner/BookingPhotoModal.jsx'
 
 const Dashboard = () => {
+  const { owner } = useAuth()
   const [stats, setStats]           = useState(null)
   const [recentBookings, setRecent] = useState([])
   const [loading, setLoading]       = useState(true)
   const [error, setError]           = useState(null)
+
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours()
+    if (hour >= 5 && hour < 12) return 'Good Morning'
+    if (hour >= 12 && hour < 17) return 'Good Afternoon'
+    return 'Good Evening'
+  }, [])
+
+  const [photoModal, setPhotoModal] = useState({ open: false, booking: null })
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -99,8 +112,14 @@ const Dashboard = () => {
       `}</style>
 
       <div className="dash-header">
-        <div className="dash-header__title">Good Morning, <span>Arbaz</span> 👋</div>
+        <div className="dash-header__title">{greeting}, <span>{owner?.name?.split(' ')[0] || 'Partner'}</span> 👋</div>
         <div className="dash-header__sub">Here's what's happening with Journey Rentals today.</div>
+      </div>
+
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', padding: '24px', borderRadius: '8px', marginBottom: '28px' }}>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', marginBottom: '8px', color: 'var(--text)' }}>Booking Alerts</h3>
+        <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '16px' }}>Get instant notifications on this device when a new booking is made.</p>
+        <NotificationToggle />
       </div>
 
       {/* Loading */}
@@ -145,7 +164,7 @@ const Dashboard = () => {
               <table className="dash-table">
                 <thead>
                   <tr>
-                    <th>Ref</th><th>Customer</th><th>Vehicle</th><th>Amount</th><th>Status</th>
+                    <th>Ref</th><th>Customer</th><th>Vehicle</th><th>Amount</th><th>Status</th><th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -164,6 +183,24 @@ const Dashboard = () => {
                             {b.status}
                           </span>
                         </td>
+                        <td>
+                          <button 
+                            className="dash-badge" 
+                            style={{ 
+                              background: 'transparent', 
+                              borderColor: 'var(--border)', 
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '4px 8px'
+                            }}
+                            onClick={() => setPhotoModal({ open: true, booking: b })}
+                            title="Manage Photo"
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                          </button>
+                        </td>
                       </tr>
                     )
                   })}
@@ -177,6 +214,13 @@ const Dashboard = () => {
       {/* Quick Actions */}
       <div className="dash-section-title">Quick Actions</div>
       <div className="dash-quick">
+        <button className="dash-quick-btn" onClick={() => setPhotoModal({ open: true, booking: null })} style={{ cursor: 'pointer', textAlign: 'left' }}>
+          <div style={{ fontSize: '24px' }}>📷</div>
+          <div>
+            <div className="dash-quick-btn__label">Upload Booking Photo</div>
+            <div className="dash-quick-btn__sub">Attach user photo with vehicle</div>
+          </div>
+        </button>
         {[
           { to: '/owner/add-car',          icon: '＋', label: 'Add New Car',    sub: 'List a car in your fleet' },
           { to: '/owner/manage-cars',      icon: '🚗', label: 'Manage Cars',   sub: 'Edit or remove listings' },
@@ -192,6 +236,15 @@ const Dashboard = () => {
           </Link>
         ))}
       </div>
+
+      <BookingPhotoModal 
+        isOpen={photoModal.open} 
+        onClose={() => setPhotoModal({ open: false, booking: null })}
+        initialBooking={photoModal.booking}
+        onUpdate={(updated) => {
+          setRecent(prev => prev.map(b => b._id === updated._id ? { ...b, ...updated } : b))
+        }}
+      />
     </>
   )
 }

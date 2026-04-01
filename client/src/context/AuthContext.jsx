@@ -2,142 +2,149 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import { api } from '../lib/api.js'
 
 /**
- * AuthContext — unified authentication state manager
- * Handles standard customer JWTs and owner JWTs across the application lifecycle.
- * Also handles OAuth redirects via /api/auth/google/callback parsing.
+ * AuthContext — cookie-based authentication state manager.
+ * JWT is stored in httpOnly cookies — frontend never sees or stores the token.
+ * We call GET /api/auth/me on mount to check if the user is authenticated.
  */
 const AuthContext = createContext(null)
 
-// Decode JWT payload without verification (for reading user info client-side)
-const decodeJWT = (token) => {
-  try {
-    const payload = token.split('.')[1]
-    return JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
-  } catch {
-    return null
-  }
-}
-
-// Check if a JWT is expired
-const isTokenExpired = (token) => {
-  const payload = decodeJWT(token)
-  if (!payload?.exp) return true
-  return Date.now() / 1000 > payload.exp
-}
-
 export const AuthProvider = ({ children }) => {
-  // User state
-  const [customer, setCustomer] = useState(() => {
-    try {
-      const token = localStorage.getItem('jr_token')
-      const stored = localStorage.getItem('jr_customer')
-      if (token && stored && !isTokenExpired(token)) {
-        return JSON.parse(stored)
+  const [customer, setCustomer] = useState(null)
+  const [owner, setOwner]       = useState(null)
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  // ── On mount, check if we have an active session via httpOnly cookie ──
+  useEffect(() => {
+    const checkSession = async () => {
+      // Handle OAuth redirect: if URL has ?oauth=success&user=... extract display data
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('oauth') === 'success') {
+        try {
+          const user = JSON.parse(decodeURIComponent(params.get('user')))
+          setCustomer(user)
+          // Clean the URL
+          window.history.replaceState({}, '', window.location.pathname)
+          setIsLoaded(true)
+          return
+        } catch { /* fall through to /me check */ }
       }
-      // Clean up expired data
-      localStorage.removeItem('jr_token')
-      localStorage.removeItem('jr_customer')
-      return null
-    } catch {
-      return null
-    }
-  })
 
-  // Admin state
-  const [owner, setOwner] = useState(() => {
-    try {
-      const token = localStorage.getItem('jr_token_owner')
-      const stored = localStorage.getItem('jr_owner')
-      if (token && stored && !isTokenExpired(token)) {
-        return JSON.parse(stored)
+      // Try to restore customer session from cookie
+      try {
+        const data = await api.auth.me()
+        if (data.success && data.user) {
+          setCustomer(data.user)
+        }
+      } catch {
+        // No active session (401) — that's fine
       }
-      localStorage.removeItem('jr_token_owner')
-      localStorage.removeItem('jr_owner')
-      return null
-    } catch {
-      return null
+
+      // Try to restore owner session from cookie
+      // The owner cookie is separate (jr_token_owner)
+      // We don't have a /me endpoint for owner — use localStorage for owner display data only
+      try {
+        const storedOwner = localStorage.getItem('jr_owner')
+        if (storedOwner) {
+          setOwner(JSON.parse(storedOwner))
+        }
+      } catch { /* ignore */ }
+
+      setIsLoaded(true)
     }
-  })
 
-  // isLoaded is always true since we read from localStorage synchronously
-  const isLoaded = true
+    checkSession()
+  }, [])
 
-  // Standard authentication hooks
+  // ── Customer login ──
   const customerLogin = useCallback(async (email, password) => {
     try {
       const data = await api.auth.login({ email, password })
-      localStorage.setItem('jr_token', data.token)
-      localStorage.setItem('jr_customer', JSON.stringify(data.user))
-      setCustomer(data.user)
-      return { success: true }
+      if (data.needsVerification) {
+        return { success: false, needsVerification: true, email: data.email, error: data.error }
+      }
+      if (data.success && data.user) {
+        setCustomer(data.user)
+      }
+      return { success: data.success, user: data.user }
     } catch (err) {
+      // Check if the error response has needsVerification flag
+      if (err.data?.needsVerification) {
+        return { success: false, needsVerification: true, email: err.data.email, error: err.data.error }
+      }
       return { success: false, error: err.message }
     }
   }, [])
 
-  // Registration hook
+  // ── Customer signup — returns email for OTP flow ──
   const customerSignup = useCallback(async (name, email, password, phone) => {
     try {
       const data = await api.auth.signup({ name, email, password, phone })
-      localStorage.setItem('jr_token', data.token)
-      localStorage.setItem('jr_customer', JSON.stringify(data.user))
-      setCustomer(data.user)
-      return { success: true }
+      // Signup no longer returns a token — returns email for OTP verification
+      return {
+        success: true,
+        needsVerification: true,
+        email: data.email,
+        message: data.message,
+      }
+    } catch (err) {
+      return { success: false, error: err.message, passwordErrors: err.data?.passwordErrors }
+    }
+  }, [])
+
+  // ── Verify OTP — completes registration, sets cookie, returns user ──
+  const verifyOtp = useCallback(async (email, otp) => {
+    try {
+      const data = await api.auth.verifyOtp({ email, otp })
+      if (data.success && data.user) {
+        setCustomer(data.user)
+      }
+      return { success: true, user: data.user }
     } catch (err) {
       return { success: false, error: err.message }
     }
   }, [])
 
-  // ── Customer arbitrary data update ──
+  // ── Resend OTP ──
+  const resendOtp = useCallback(async (email) => {
+    try {
+      const data = await api.auth.resendOtp({ email })
+      return { success: true, message: data.message }
+    } catch (err) {
+      return { success: false, error: err.message }
+    }
+  }, [])
+
+  // ── Customer data update (display only — e.g. after profile edit) ──
   const setCustomerData = useCallback((newData) => {
     setCustomer(newData)
-    localStorage.setItem('jr_customer', JSON.stringify(newData))
   }, [])
 
   // ── Customer logout ──
-  const customerLogout = useCallback(() => {
+  const customerLogout = useCallback(async () => {
+    try { await api.auth.logout() } catch { /* ignore */ }
     setCustomer(null)
-    localStorage.removeItem('jr_token')
-    localStorage.removeItem('jr_customer')
-    sessionStorage.clear()
   }, [])
 
   // ── Owner login ──
   const ownerLogin = useCallback(async (email, password) => {
     try {
       const data = await api.auth.ownerLogin({ email, password })
-      localStorage.setItem('jr_token_owner', data.token)
-      localStorage.setItem('jr_owner', JSON.stringify(data.owner))
-      setOwner(data.owner)
-      return { success: true }
+      if (data.success) {
+        setOwner(data.owner)
+        // Store owner display data in localStorage (not the token — that's in httpOnly cookie)
+        localStorage.setItem('jr_owner', JSON.stringify(data.owner))
+      }
+      return { success: data.success }
     } catch (err) {
       return { success: false, error: err.message }
     }
   }, [])
 
   // ── Owner logout ──
-  const ownerLogout = useCallback(() => {
+  const ownerLogout = useCallback(async () => {
+    try { await api.auth.ownerLogout() } catch { /* ignore */ }
     setOwner(null)
     localStorage.removeItem('jr_owner')
-    localStorage.removeItem('jr_token_owner')
-    sessionStorage.clear()
-  }, [])
-
-  // OAuth callback interceptor
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const oauthToken = params.get('token')
-    const oauthUser = params.get('user')
-    if (oauthToken && oauthUser) {
-      try {
-        const user = JSON.parse(decodeURIComponent(oauthUser))
-        localStorage.setItem('jr_token', oauthToken)
-        localStorage.setItem('jr_customer', JSON.stringify(user))
-        setCustomer(user)
-        // Clean the URL
-        window.history.replaceState({}, '', window.location.pathname)
-      } catch { /* ignore malformed data */ }
-    }
   }, [])
 
   return (
@@ -145,6 +152,7 @@ export const AuthProvider = ({ children }) => {
       customer, owner, isLoaded,
       customerLogin, customerSignup, customerLogout, setCustomerData,
       ownerLogin, ownerLogout,
+      verifyOtp, resendOtp,
     }}>
       {children}
     </AuthContext.Provider>

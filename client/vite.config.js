@@ -11,7 +11,6 @@ export default defineConfig({
   server: {
     host: true,
     proxy: {
-      // Forward all /api requests to the Express server during development
       '/api': {
         target: 'http://127.0.0.1:5000',
         changeOrigin: true,

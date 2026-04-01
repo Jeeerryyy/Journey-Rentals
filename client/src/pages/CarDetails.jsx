@@ -38,6 +38,7 @@ const CarDetails = () => {
   const [pickupDate, setPickupDate]     = useState('')
   const [pickupTime, setPickupTime]     = useState('')
   const [returnDate, setReturnDate]     = useState('')
+  const [returnTime, setReturnTime]     = useState('')
   const [selectedDays, setSelectedDays] = useState(null)
   const [totalDays, setTotalDays]       = useState(0)
   const [totalPrice, setTotalPrice]     = useState(0)
@@ -124,18 +125,17 @@ const CarDetails = () => {
   // Step 1 valid? (includes phone validation)
   const step1Valid = isBike
     ? bikeDate && bikeSlot && validatePhone(phone) && (vehicle?.locations?.length > 0 ? pickupLocation : true)
-    : pickupDate && pickupTime && returnDate && totalDays > 0 && validatePhone(phone) && (vehicle?.locations?.length > 0 ? pickupLocation : true)
+    : pickupDate && pickupTime && returnDate && returnTime && totalDays > 0 && validatePhone(phone) && (vehicle?.locations?.length > 0 ? pickupLocation : true)
 
   const totalBookingPrice = isBike ? bikePrice : totalPrice
 
-  // Handle transaction initiation
+  // Handle transaction initiation — full Razorpay flow
   const handlePay = async () => {
     setPayProcessing(true)
     setPayError(null)
 
     try {
       // Step 1 — Convert documents to base64
-
       const [aadharB64, licenseB64] = await Promise.all([
         toBase64(aadhar),
         toBase64(license),
@@ -147,7 +147,7 @@ const CarDetails = () => {
         license: licenseB64,
       })
 
-      // Step 3 — Create booking order
+      // Step 3 — Create booking + Razorpay order
       const orderData = await api.bookings.createOrder({
         customerInfo: {
           name:  customer?.name  || 'Customer',
@@ -160,6 +160,7 @@ const CarDetails = () => {
         pickupDate:     isBike ? bikeDate    : pickupDate,
         pickupTime:     isBike ? null        : pickupTime,
         returnDate:     isBike ? null        : returnDate,
+        returnTime:     isBike ? null        : returnTime,
         totalDays:      isBike ? null        : totalDays,
         bikeDate:       isBike ? bikeDate    : null,
         bikeSlot:       isBike ? bikeSlot    : null,
@@ -170,17 +171,72 @@ const CarDetails = () => {
         },
       })
 
-      // Step 4 — Razorpay will be added later
-      // For now, store the reference and show success
+      // Step 4 — Razorpay checkout (if configured)
+      if (orderData.razorpay) {
+        const { orderId, amount, currency, keyId } = orderData.razorpay
+
+        // Load Razorpay script if not loaded
+        if (!window.Razorpay) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script')
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+            script.onload = resolve
+            script.onerror = () => reject(new Error('Failed to load payment gateway.'))
+            document.body.appendChild(script)
+          })
+        }
+
+        // Open Razorpay checkout modal
+        const rzp = new window.Razorpay({
+          key: keyId,
+          amount,
+          currency,
+          name: 'Journey Rentals',
+          description: `${vehicle.brand} ${vehicle.model} — Advance Payment`,
+          order_id: orderId,
+          prefill: {
+            name:    customer?.name  || '',
+            email:   customer?.email || '',
+            contact: phone || '',
+          },
+          theme: { color: '#ffd200' },
+          handler: async (response) => {
+            // Step 5 — Verify payment on backend
+            try {
+              const verifyData = await api.bookings.verify({
+                razorpay_order_id:   response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature:  response.razorpay_signature,
+              })
+              setBookingRef(verifyData.bookingDetails?.referenceId || orderData.bookingDetails?.referenceId)
+              setStep(4)
+            } catch (verifyErr) {
+              setPayError(verifyErr.message || 'Payment verification failed. Please contact support.')
+            }
+            setPayProcessing(false)
+          },
+          modal: {
+            ondismiss: () => {
+              setPayError('Payment was cancelled. Your booking is still pending.')
+              setPayProcessing(false)
+            },
+          },
+        })
+        rzp.open()
+        return // Don't set payProcessing to false here — Razorpay modal handles it
+      }
+
+      // Fallback: No Razorpay configured — direct booking
       setBookingRef(orderData.bookingDetails?.referenceId || `JR${Date.now().toString().slice(-6)}`)
       setStep(4)
+      setPayProcessing(false)
 
     } catch (err) {
       setPayError(err.message)
-    } finally {
       setPayProcessing(false)
     }
   }
+
 
   const stepLabel = (n) => step > n ? '✓' : n
 
@@ -364,7 +420,7 @@ const CarDetails = () => {
             <div className="cardetails-hero__meta">
               {vehicle.year} ·{' '}
               {vehicle.type === 'bike'
-                ? `₹150 / 3hrs · ₹200 / 6hrs · ₹400 / 12hrs`
+                ? `₹${BIKE_SLOTS[0].price} / 3hrs · ₹${BIKE_SLOTS[1].price} / 6hrs · ₹${BIKE_SLOTS[2].price} / 12hrs`
                 : `₹${vehicle.pricePerDay?.toLocaleString()} / Day`}
             </div>
           </div>
@@ -488,6 +544,8 @@ const CarDetails = () => {
                         <label>Return Date</label>
                         <input type="date" min={pickupDate || today} value={returnDate}
                           onChange={e => { setReturnDate(e.target.value); setSelectedDays(null) }} />
+                        <label>Return Time</label>
+                        <input type="time" value={returnTime} onChange={e => setReturnTime(e.target.value)} style={{ width: '100%', padding: '12px 14px', background: 'var(--bg-soft)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'var(--font-body)', fontSize: '16px', outline: 'none', marginBottom: '16px', boxSizing: 'border-box' }} />
                       </>
                     )}
 

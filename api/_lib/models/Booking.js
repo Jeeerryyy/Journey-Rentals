@@ -24,7 +24,9 @@ const bookingSchema = new mongoose.Schema({
 
   // Car fields
   pickupDate: Date,
+  pickupTime: String,
   returnDate: Date,
+  returnTime: String,
   totalDays:  Number,
 
   // Bike fields
@@ -42,6 +44,9 @@ const bookingSchema = new mongoose.Schema({
     licenseUrl: String,
   },
 
+  // Admin only
+  adminPhotoWithVehicleUrl: String,
+
   // Razorpay (used later)
   payment: {
     razorpayOrderId:   String,
@@ -58,5 +63,8 @@ const bookingSchema = new mongoose.Schema({
 bookingSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 bookingSchema.index({ userId: 1 })
 bookingSchema.index({ status: 1 })
+bookingSchema.index({ createdAt: -1 })
+bookingSchema.index({ vehicleId: 1 })
+bookingSchema.index({ status: 1, createdAt: -1 }) // compound for dashboard queries
 
 export default mongoose.models.Booking || mongoose.model('Booking', bookingSchema)

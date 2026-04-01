@@ -15,6 +15,30 @@ const GoogleIcon = () => (
   </svg>
 )
 
+const CheckCircle = ({ ok }) => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={ok ? '#22c55e' : 'rgba(255,255,255,0.15)'} strokeWidth="2.5">
+    <circle cx="12" cy="12" r="10" />{ok && <polyline points="9,12 11,14 15,10" />}
+  </svg>
+)
+
+// Password strength rules
+const PASSWORD_RULES = [
+  { id: 'length', label: 'At least 8 characters',      test: p => p.length >= 8 },
+  { id: 'upper',  label: 'One uppercase letter (A–Z)',  test: p => /[A-Z]/.test(p) },
+  { id: 'lower',  label: 'One lowercase letter (a–z)',  test: p => /[a-z]/.test(p) },
+  { id: 'number', label: 'One number (0–9)',            test: p => /[0-9]/.test(p) },
+  { id: 'symbol', label: 'One special character (!@#$)', test: p => /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(p) },
+]
+
+const getStrength = (password) => {
+  if (!password) return { level: 0, label: '', color: '' }
+  const passed = PASSWORD_RULES.filter(r => r.test(password)).length
+  if (passed <= 2) return { level: 1, label: 'Weak',        color: '#ef4444' }
+  if (passed <= 3) return { level: 2, label: 'Medium',      color: '#f59e0b' }
+  if (passed <= 4) return { level: 3, label: 'Strong',      color: '#22c55e' }
+  return                   { level: 4, label: 'Very Strong', color: '#10b981' }
+}
+
 const Login = () => {
   const [tab, setTab]           = useState('login')
   const [email, setEmail]       = useState('')
@@ -34,14 +58,21 @@ const Login = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     const errObj = params.get('error')
-    if (errObj === 'google_failed') setError('Google login failed. Please ensure your backend server is restarted and Google Console configuration is correct.')
+    if (errObj === 'google_failed') setError('Google login failed. Please try again.')
     else if (errObj === 'google_not_configured') setError('Google login is not configured correctly on the server.')
-    else if (errObj === 'token_failed') setError('Failed to generate user token.')
-  }, [location.search])
+    else if (errObj === 'token_failed') setError('Failed to generate session.')
+    // Handle successful OAuth redirect
+    if (params.get('oauth') === 'success') {
+      navigate(from, { replace: true })
+    }
+  }, [location.search, from, navigate])
 
   const reset = () => { setError(''); setEmail(''); setPassword(''); setName(''); setPhone('') }
 
   const validateEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
+
+  const strength = tab === 'signup' ? getStrength(password) : null
+  const allRulesPass = tab === 'signup' ? PASSWORD_RULES.every(r => r.test(password)) : true
 
   const handleSubmit = async () => {
     setError('')
@@ -52,6 +83,10 @@ const Login = () => {
       setLoading(true)
       const result = await customerLogin(email, password)
       setLoading(false)
+      if (result.needsVerification) {
+        navigate('/verify-otp', { state: { email: result.email } })
+        return
+      }
       if (result.success) {
         navigate(from, { replace: true })
       } else {
@@ -63,13 +98,13 @@ const Login = () => {
     if (tab === 'signup') {
       if (!name.trim() || !email || !password) { setError('Please fill in all required fields.'); return }
       if (!validateEmail(email)) { setError('Please enter a valid email address.'); return }
-      if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
+      if (!allRulesPass) { setError('Please ensure your password meets all requirements.'); return }
       setLoading(true)
       const result = await customerSignup(name.trim(), email, password, phone)
       setLoading(false)
-      if (result.success) {
-        navigate(from, { replace: true })
-      } else {
+      if (result.needsVerification) {
+        navigate('/verify-otp', { state: { email: result.email || email } })
+      } else if (!result.success) {
         setError(result.error || 'Failed to create account. Please try again.')
       }
       return
@@ -77,7 +112,8 @@ const Login = () => {
   }
 
   const handleGoogleLogin = () => {
-    window.location.href = '/api/auth/google'
+    const backendUrl = import.meta.env.VITE_API_URL || ''
+    window.location.href = `${backendUrl}/api/auth/google`
   }
 
   return (
@@ -126,6 +162,13 @@ const Login = () => {
         .login-divider span { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-card); padding: 0 12px; font-size: 11px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
         .login-footer { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 16px; }
         .login-footer a { color: var(--accent); font-weight: 700; text-decoration: none; }
+
+        .pw-strength { margin-top: 8px; }
+        .pw-strength-bar { height: 3px; background: rgba(255,255,255,0.06); overflow: hidden; margin-bottom: 6px; }
+        .pw-strength-fill { height: 100%; transition: width 0.3s, background 0.3s; }
+        .pw-strength-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+        .pw-rules { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+        .pw-rule { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; transition: color 0.2s; }
       `}</style>
 
       <div className="login-page">
@@ -133,7 +176,7 @@ const Login = () => {
 
           <div className="login-brand">
             <div className="login-brand__logo">JOURNEY<span>RENTALS</span></div>
-            <div className="login-brand__sub">Customer Portal · Solapur</div>
+            <div className="login-brand__sub">Solapur</div>
           </div>
 
           <div className="login-tabs">
@@ -148,11 +191,11 @@ const Login = () => {
               <>
                 <div className="login-field">
                   <label className="login-label">Full Name *</label>
-                  <input id="signup-name" className="login-input" placeholder="Rahul Sharma" value={name} onChange={e => setName(e.target.value)} />
+                  <input id="signup-name" className="login-input" placeholder="Rohan Desai" value={name} onChange={e => setName(e.target.value)} />
                 </div>
                 <div className="login-field">
                   <label className="login-label">Phone Number</label>
-                  <input id="signup-phone" className="login-input" type="tel" placeholder="9876543210" value={phone} onChange={e => setPhone(e.target.value)} />
+                  <input id="signup-phone" className="login-input" type="tel" placeholder="Enter 10-digit mobile number" value={phone} onChange={e => setPhone(e.target.value)} />
                 </div>
               </>
             )}
@@ -163,7 +206,7 @@ const Login = () => {
                 id="login-email"
                 className={`login-input ${error && !email ? 'error' : ''}`}
                 type="email"
-                placeholder="you@email.com"
+                placeholder="Enter your email address"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSubmit()}
@@ -177,7 +220,7 @@ const Login = () => {
                   id="login-password"
                   className={`login-input ${error && !password ? 'error' : ''}`}
                   type={showPass ? 'text' : 'password'}
-                  placeholder={tab === 'signup' ? 'Min 6 characters' : 'Enter password'}
+                  placeholder={tab === 'signup' ? 'Min 8 chars, mixed case, number, symbol' : 'Enter password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSubmit()}
@@ -187,9 +230,37 @@ const Login = () => {
                   <EyeIcon open={showPass} />
                 </button>
               </div>
+
+              {/* Password strength indicator — signup only */}
+              {tab === 'signup' && password && (
+                <div className="pw-strength">
+                  <div className="pw-strength-bar">
+                    <div className="pw-strength-fill" style={{
+                      width: `${(strength.level / 4) * 100}%`,
+                      background: strength.color,
+                    }} />
+                  </div>
+                  <div className="pw-strength-label" style={{ color: strength.color }}>
+                    {strength.label}
+                  </div>
+                  <div className="pw-rules">
+                    {PASSWORD_RULES.map(rule => (
+                      <div key={rule.id} className="pw-rule" style={{ color: rule.test(password) ? '#22c55e' : 'rgba(255,255,255,0.25)' }}>
+                        <CheckCircle ok={rule.test(password)} />
+                        {rule.label}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <button id="login-submit-btn" className="login-btn" disabled={loading} onClick={handleSubmit}>
+            <button
+              id="login-submit-btn"
+              className="login-btn"
+              disabled={loading || (tab === 'signup' && !allRulesPass)}
+              onClick={handleSubmit}
+            >
               {loading
                 ? <><span className="login-spinner" />{tab === 'login' ? 'Signing in...' : 'Creating account...'}</>
                 : tab === 'login' ? 'Sign In' : 'Create Account'
