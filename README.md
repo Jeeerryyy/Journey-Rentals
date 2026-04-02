@@ -7,7 +7,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Stack-MERN-svg?style=for-the-badge&logo=mongodb&logoColor=white&color=47A248" alt="MERN Stack">
   <img src="https://img.shields.io/badge/Status-Live-svg?style=for-the-badge&logo=vercel&logoColor=white&color=000000" alt="Status">
-  <img src="https://img.shields.io/badge/Location-Pune%2C%20India-svg?style=for-the-badge&logo=googlemaps&logoColor=white&color=EA4335" alt="Location">
+  <img src="https://img.shields.io/badge/Location-Solapur%2C%20India-svg?style=for-the-badge&logo=googlemaps&logoColor=white&color=EA4335" alt="Location">
 </p>
 
 <p align="center">
