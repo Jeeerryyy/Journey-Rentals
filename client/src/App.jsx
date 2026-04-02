@@ -3,23 +3,22 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 
-const Home             = lazy(() => import('./pages/Home'))
-const Cars             = lazy(() => import('./pages/Cars'))
-const CarDetails       = lazy(() => import('./pages/CarDetails'))
-const Account          = lazy(() => import('./pages/MyBookings'))
-const Login            = lazy(() => import('./pages/Login'))
-const OTPVerification  = lazy(() => import('./pages/OTPVerification'))
-const HelpSupport      = lazy(() => import('./pages/HelpSupport'))
-const NotFound         = lazy(() => import('./pages/NotFound'))
+const Home = lazy(() => import('./pages/Home'))
+const Cars = lazy(() => import('./pages/Cars'))
+const CarDetails = lazy(() => import('./pages/CarDetails'))
+const Account = lazy(() => import('./pages/MyBookings'))
+const Login = lazy(() => import('./pages/Login'))
+const OTPVerification = lazy(() => import('./pages/OTPVerification'))
+const HelpSupport = lazy(() => import('./pages/HelpSupport'))
 
-const OwnerLogin       = lazy(() => import('./pages/owner/OwnerLogin'))
-const Layout           = lazy(() => import('./pages/owner/Layout'))
-const Dashboard        = lazy(() => import('./pages/owner/Dashboard'))
-const AddCar           = lazy(() => import('./pages/owner/AddCar'))
-const ManageCars       = lazy(() => import('./pages/owner/ManageCars'))
-const ManageBookings   = lazy(() => import('./pages/owner/ManageBookings'))
-const FleetEditor      = lazy(() => import('./pages/owner/FleetEditor'))
-const OwnerProfile     = lazy(() => import('./pages/owner/Profile'))
+const OwnerLogin = lazy(() => import('./pages/owner/OwnerLogin'))
+const Layout = lazy(() => import('./pages/owner/Layout'))
+const Dashboard = lazy(() => import('./pages/owner/Dashboard'))
+const AddCar = lazy(() => import('./pages/owner/AddCar'))
+const ManageCars = lazy(() => import('./pages/owner/ManageCars'))
+const ManageBookings = lazy(() => import('./pages/owner/ManageBookings'))
+const FleetEditor = lazy(() => import('./pages/owner/FleetEditor'))
+const OwnerProfile = lazy(() => import('./pages/owner/Profile'))
 
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -39,11 +38,11 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0a0a', color: '#fff', fontFamily: 'var(--font-display, "Syne", sans-serif)', padding: '24px', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '12px', letterSpacing: '0.04em' }}>Oops, something broke</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '32px', maxWidth: '400px', lineHeight: 1.6 }}>We ran into an unexpected issue. Refreshing the page usually fixes it.</p>
-          <button onClick={() => window.location.reload()} style={{ padding: '14px 28px', background: '#ffd200', color: '#111', border: 'none', fontWeight: 700, cursor: 'pointer', borderRadius: '4px', fontSize: '14px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            Refresh page
+        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0a0a', color: '#fff', fontFamily: 'sans-serif' }}>
+          <h1 style={{ fontSize: '32px', marginBottom: '16px' }}>SOMETHING WENT WRONG</h1>
+          <p style={{ color: '#888', marginBottom: '32px' }}>An unexpected error occurred. Please refresh the page to try again.</p>
+          <button onClick={() => window.location.reload()} style={{ padding: '12px 24px', background: '#ffd200', color: '#111', border: 'none', fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px' }}>
+            REFRESH PAGE
           </button>
         </div>
       )
@@ -108,7 +107,7 @@ const AppInner = () => {
             <Route path="fleet-editor" element={<FleetEditor />} />
             <Route path="profile" element={<OwnerProfile />} />
           </Route>
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
       {!isOwnerPath && !isAuthPage && <Footer />}
