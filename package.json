@@ -1,10 +1,6 @@
 {
   "name": "journey-rentals",
   "private": true,
-  "workspaces": [
-    "client",
-    "api"
-  ],
   "scripts": {
     "start": "npx concurrently \"npm run dev --prefix client\" \"npm run dev --prefix api\"",
     "build": "npm run build --prefix client",
