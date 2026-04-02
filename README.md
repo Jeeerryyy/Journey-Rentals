@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="favicon.svg" alt="Journey Rentals" width="80" height="80">
+</p>
+
 # 🚗 Journey Rentals
 
 <p align="center">
