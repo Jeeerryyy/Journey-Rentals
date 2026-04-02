@@ -19,12 +19,17 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install All Dependencies
+      - name: Install API Dependencies
+        working-directory: ./api
         run: npm install
 
       - name: API Security Audit
         working-directory: ./api
         run: npm audit --audit-level=high
+
+      - name: Install Client Dependencies
+        working-directory: ./client
+        run: npm install
 
       - name: Frontend Build Verification
         working-directory: ./client
