@@ -1,5 +1,5 @@
 {
-  "installCommand": "cd client && npm install",
+  "installCommand": "cd client && npm install --loglevel=error",
   "buildCommand": "cd client && npm run build",
   "outputDirectory": "client/dist",
   "rewrites": [
