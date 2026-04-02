@@ -6,6 +6,7 @@
     "api"
   ],
   "scripts": {
+    "start": "npx concurrently \"npm run dev --prefix client\" \"npm run dev --prefix api\"",
     "build": "npm run build --prefix client",
     "vercel-build": "npm install --prefix client --include=dev && npm install --prefix api && npm run build --prefix client && rm -rf dist && cp -r client/dist dist"
   },

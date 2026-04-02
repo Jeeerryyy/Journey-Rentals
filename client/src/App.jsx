@@ -3,22 +3,22 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 
-const Home = lazy(() => import('./pages/Home'))
-const Cars = lazy(() => import('./pages/Cars'))
-const CarDetails = lazy(() => import('./pages/CarDetails'))
-const Account = lazy(() => import('./pages/MyBookings'))
-const Login = lazy(() => import('./pages/Login'))
-const OTPVerification = lazy(() => import('./pages/OTPVerification'))
-const HelpSupport = lazy(() => import('./pages/HelpSupport'))
+const Home = lazy(() => import('./features/home/Home'))
+const Cars = lazy(() => import('./features/vehicles/Cars'))
+const CarDetails = lazy(() => import('./features/vehicles/CarDetails'))
+const Account = lazy(() => import('./features/bookings/MyBookings'))
+const Login = lazy(() => import('./features/auth/Login'))
+const OTPVerification = lazy(() => import('./features/auth/OTPVerification'))
+const HelpSupport = lazy(() => import('./features/support/HelpSupport'))
 
-const OwnerLogin = lazy(() => import('./pages/owner/OwnerLogin'))
-const Layout = lazy(() => import('./pages/owner/Layout'))
-const Dashboard = lazy(() => import('./pages/owner/Dashboard'))
-const AddCar = lazy(() => import('./pages/owner/AddCar'))
-const ManageCars = lazy(() => import('./pages/owner/ManageCars'))
-const ManageBookings = lazy(() => import('./pages/owner/ManageBookings'))
-const FleetEditor = lazy(() => import('./pages/owner/FleetEditor'))
-const OwnerProfile = lazy(() => import('./pages/owner/Profile'))
+const OwnerLogin = lazy(() => import('./features/owner/OwnerLogin'))
+const Layout = lazy(() => import('./features/owner/Layout'))
+const Dashboard = lazy(() => import('./features/owner/Dashboard'))
+const AddCar = lazy(() => import('./features/owner/AddCar'))
+const ManageCars = lazy(() => import('./features/owner/ManageCars'))
+const ManageBookings = lazy(() => import('./features/owner/ManageBookings'))
+const FleetEditor = lazy(() => import('./features/owner/FleetEditor'))
+const OwnerProfile = lazy(() => import('./features/owner/Profile'))
 
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'

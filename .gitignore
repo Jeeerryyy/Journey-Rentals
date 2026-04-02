@@ -73,6 +73,7 @@ Desktop.ini
 *.orig
 *.seed.js.tmp
 file_map.txt
+inventory.txt
 project_analysis_report.md
 
 # ═══════════════════════════════════════════════
