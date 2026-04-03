@@ -1,7 +1,7 @@
 import Background from './Background'
 import Hero from './Hero'
 import AboutSection from './AboutSection'
-import FleetSection from '../../components/FleetSection'
+import FleetSection from '../vehicles/FleetSection'
 import ReviewsSection from './ReviewsSection'
 import CTASection from './CTASection'
 
