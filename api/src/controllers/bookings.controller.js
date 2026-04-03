@@ -31,7 +31,7 @@ async function triggerBookingConfirmation(booking) {
     const endDate = booking.bookingType === 'car' ? (booking.returnDate ? booking.returnDate.toISOString().split('T')[0] : '') : (booking.bikeDate ? booking.bikeDate.toISOString().split('T')[0] : '');
     
     const waMessage = encodeURIComponent(
-      "Hi! My booking is confirmed on Journey Rentals.\nBooking ID: " + booking._id + "\nVehicle: " + vehicleName + "\nFrom: " + startDate + " To: " + endDate + "\nName: " + booking.userSnapshot.name
+      "Hi! My booking is confirmed on Journey Rentals.\nBooking ID: " + booking.referenceId + "\nVehicle: " + vehicleName + "\nFrom: " + startDate + " To: " + endDate + "\nName: " + booking.userSnapshot.name
     );
     const waLink = "https://wa.me/" + ownerWhatsapp + "?text=" + waMessage;
 
@@ -44,7 +44,7 @@ async function triggerBookingConfirmation(booking) {
         startDate,
         endDate,
         totalAmount: booking.totalPrice,
-        bookingId: booking._id,
+        bookingId: booking.referenceId,
         waLink
       }).catch(err => console.error('Customer Mail Error:', err.message)),
       sendOwnerBookingNotificationEmail(ownerEmail, {
@@ -54,7 +54,7 @@ async function triggerBookingConfirmation(booking) {
         startDate,
         endDate,
         totalAmount: booking.totalPrice,
-        bookingId: booking._id,
+        bookingId: booking.referenceId,
         pickupLocation: booking.pickupLocation,
       }).catch(err => console.error(`Owner Mail Error to ${ownerEmail}:`, err.message)),
       sendOwnerWhatsAppNotification({
@@ -64,7 +64,7 @@ async function triggerBookingConfirmation(booking) {
         startDate,
         endDate,
         totalAmount: booking.totalPrice,
-        bookingId: booking._id,
+        bookingId: booking.referenceId,
         pickupLocation: booking.pickupLocation,
       }).catch(err => console.error('Owner WhatsApp Error:', err.message))
     ]);
@@ -121,7 +121,7 @@ export const createOrder = async (req, res) => {
     }
 
     const advanceAmount = Math.min(ADVANCE, totalPrice)
-    const referenceId = `JR${Date.now().toString().slice(-8)}`
+    const referenceId = Date.now().toString().slice(-8)
 
     // ── Build booking document ──
     const bookingData = {

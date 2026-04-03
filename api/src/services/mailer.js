@@ -83,49 +83,48 @@ export async function sendBookingConfirmationEmail(to, data) {
   const subject = 'Booking Confirmed — Journey Rentals 🎉';
 
   const html = `
-    <div style="font-family: 'Inter', 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; color: #222222; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-      <div style="background: #000000; padding: 28px 24px; text-align: center;">
-        <h1 style="font-size: 26px; font-weight: 800; letter-spacing: 0.05em; margin: 0; color: #ffffff;">
-          JOURNEY<span style="color: #ffd200;">RENTALS</span>
-        </h1>
-        <p style="font-size: 13px; color: #ffd200; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px; margin-bottom: 0;">Booking Confirmed</p>
-      </div>
-      
-      <div style="padding: 36px 28px;">
-        <p style="font-size: 16px; line-height: 1.5; margin-top: 0; margin-bottom: 24px;">Hi <strong>${customerName}</strong>,</p>
-        <p style="font-size: 16px; line-height: 1.5; margin-top: 0; margin-bottom: 28px;">Your booking has been successfully confirmed. Below are your verified details:</p>
-        
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 15px; border-radius: 6px; overflow: hidden; border-style: hidden; box-shadow: 0 0 0 1px #e0e0e0;">
-          <tbody>
-            <tr>
-              <td style="padding: 14px 16px; border: 1px solid #e0e0e0; font-weight: 600; width: 35%; background: #f7f7f7; color: #555; text-align: left; vertical-align: top;">Booking ID</td>
-              <td style="padding: 14px 16px; border: 1px solid #e0e0e0; background: #ffffff; text-align: left; vertical-align: top;">${bookingId}</td>
-            </tr>
-            <tr>
-              <td style="padding: 14px 16px; border: 1px solid #e0e0e0; font-weight: 600; background: #f7f7f7; color: #555; text-align: left; vertical-align: top;">Product Booked</td>
-              <td style="padding: 14px 16px; border: 1px solid #e0e0e0; background: #ffffff; text-align: left; vertical-align: top;">${vehicleName}</td>
-            </tr>
-            <tr>
-              <td style="padding: 14px 16px; border: 1px solid #e0e0e0; font-weight: 600; background: #f7f7f7; color: #555; text-align: left; vertical-align: top;">Booking Period</td>
-              <td style="padding: 14px 16px; border: 1px solid #e0e0e0; background: #ffffff; text-align: left; vertical-align: top;">From <strong>${startDate}</strong><br>to <strong>${endDate}</strong></td>
-            </tr>
-            <tr>
-              <td style="padding: 14px 16px; border: 1px solid #e0e0e0; font-weight: 600; background: #f7f7f7; color: #555; text-align: left; vertical-align: top;">Amount Assigned</td>
-              <td style="padding: 14px 16px; border: 1px solid #e0e0e0; background: #ffffff; text-align: left; font-weight: 600; vertical-align: top;">Rs. ${totalAmount}</td>
-            </tr>
-          </tbody>
-        </table>
+<pre style="font-family: 'Courier New', Courier, monospace; font-size: 14px; line-height: 1.5; max-width: 600px; margin: 0 auto; color: #222;">
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  JOURNEY RENTALS  ·  Booking Confirmed
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-        <div style="text-align: center; margin-top: 40px; margin-bottom: 32px; padding: 24px; background: #fdfdfd; border: 1px solid #f0f0f0; border-radius: 8px;">
-          <p style="font-size: 15px; font-weight: 500; margin-top: 0; margin-bottom: 16px;">Need help? Contact us directly on WhatsApp:</p>
-          <a href="${waLink}" style="display: inline-block; background: #25D366; color: #ffffff; text-decoration: none; padding: 14px 32px; font-weight: bold; border-radius: 8px; font-size: 16px; letter-spacing: 0.02em;">💬 Chat with Us</a>
-          <p style="font-size: 13px; color: #777; margin-top: 14px; margin-bottom: 0;">Tap to automatically share your booking details with our team.</p>
-        </div>
-        
-        <p style="font-size: 16px; margin-top: 0; margin-bottom: 4px; color: #444;">Thank you for choosing Journey Rentals!</p>
-        <p style="font-size: 16px; font-weight: 700; margin-top: 0; margin-bottom: 0; color: #000;">Team JourneyRentals</p>
-      </div>
-    </div>
+Hello ${customerName},
+
+Your booking has been confirmed. Here's a summary of your reservation:
+
+  ┌─────────────────────────────────────┐
+  │  BOOKING DETAILS                    │
+  ├─────────────────────────────────────┤
+  │  Booking No   ${String(bookingId).padEnd(21, ' ')} │
+  │  Product      ${String(vehicleName).slice(0, 21).padEnd(21, ' ')} │
+  │  Pickup       ${String(startDate).padEnd(21, ' ')} │
+  │  Return       ${String(endDate).padEnd(21, ' ')} │
+  │  Amount       ₹ ${String(totalAmount).padEnd(19, ' ')} │
+  └─────────────────────────────────────┘
+
+Please keep this email for your records.
+
+─────────────────────────────────────
+  NEED HELP?
+─────────────────────────────────────
+
+Our team is available on WhatsApp. Tap the link below to connect — your
+booking details will be shared automatically:
+
+  ${waLink}
+
+─────────────────────────────────────
+
+Thank you for choosing Journey Rentals.
+We look forward to serving you.
+
+— Team Journey Rentals
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+This is an automated message. Please do not reply to this email.
+For support, use the WhatsApp link above.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+</pre>
   `;
 
   if (transporter) {
