@@ -3,7 +3,7 @@
  */
 import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
-import OTP from './models/OTP.js'
+import OTP from '../models/OTP.js'
 
 /**
  * Generate a 6-digit cryptographically secure OTP
