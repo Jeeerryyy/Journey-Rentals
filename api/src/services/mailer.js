@@ -88,7 +88,8 @@ export async function sendBookingConfirmationEmail(to, data) {
         
         <!-- Header -->
         <div style="background: #000000; padding: 32px 24px; text-align: center;">
-          <h1 style="font-size: 28px; font-weight: 900; letter-spacing: 0.5px; margin: 0; color: #ffffff;">
+          <img src="https://cdn.jsdelivr.net/gh/Jeeerryyy/Journey-Rentals@main/client/public/favicon.svg" alt="Journey Rentals" width="48" height="48" style="display: block; margin: 0 auto 16px auto;" />
+          <h1 style="font-size: 24px; font-weight: 900; letter-spacing: 0.5px; margin: 0; color: #ffffff; white-space: nowrap;">
             JOURNEY<span style="color: #FFD200;">RENTALS</span>
           </h1>
           <p style="font-size: 11px; font-weight: 700; color: #FFD200; letter-spacing: 2px; text-transform: uppercase; margin: 8px 0 0 0;">
