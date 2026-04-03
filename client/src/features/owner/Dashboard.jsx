@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { api } from '../../lib/api.js'
 import { statusConfig } from '../../lib/utils.js'
-import NotificationToggle from '../../components/owner/NotificationToggle.jsx'
-import BookingPhotoModal from '../../components/owner/BookingPhotoModal.jsx'
+import NotificationToggle from './NotificationToggle.jsx'
+import BookingPhotoModal from './BookingPhotoModal.jsx'
 
 const Dashboard = () => {
   const { owner } = useAuth()

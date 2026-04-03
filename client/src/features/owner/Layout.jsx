@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom'
 import { animateThemeToggle } from '../../utils/themeToggle'
 import { useAuth } from '../../context/AuthContext'
-import NotificationToggle from '../../components/owner/NotificationToggle.jsx'
-import BookingPhotoModal from '../../components/owner/BookingPhotoModal.jsx'
+import NotificationToggle from './NotificationToggle.jsx'
+import BookingPhotoModal from './BookingPhotoModal.jsx'
 
 const menuItems = [
   { name: 'Dashboard', path: '/owner', icon: (
