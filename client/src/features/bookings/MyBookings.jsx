@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../../lib/api.js'
 import { statusConfig } from '../../lib/utils.js'
 import { CalIcon, CarIcon } from '../../components/Icons'
-import Profile from './Profile'
+import Profile from '../profile/Profile'
 
 const MyBookings = () => {
   const [filter, setFilter]   = useState('profile')
