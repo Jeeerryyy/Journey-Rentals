@@ -63,7 +63,8 @@ const CustomerRoute = ({ children }) => {
 
 // Protect owner routes
 const OwnerRoute = ({ children }) => {
-  const { owner } = useAuth()
+  const { owner, isLoaded } = useAuth()
+  if (!isLoaded) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '0.1em' }}>LOADING...</div>
   if (!owner) return <Navigate to="/owner-login" replace />
   return children
 }
@@ -76,7 +77,8 @@ const GuestRoute = ({ children }) => {
 }
 
 const GuestOwnerRoute = ({ children }) => {
-  const { owner } = useAuth()
+  const { owner, isLoaded } = useAuth()
+  if (!isLoaded) return null
   if (owner) return <Navigate to="/owner" replace />
   return children
 }

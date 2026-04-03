@@ -15,6 +15,11 @@ const MAX_RECONNECT_ATTEMPTS = 10
 mongoose.connection.on('connected', () => {
   isConnected = true
   reconnectAttempts = 0
+  console.log(JSON.stringify({
+    level: 'info',
+    message: 'MongoDB successfully connected and ready',
+    timestamp: new Date().toISOString(),
+  }))
 })
 
 mongoose.connection.on('disconnected', () => {
@@ -52,8 +57,8 @@ async function connectDB() {
   try {
     await mongoose.connect(MONGODB_URI, {
       maxPoolSize:              10,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS:          45000,
+      serverSelectionTimeoutMS: 60000,
+      socketTimeoutMS:          60000,
       family:                   4,
     })
   } catch (err) {
