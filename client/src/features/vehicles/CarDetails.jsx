@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { useAuth } from '../../context/AuthContext'
 import { api } from '../../lib/api.js'
 import { toBase64 } from '../../lib/utils.js'
-import { UploadIcon } from '../../components/Icons'
+import { UploadIcon, CheckIcon } from '../../components/Icons'
 import VehicleHero from './components/VehicleHero'
 import VehicleSpecs from './components/VehicleSpecs'
 
