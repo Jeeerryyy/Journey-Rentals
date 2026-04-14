@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { api } from '../../lib/api.js'
 import { statusConfig } from '../../lib/utils.js'
 import { CalIcon, CarIcon } from '../../components/Icons'
@@ -8,6 +9,7 @@ import Profile from '../profile/Profile'
 const MyBookings = () => {
   const [filter, setFilter]   = useState('profile')
   const [cancelId, setCancelId] = useState(null)
+  const [extendingId, setExtendingId] = useState(null)
   const [bookings, setBookings] = useState([])
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState(null)
@@ -51,8 +53,23 @@ const MyBookings = () => {
     }
   }
 
+  const handleExtensionRequest = async (id) => {
+    try {
+      await api.bookings.requestExtension(id)
+      setBookings(prev => prev.map(b => b._id === id ? { ...b, extensionRequested: true, extensionStatus: 'pending' } : b))
+      alert('Extension requested successfully. We will review and contact you shortly.')
+      setExtendingId(null)
+    } catch (err) {
+      alert('Extension request failed: ' + err.message)
+    }
+  }
+
   return (
     <>
+      <Helmet>
+        <title>My Account & Bookings | Journey Rentals</title>
+        <meta name="description" content="View your Journey Rentals profile and booking history. Manage active reservations and track your rides." />
+      </Helmet>
       <style>{`
         .mybookings-page {
           background: var(--bg);
@@ -277,9 +294,22 @@ const MyBookings = () => {
                       </div>
                     </div>
                     {(booking.status === 'confirmed' || booking.status === 'pending') && (
-                      <button className="booking-item__cancel-btn" onClick={() => setCancelId(booking._id)}>
-                        Cancel
-                      </button>
+                      <div style={{ display: 'flex', gap: '16px', marginTop: '10px' }}>
+                        {booking.status === 'confirmed' && (
+                          booking.extensionRequested ? (
+                            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent)' }}>
+                              Extend {booking.extensionStatus}
+                            </span>
+                          ) : (
+                            <button className="booking-item__cancel-btn" style={{ color: 'var(--accent)' }} onClick={() => setExtendingId(booking._id)}>
+                              Extend
+                            </button>
+                          )
+                        )}
+                        <button className="booking-item__cancel-btn" onClick={() => setCancelId(booking._id)}>
+                          Cancel
+                        </button>
+                      </div>
                     )}
                     {booking.status === 'completed' && (
                       <Link to="/cars" style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent)' }}>
@@ -316,6 +346,29 @@ const MyBookings = () => {
           </div>
         </div>
       )}
+
+      {/* Extension request modal */}
+      {extendingId && (
+        <div className="cancel-overlay" onClick={() => setExtendingId(null)}>
+          <div className="cancel-modal" onClick={e => e.stopPropagation()}>
+            <div className="cancel-modal__title">Request Extension?</div>
+            <p className="cancel-modal__desc">
+              Would you like to extend your rental duration? We will review your request and get in touch with the updated pricing.
+            </p>
+            <div className="cancel-modal__actions">
+              <button className="btn btn--yellow" style={{ fontSize: '12px', flex: 1, justifyContent: 'center' }}
+                onClick={() => handleExtensionRequest(extendingId)}>
+                Request Extension
+              </button>
+              <button className="btn btn--outline" style={{ fontSize: '12px', flex: 1, justifyContent: 'center' }}
+                onClick={() => setExtendingId(null)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   )
 }

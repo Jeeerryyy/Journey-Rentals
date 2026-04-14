@@ -25,6 +25,8 @@ const MapPinIcon = () => (
   </svg>
 )
 
+import { Helmet } from 'react-helmet-async'
+
 const CONTACT_WHATSAPP = 'https://wa.me/919604437794'
 const CONTACT_PHONE = 'tel:+919604437794'
 const CONTACT_INSTAGRAM = 'https://www.instagram.com/journey_bikes_cars_rental_'
@@ -33,6 +35,11 @@ const CONTACT_MAPS = 'https://maps.app.goo.gl/iPTxydN8fSXKogx1A'
 const HelpSupport = () => {
   return (
     <div className="page-transition">
+      <Helmet>
+        <title>Help & Support | Journey Rentals</title>
+        <meta name="description" content="Get help with your Journey Rentals booking. Contact us via WhatsApp, phone, Instagram, or visit our office in Solapur." />
+        <link rel="canonical" href="https://journeyrentals.vercel.app/support" />
+      </Helmet>
       <div className="container" style={{ padding: '60px 20px', minHeight: '80vh' }}>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '42px', color: 'var(--text)', marginBottom: '12px', letterSpacing: '0.02em', textAlign: 'center' }}>
           Need Help? We're here.

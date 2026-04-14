@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '../../context/AuthContext'
 
 const EyeIcon = ({ open }) => open
@@ -118,6 +119,10 @@ const Login = () => {
 
   return (
     <>
+      <Helmet>
+        <title>{tab === 'login' ? 'Sign In' : 'Create Account'} | Journey Rentals</title>
+        <meta name="description" content="Sign in or create your Journey Rentals account to book premium cars and bikes in Solapur." />
+      </Helmet>
       <style>{`
         .login-page {
           min-height: 100vh; background: var(--bg);

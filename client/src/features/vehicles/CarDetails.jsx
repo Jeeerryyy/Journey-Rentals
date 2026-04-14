@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '../../context/AuthContext'
 import { api } from '../../lib/api.js'
 import { toBase64 } from '../../lib/utils.js'
-import { UsersIcon, FuelIcon, GearIcon, CheckIcon, UploadIcon, ClockIcon } from '../../components/Icons'
+import { UploadIcon } from '../../components/Icons'
+import VehicleHero from './components/VehicleHero'
+import VehicleSpecs from './components/VehicleSpecs'
 
 const AlertTriangleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -65,15 +68,6 @@ const CarDetails = () => {
   const isBike    = vehicle?.type === 'bike'
   const BIKE_SLOTS = buildBikeSlots(vehicle?.bikeSlots)
   const heroImages = vehicle?.images?.length > 0 ? vehicle.images : [vehicle?.image].filter(Boolean)
-
-  useEffect(() => {
-    if (heroImages.length > 1) {
-      const interval = setInterval(() => {
-        setImgIdx(i => (i + 1) % heroImages.length)
-      }, 4000)
-      return () => clearInterval(interval)
-    }
-  }, [heroImages.length])
 
   // Fetch remote vehicle data
   useEffect(() => {
@@ -262,6 +256,14 @@ const CarDetails = () => {
 
   return (
     <>
+      <Helmet>
+        <title>{vehicle.brand} {vehicle.model} — Rent Now | Journey Rentals</title>
+        <meta name="description" content={`Rent the ${vehicle.brand} ${vehicle.model} (${vehicle.category}) in Solapur. ${vehicle.fuelType}, ${vehicle.transmission}, ${vehicle.sittingCapacity} seats. Book instantly with Journey Rentals.`} />
+        <meta property="og:title" content={`${vehicle.brand} ${vehicle.model} — Journey Rentals`} />
+        <meta property="og:description" content={`Rent the ${vehicle.brand} ${vehicle.model} starting at ₹${vehicle.pricePerDay || 'affordable rates'}/day.`} />
+        {heroImages[0] && <meta property="og:image" content={heroImages[0]} />}
+        <link rel="canonical" href={`https://journeyrentals.vercel.app/car-details/${id}`} />
+      </Helmet>
       <style>{`
         .cardetails-page { background: var(--bg); min-height: 100vh; padding-top: 80px; }
         .cardetails-hero { position: relative; height: clamp(260px, 40vw, 480px); overflow: hidden; background: #0c0c0c; }
@@ -393,73 +395,18 @@ const CarDetails = () => {
 
       <div className="cardetails-page">
 
-        {/* Hero image */}
-        <div className="cardetails-hero">
-          <img key={imgIdx} src={heroImages[imgIdx]} alt={`${vehicle.brand} ${vehicle.model}`} className="hero-img-fade" />
-          
-          {heroImages.length > 1 && (
-            <>
-              <div className="hero-controls">
-                <button className="hero-btn" onClick={() => setImgIdx(i => (i - 1 + heroImages.length) % heroImages.length)}>‹</button>
-                <button className="hero-btn" onClick={() => setImgIdx(i => (i + 1) % heroImages.length)}>›</button>
-              </div>
-              <div className="cardetails-hero__dots">
-                {heroImages.map((_, i) => (
-                  <div key={i} className={`hero-dot ${i === imgIdx ? 'active' : ''}`} onClick={() => setImgIdx(i)} />
-                ))}
-              </div>
-            </>
-          )}
-
-          <div className="cardetails-hero__overlay" />
-          <div className="cardetails-hero__badge">
-            {vehicle.type === 'bike' ? '🏍 Bike' : '🚗 Car'} · {vehicle.category}
-          </div>
-          <div className="cardetails-hero__info">
-            <div className="cardetails-hero__name">{vehicle.brand}<br />{vehicle.model}</div>
-            <div className="cardetails-hero__meta">
-              {vehicle.year} ·{' '}
-              {vehicle.type === 'bike'
-                ? `₹${BIKE_SLOTS[0].price} / 3hrs · ₹${BIKE_SLOTS[1].price} / 6hrs · ₹${BIKE_SLOTS[2].price} / 12hrs`
-                : `₹${vehicle.pricePerDay?.toLocaleString()} / Day`}
-            </div>
-          </div>
-        </div>
+        <VehicleHero 
+          vehicle={vehicle} 
+          heroImages={heroImages} 
+          isBike={isBike} 
+          BIKE_SLOTS={BIKE_SLOTS} 
+        />
 
         <div className="cardetails-layout">
 
           {/* Left: specs + info */}
           <div>
-            <div className="cardetails-specs-bar">
-              {[
-                { icon: <UsersIcon />, label: 'Capacity',     val: `${vehicle.sittingCapacity} Seats` },
-                { icon: <FuelIcon />,  label: 'Fuel Type',    val: vehicle.fuelType },
-                { icon: <GearIcon />,  label: 'Transmission', val: vehicle.transmission },
-                { icon: <ClockIcon />, label: vehicle.type === 'bike' ? 'Min Rental' : 'Min Days', val: vehicle.type === 'bike' ? '3 Hours' : '1 Day' },
-              ].map(({ icon, label, val }) => (
-                <div className="cardetails-spec" key={label}>
-                  {icon}
-                  <div>
-                    <div className="cardetails-spec-label">{label}</div>
-                    <div className="cardetails-spec-value">{val}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="cardetails-section-title">
-              About this {vehicle.type === 'bike' ? 'bike' : 'car'}
-            </div>
-            <p className="cardetails-desc">{vehicle.description}</p>
-
-            <div className="cardetails-section-title">Features & Amenities</div>
-            <div className="cardetails-features">
-              {vehicle.features?.map(f => (
-                <div key={f} className="cardetails-feature">
-                  <div className="cardetails-feature-check"><CheckIcon /></div>{f}
-                </div>
-              ))}
-            </div>
+            <VehicleSpecs vehicle={vehicle} />
           </div>
 
           {/* Right: booking card */}

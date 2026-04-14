@@ -33,6 +33,8 @@ const ManageBookings = () => {
         advance: b.advancePaid,
         balance: b.balanceDue || (b.totalPrice - b.advancePaid),
         status: b.status,
+        extensionRequested: b.extensionRequested || false,
+        extensionStatus: b.extensionStatus || 'none',
         docs: !!(b.documents?.aadharUrl || b.documents?.licenseUrl),
         aadharUrl: b.documents?.aadharUrl || '',
         licenseUrl: b.documents?.licenseUrl || '',
@@ -97,6 +99,17 @@ const ManageBookings = () => {
       await api.owner.updateBooking(id, { status })
       setBookings(prev => prev.map(b => b._id === id ? { ...b, status } : b))
       if (selected?._id === id) setSelected(prev => ({ ...prev, status }))
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
+  const updateExtensionStatus = async (id, extensionStatus) => {
+    try {
+      await api.owner.updateBooking(id, { extensionStatus })
+      const requested = extensionStatus === 'approved' ? false : true // Or handle appropriately
+      setBookings(prev => prev.map(b => b._id === id ? { ...b, extensionStatus, extensionRequested: extensionStatus === 'approved' ? false : b.extensionRequested } : b))
+      if (selected?._id === id) setSelected(prev => ({ ...prev, extensionStatus, extensionRequested: extensionStatus === 'approved' ? false : prev.extensionRequested }))
     } catch (err) {
       alert(err.message)
     }
@@ -338,7 +351,10 @@ const ManageBookings = () => {
               const st = statusConfig[b.status]
               return (
                 <tr key={b._id} onClick={() => setSelected(b)}>
-                  <td style={{ color: 'var(--accent)', fontWeight: 700 }}>{b.refId}</td>
+                  <td style={{ color: 'var(--accent)', fontWeight: 700 }}>
+                    {b.refId}
+                    {b.extensionRequested && b.extensionStatus === 'pending' && <span style={{ display: 'inline-block', marginLeft: '6px', width: '8px', height: '8px', borderRadius: '50%', background: '#facc15' }} title="Extension Requested" />}
+                  </td>
                   <td>{b.customer}</td>
                   <td style={{ color: 'var(--text-muted)' }}>{b.car}</td>
                   <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{b.pickup} {b.pickupTime && <span style={{fontSize:'10px', opacity:0.8}}><br/>{b.pickupTime}</span>}</td>
@@ -401,6 +417,17 @@ const ManageBookings = () => {
                   {statusConfig[selected.status].label}
                 </span>
               </div>
+              
+              {selected.extensionRequested && (
+                <div style={{ background: 'rgba(250, 204, 21, 0.1)', border: '1px solid rgba(250, 204, 21, 0.3)', padding: '12px', borderRadius: '8px', marginTop: '16px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#facc15', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Extension Requested</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>The customer has requested to extend this rental.</div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="mb-action-btn" style={{ color: '#22c55e', borderColor: 'rgba(34,197,94,0.3)', flex: 1 }} onClick={() => updateExtensionStatus(selected._id, 'approved')}>✓ Approve</button>
+                    <button className="mb-action-btn" style={{ color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)', flex: 1 }} onClick={() => updateExtensionStatus(selected._id, 'rejected')}>✗ Reject</button>
+                  </div>
+                </div>
+              )}
 
               <div className="mb-panel__section">Admin Attachments (Private)</div>
               <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px' }}>Photo of user with the vehicle. Not visible to customer.</div>

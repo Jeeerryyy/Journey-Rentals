@@ -129,6 +129,7 @@ export const api = {
     verify:      (body) => request('/api/bookings/verify-payment', { method: 'POST', body: JSON.stringify(body) }),
     mine:        ()     => request('/api/bookings/mine'),
     cancel:      (id)   => request(`/api/bookings/cancel?id=${id}`, { method: 'PATCH' }),
+    requestExtension: (id) => request(`/api/bookings/${id}/request-extension`, { method: 'PATCH' }),
   },
 
   upload: {

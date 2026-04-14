@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { api } from '../../lib/api.js'
 
 const carCategories = ['All', 'Hatchback', 'Sedan', 'SUV', 'MPV', 'Crossover']
@@ -202,6 +203,11 @@ const Cars = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Browse Fleet — Cars & Bikes | Journey Rentals Solapur</title>
+        <meta name="description" content="Browse our full fleet of rental cars and bikes in Solapur. Filter by type, fuel, transmission, and availability. Book instantly with Journey Rentals." />
+        <link rel="canonical" href="https://journeyrentals.vercel.app/cars" />
+      </Helmet>
       <style>{`
         .cars-page { background: var(--bg); min-height: 100vh; padding-top: 100px; }
         .cars-hero { background: var(--bg-soft); border-bottom: 1px solid var(--border); padding: 48px 0 40px; position: relative; overflow: hidden; }

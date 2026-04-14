@@ -56,6 +56,11 @@ const bookingSchema = new mongoose.Schema({
   },
 
   status:    { type: String, enum: ['pending', 'confirmed', 'completed', 'cancelled'], default: 'pending' },
+  
+  // Extension tracking
+  extensionRequested: { type: Boolean, default: false },
+  extensionStatus:    { type: String, enum: ['none', 'pending', 'approved', 'rejected'], default: 'none' },
+
   createdAt: { type: Date, default: Date.now },
   expiresAt: { type: Date },
 })

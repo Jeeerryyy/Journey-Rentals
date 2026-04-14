@@ -67,6 +67,10 @@ export const getDashboardStats = async (req, res) => {
   try {
     await connectDB()
 
+    // Start of current month for "this month" queries
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+
     const [
       totalBookings,
       pendingBookings,
@@ -77,7 +81,9 @@ export const getDashboardStats = async (req, res) => {
       availableVehicles,
       totalUsers,
       recentBookings,
-      revenue
+      revenue,
+      monthlyBookings,
+      monthlyRevenue
     ] = await Promise.all([
       Booking.countDocuments({ status: { $ne: 'pending' } }),
       Booking.countDocuments({ status: 'pending' }),
@@ -93,6 +99,16 @@ export const getDashboardStats = async (req, res) => {
         .select('referenceId vehicleSnapshot userSnapshot status totalPrice createdAt'),
       Booking.aggregate([
         { $match: { status: { $in: ['confirmed', 'completed'] } } },
+        { $group: { _id: null, total: { $sum: '$advancePaid' } } }
+      ]),
+      // This month's bookings count
+      Booking.countDocuments({
+        status: { $in: ['confirmed', 'completed'] },
+        createdAt: { $gte: monthStart }
+      }),
+      // This month's revenue (advance collected)
+      Booking.aggregate([
+        { $match: { status: { $in: ['confirmed', 'completed'] }, createdAt: { $gte: monthStart } } },
         { $group: { _id: null, total: { $sum: '$advancePaid' } } }
       ])
     ])
@@ -117,6 +133,10 @@ export const getDashboardStats = async (req, res) => {
         },
         revenue: {
           totalAdvance: revenue[0]?.total || 0,
+          thisMonth: monthlyRevenue[0]?.total || 0,
+        },
+        monthly: {
+          bookings: monthlyBookings,
         }
       },
       recentBookings
@@ -343,15 +363,26 @@ export const updateBookingStatus = async (req, res) => {
   try {
     await connectDB()
 
-    const { status } = req.body
-    const allowed = ['pending', 'confirmed', 'completed', 'cancelled']
-    if (!allowed.includes(status)) {
-      return res.status(400).json({ error: 'Invalid status value.' })
+    const { status, extensionStatus } = req.body
+    
+    const updateData = {}
+    
+    if (status) {
+      const allowed = ['pending', 'confirmed', 'completed', 'cancelled']
+      if (!allowed.includes(status)) return res.status(400).json({ error: 'Invalid status value.' })
+      updateData.status = status
+    }
+
+    if (extensionStatus) {
+      const allowedExt = ['none', 'pending', 'approved', 'rejected']
+      if (!allowedExt.includes(extensionStatus)) return res.status(400).json({ error: 'Invalid extension value.' })
+      updateData.extensionStatus = extensionStatus
+      if (extensionStatus === 'approved') updateData.extensionRequested = false // Reset requested flag once approved
     }
 
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
-      { status },
+      updateData,
       { new: true }
     )
 

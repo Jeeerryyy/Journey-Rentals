@@ -2,7 +2,7 @@ import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import { requireAuth } from '../middleware/auth.js'
 import { body, query, validationResult } from 'express-validator'
-import { createOrder, verifyPayment, getMyBookings, cancelBooking } from '../controllers/bookings.controller.js'
+import { createOrder, verifyPayment, getMyBookings, cancelBooking, requestExtension } from '../controllers/bookings.controller.js'
 
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req)
@@ -56,5 +56,10 @@ router.patch('/cancel', requireAuth, [
   query('id').notEmpty().withMessage('Booking ID is required.').escape(),
   validateRequest
 ], cancelBooking)
+
+// ══════════════════════════════════════════════════════════════
+// PATCH /api/bookings/:id/request-extension — Request rental extension
+// ══════════════════════════════════════════════════════════════
+router.patch('/:id/request-extension', requireAuth, requestExtension)
 
 export default router

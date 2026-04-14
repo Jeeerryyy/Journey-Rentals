@@ -1,0 +1,21 @@
+{
+  "name": "Journey Rentals — Premium Car & Bike Hire",
+  "short_name": "Journey Rentals",
+  "description": "Rent premium cars and bikes instantly with Journey Rentals. Affordable rates, verified vehicles, and seamless booking.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#FFD200",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["transportation", "travel", "lifestyle"],
+  "lang": "en-IN",
+  "dir": "ltr"
+}

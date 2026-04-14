@@ -308,3 +308,32 @@ export const cancelBooking = async (req, res) => {
     return res.status(500).json({ success: false, error: 'Failed to cancel booking.' })
   }
 }
+
+// ══════════════════════════════════════════════════════════════
+// POST Request Extension
+// ══════════════════════════════════════════════════════════════
+export const requestExtension = async (req, res) => {
+  try {
+    await connectDB()
+    const { id } = req.params
+
+    const booking = await Booking.findOne({ _id: id, userId: req.user.userId })
+
+    if (!booking) {
+      return res.status(404).json({ success: false, error: 'Booking not found.' })
+    }
+
+    if (!['confirmed', 'completed'].includes(booking.status)) {
+      return res.status(400).json({ success: false, error: 'Cannot request extension for this booking status.' })
+    }
+
+    booking.extensionRequested = true
+    booking.extensionStatus = 'pending'
+    await booking.save()
+
+    return res.status(200).json({ success: true, message: 'Extension requested successfully.' })
+  } catch (err) {
+    console.error('Extension request error:', err.message)
+    return res.status(500).json({ success: false, error: 'Failed to request extension.' })
+  }
+}
