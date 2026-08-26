@@ -34,12 +34,18 @@ export function BreadcrumbStructuredData({ items = [] }) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": items.map((item, index) => ({
-      "@type": "ListItem",
-      "position": index + 1,
-      "name": item.name,
-      "item": item.url.startsWith("http") ? item.url : `${SITE_URL}${item.url}`,
-    })),
+    "itemListElement": items.map((item, index) => {
+      const rawUrl = item.url || item.item || "/";
+      const fullUrl = typeof rawUrl === "string" && rawUrl.startsWith("http") 
+        ? rawUrl 
+        : `${SITE_URL}${typeof rawUrl === "string" && rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`}`;
+      return {
+        "@type": "ListItem",
+        "position": index + 1,
+        "name": item.name,
+        "item": fullUrl,
+      };
+    }),
   };
 
   return (

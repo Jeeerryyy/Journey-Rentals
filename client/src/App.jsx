@@ -16,6 +16,8 @@ const CustomerAuth = lazy(() => import("./website/pages/CustomerAuth"));
 const AboutPage = lazy(() => import("./website/pages/AboutPage"));
 const TermsPage = lazy(() => import("./website/pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./website/pages/PrivacyPage"));
+const CookiePolicyPage = lazy(() => import("./website/pages/CookiePolicyPage"));
+const AccessibilityPage = lazy(() => import("./website/pages/AccessibilityPage"));
 const BookingPage = lazy(() => import("./website/pages/BookingPage"));
 const BookingSuccess = lazy(() => import("./website/pages/BookingSuccess"));
 const CustomerProfile = lazy(() => import("./website/pages/CustomerProfile"));
@@ -134,11 +136,38 @@ function AppContent() {
         <Route path="/support" element={<Navigate to="/about" replace />} />
         <Route path="/contact" element={<Navigate to="/about" replace />} />
         <Route path="/contact-us" element={<Navigate to="/about" replace />} />
+        <Route path="/legal" element={<Navigate to="/terms" replace />} />
+        <Route path="/compliance" element={<Navigate to="/terms" replace />} />
         <Route path="/terms" element={<Suspense fallback={<CustomerSkeleton />}><TermsPage /></Suspense>} />
         <Route path="/terms-and-conditions" element={<Navigate to="/terms" replace />} />
         <Route path="/terms-conditions" element={<Navigate to="/terms" replace />} />
+        <Route path="/terms-of-service" element={<Navigate to="/terms" replace />} />
         <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
         <Route path="/privacy-policy" element={<Suspense fallback={<CustomerSkeleton />}><PrivacyPage /></Suspense>} />
+        <Route path="/refund-policy" element={<Navigate to="/terms#cancellation-refunds" replace />} />
+        <Route path="/refunds" element={<Navigate to="/terms#cancellation-refunds" replace />} />
+        <Route path="/cancellation-policy" element={<Navigate to="/terms#cancellation-refunds" replace />} />
+        <Route path="/cancellation" element={<Navigate to="/terms#cancellation-refunds" replace />} />
+        <Route path="/delivery-policy" element={<Navigate to="/terms#handover-delivery" replace />} />
+        <Route path="/shipping-policy" element={<Navigate to="/terms#handover-delivery" replace />} />
+        <Route path="/shipping" element={<Navigate to="/terms#handover-delivery" replace />} />
+        <Route path="/handover-policy" element={<Navigate to="/terms#handover-delivery" replace />} />
+        <Route path="/return-policy" element={<Navigate to="/terms#return-exchange" replace />} />
+        <Route path="/exchange-policy" element={<Navigate to="/terms#return-exchange" replace />} />
+        <Route path="/cookie-policy" element={<Suspense fallback={<CustomerSkeleton />}><CookiePolicyPage /></Suspense>} />
+        <Route path="/cookies" element={<Navigate to="/cookie-policy" replace />} />
+        <Route path="/disclaimer" element={<Navigate to="/terms#disclaimers-speed" replace />} />
+        <Route path="/accessibility" element={<Suspense fallback={<CustomerSkeleton />}><AccessibilityPage /></Suspense>} />
+        <Route path="/accessibility-statement" element={<Navigate to="/accessibility" replace />} />
+        <Route path="/data-processing-agreement" element={<Navigate to="/privacy-policy#data-processing-agreement" replace />} />
+        <Route path="/dpa" element={<Navigate to="/privacy-policy#data-processing-agreement" replace />} />
+        <Route path="/acceptable-use-policy" element={<Navigate to="/terms#acceptable-use" replace />} />
+        <Route path="/acceptable-use" element={<Navigate to="/terms#acceptable-use" replace />} />
+        <Route path="/community-guidelines" element={<Navigate to="/terms#acceptable-use" replace />} />
+        <Route path="/security" element={<Navigate to="/privacy-policy#security-disclosure" replace />} />
+        <Route path="/security-policy" element={<Navigate to="/privacy-policy#security-disclosure" replace />} />
+        <Route path="/responsible-disclosure" element={<Navigate to="/privacy-policy#security-disclosure" replace />} />
+        <Route path="/bug-bounty" element={<Navigate to="/privacy-policy#security-disclosure" replace />} />
         <Route path="/booking/:vehicleId" element={<Suspense fallback={<CustomerSkeleton />}><BookingPage /></Suspense>} />
         <Route path="/car-details/:id" element={<CarDetailsRedirect />} />
         <Route path="/book/:vehicleId" element={<BookRedirect />} />

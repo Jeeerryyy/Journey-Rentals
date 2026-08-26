@@ -1,6 +1,6 @@
-/* Brex / Urbanist Design System — Privacy Policy Page */
-import React from "react";
-import { Link } from "react-router-dom";
+/* Brex / Urbanist Design System — Comprehensive Master Privacy & Data Security Policy */
+import React, { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import SEO from "../components/seo/SEO";
@@ -14,14 +14,33 @@ import {
   ChevronRight,
   Phone,
   Mail,
-  Printer,
   Sparkles,
   Server,
   KeyRound,
+  MapPin,
+  Layers,
+  Bug,
 } from "lucide-react";
-import { Button } from "@/ui/button";
 
-const PRIVACY_SECTIONS = [
+const SUBPROCESSORS_LIST = [
+  {
+    name: "Razorpay Software Pvt. Ltd.",
+    purpose: "RBI-regulated Payment Gateway, UPI rails, Card processing & Automated Refund Settlements",
+    location: "India (PCI-DSS Level 1)",
+  },
+  {
+    name: "Cloudflare / AWS Cloud Services",
+    purpose: "Web Application Firewall (WAF), AES-256 KYC Document Storage Vaults, DDoS mitigation",
+    location: "Mumbai (India Region)",
+  },
+  {
+    name: "Meta Platforms (WhatsApp Cloud API)",
+    purpose: "Transactional Booking Slips, Invoice Delivery & Real-Time Handover Notifications",
+    location: "Global Data Centers (TLS 1.3)",
+  },
+];
+
+const MASTER_PRIVACY_SECTIONS = [
   {
     id: "information-collected",
     icon: Database,
@@ -29,13 +48,13 @@ const PRIVACY_SECTIONS = [
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
-          To facilitate self-drive bookings and fulfill statutory motor vehicle regulations, Journey Rentals collects the following customer details:
+          To facilitate self-drive reservations and comply with Indian statutory motor vehicle regulations, Journey Rentals collects the following customer details:
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
           <li><strong>Identity &amp; Contact Details:</strong> Full legal name, verified mobile number, email address, and residential city.</li>
-          <li><strong>Driving &amp; KYC Verification Documents:</strong> Clear digital copies or scans of your original Indian Driving License, Aadhaar Card, Passport, or Voter ID.</li>
-          <li><strong>Trip &amp; Telemetry Metadata:</strong> Selected pickup hub, return destination, rental time duration, and vehicle model requested.</li>
-          <li><strong>Payment Records:</strong> Transaction reference IDs, advance booking receipts, and payment status. <em>(Note: Sensitive debit/credit card numbers and CVVs are processed directly by RBI-authorized PCI-DSS payment gateways and are never stored on our servers).</em></li>
+          <li><strong>Driving License &amp; KYC Documents:</strong> Digital copies or photographs of your original Indian Driving License, Aadhaar Card, Passport, or Voter ID for zero-deposit verification.</li>
+          <li><strong>Trip &amp; Telemetry Metadata:</strong> Selected pickup hub, vehicle model, reservation time window, and statutory speed compliance telemetry (80 km/h limiter status).</li>
+          <li><strong>Payment Transaction Records:</strong> Razorpay payment order IDs, timestamp receipts, and transaction status. <em>(Note: Raw debit/credit card numbers and UPI PINs are processed directly by RBI-authorized PCI-DSS payment gateways and are never stored on our servers).</em></li>
         </ul>
       </>
     ),
@@ -47,21 +66,21 @@ const PRIVACY_SECTIONS = [
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
-          We use customer data strictly for legitimate operational purposes:
+          Customer information is used strictly for legitimate self-drive rental operations:
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
-          <li><strong>Booking Dispatch &amp; Handover:</strong> Preparing your vehicle on time and executing immediate platform handovers at Solapur Railway Station or doorstep locations.</li>
-          <li><strong>Digital KYC &amp; Risk Compliance:</strong> Validating driving license legitimacy to protect vehicle assets and maintain zero security deposit trust.</li>
-          <li><strong>Instant WhatsApp &amp; Email Alerts:</strong> Sending automated booking confirmation slips, tax invoices, vehicle inspection records, and return reminders.</li>
+          <li><strong>Vehicle Dispatch &amp; Station Handover:</strong> Staging and delivering sanitized vehicles on time at Solapur Railway Station or doorstep locations.</li>
+          <li><strong>Digital KYC Risk Validation:</strong> Validating driving license authenticity to protect vehicle assets and maintain our zero security deposit promise.</li>
+          <li><strong>Instant WhatsApp &amp; Email Notifications:</strong> Sending automated booking confirmation slips, tax invoices, vehicle inspection walkaround photos, and return reminders.</li>
           <li><strong>FASTag &amp; Toll Reconciliations:</strong> Accurately calculating electronic toll deductions incurred during your specific rental window.</li>
         </ul>
       </>
     ),
   },
   {
-    id: "data-protection",
+    id: "kyc-encryption",
     icon: Lock,
-    title: "3. Document Storage & Security Safeguards",
+    title: "3. Document Storage & AES-256 Encryption (Zero Data Sales Guarantee)",
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
@@ -69,8 +88,8 @@ const PRIVACY_SECTIONS = [
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
           <li><strong>Encrypted Document Vaults:</strong> All uploaded KYC driving licenses and identity documents are stored in secure cloud storage with strict server-side encryption (AES-256) and time-limited access tokens.</li>
-          <li><strong>Strict Role-Based Access:</strong> Only authorized Journey Rentals dispatch supervisors can inspect KYC documents during active handover verification.</li>
-          <li><strong>Zero Data Selling:</strong> We have a strict zero-tolerance policy against data sharing. We <strong>NEVER</strong> sell, rent, or trade your personal information to third-party marketing companies or advertisers.</li>
+          <li><strong>Strict Role-Based Access (RBAC):</strong> Only authorized Journey Rentals dispatch supervisors can inspect KYC documents during active handover verification.</li>
+          <li><strong>Zero Data Selling Commitment:</strong> We have a strict zero-tolerance policy against data sharing. We <strong>NEVER</strong> sell, rent, or trade your personal information to third-party advertisers or marketing brokers.</li>
         </ul>
       </>
     ),
@@ -78,7 +97,7 @@ const PRIVACY_SECTIONS = [
   {
     id: "payment-security",
     icon: ShieldCheck,
-    title: "4. Payment Rails & Razorpay Integration",
+    title: "4. Payment Rails & Razorpay PCI-DSS Level 1 Compliance",
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
@@ -86,63 +105,101 @@ const PRIVACY_SECTIONS = [
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
           <li>Compliant with the highest international security benchmark: <strong>PCI-DSS Level 1</strong>.</li>
-          <li>Protected with 256-bit TLS encryption and mandatory 2-Factor Authentication (OTP / 3D-Secure).</li>
+          <li>Protected with 256-bit TLS 1.3 encryption and mandatory 2-Factor Authentication (OTP / 3D-Secure).</li>
           <li>Journey Rentals does not retain or log credit/debit card numbers or UPI PINs.</li>
         </ul>
       </>
     ),
   },
   {
-    id: "cookies-analytics",
-    icon: Eye,
-    title: "5. Cookies & Session Management",
+    id: "data-processing-agreement",
+    icon: Server,
+    title: "5. Data Processing & Authorized Sub-Processors (DPA Compliance)",
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
-          Our website uses secure HTTP-only cookies to:
+          In accordance with the <strong>Digital Personal Data Protection Act, 2023 (DPDPA)</strong>, Journey Rentals acts as a Data Fiduciary. We engage only vetted, compliant sub-processors:
+        </p>
+        <div className="overflow-x-auto my-3">
+          <table className="w-full text-left text-xs border border-[#DFDCE8] rounded-xl overflow-hidden">
+            <thead className="bg-[#F6F5FA] border-b border-[#DFDCE8] text-[#212121] font-bold">
+              <tr>
+                <th className="p-3">Partner</th>
+                <th className="p-3">Role &amp; Purpose</th>
+                <th className="p-3">Location / Standards</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#DFDCE8] text-[#6F6E73]">
+              {SUBPROCESSORS_LIST.map((sub) => (
+                <tr key={sub.name}>
+                  <td className="p-3 font-bold text-[#212121]">{sub.name}</td>
+                  <td className="p-3">{sub.purpose}</td>
+                  <td className="p-3 font-mono">{sub.location}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+    ),
+  },
+  {
+    id: "your-rights-erasure",
+    icon: KeyRound,
+    title: "6. User Rights, Data Retention & Erasure Requests",
+    content: (
+      <>
+        <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
+          Under Indian data protection guidelines, you retain full ownership of your data:
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
-          <li>Maintain customer authentication sessions securely across page visits.</li>
-          <li>Remember your pickup date and vehicle preferences during multi-step reservation flows.</li>
-          <li>Collect anonymous site performance metrics to continuously improve booking loading speeds.</li>
+          <li><strong>Right to Review:</strong> You can view and update your profile details at any time from your <Link to="/profile" className="font-bold underline text-[#212121]">Customer Profile</Link>.</li>
+          <li><strong>Right to Erasure / Deletion:</strong> Upon completion of your trip and settlement of all dues, you may request the complete deletion of your uploaded KYC documents and customer profile by emailing our Grievance Officer.</li>
+          <li><strong>Data Retention Duration:</strong> KYC records are kept only for the statutory minimum duration required to verify driving legitimacy and settle potential traffic e-challans.</li>
         </ul>
       </>
     ),
   },
   {
-    id: "your-rights",
-    icon: KeyRound,
-    title: "6. Your Rights & Data Erasure Requests",
+    id: "security-disclosure",
+    icon: Bug,
+    title: "7. Security Architecture & Responsible Disclosure (Bug Bounty)",
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
-          Under Indian information technology standards and data protection guidelines, you retain full ownership of your data:
+          Our engineering infrastructure utilizes end-to-end TLS 1.3, strict Content Security Policies (CSP), and HTTP-only JWT session tokens.
         </p>
-        <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
-          <li><strong>Right to Review:</strong> You can view and update your profile details at any time from your <Link to="/profile" className="font-bold underline text-[#212121]">Customer Profile</Link>.</li>
-          <li><strong>Right to Erasure:</strong> Upon completion of your trip and settlement of all dues, you may request the complete deletion of your uploaded KYC documents and customer profile by emailing our Grievance Officer.</li>
-        </ul>
+        <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed">
+          If you are an ethical security researcher and discover a potential vulnerability, please report it directly to <strong className="text-[#212121]">rental.journeycars@gmail.com</strong> with reproducible proof-of-concept steps. We review and acknowledge valid security reports within 24 hours under our safe harbor policy.
+        </p>
       </>
     ),
   },
 ];
 
 export default function PrivacyPage() {
-  const handlePrint = () => {
-    window.print();
-  };
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const el = document.getElementById(location.hash.replace("#", ""));
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, [location.hash]);
 
   return (
     <div className="min-h-screen bg-[#F6F5FA] text-[#212121] flex flex-col font-body selection:bg-[#212121] selection:text-white">
       <SEO
-        title="Privacy Policy | Journey Rentals Solapur"
-        description="Learn how Journey Rentals Solapur protects your personal information, driving license KYC documents, and secure payment transactions with 256-bit encryption."
+        title="Privacy Policy & Data Security | Journey Rentals Solapur"
+        description="Learn how Journey Rentals Solapur protects your personal information, driving license KYC documents with AES-256 encryption, DPDPA 2023 compliance, and zero data sales."
         canonical="/privacy-policy"
       />
       <BreadcrumbStructuredData
         items={[
-          { name: "Home", item: "https://journeyrentals.in/" },
-          { name: "Privacy Policy", item: "https://journeyrentals.in/privacy-policy" },
+          { name: "Home", url: "/" },
+          { name: "Privacy Policy", url: "/privacy-policy" },
         ]}
       />
 
@@ -159,60 +216,47 @@ export default function PrivacyPage() {
               <span className="text-white font-bold">Privacy Policy</span>
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/10 text-white border border-white/20 mb-3">
-                  <Lock size={12} className="text-[#e1b808]" />
-                  Data Security &amp; Trust
-                </span>
-                <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white">
-                  Privacy Policy
-                </h1>
-                <p className="text-sm sm:text-base text-[#99989E] mt-2 max-w-2xl">
-                  How we protect your identity, safely store driving license KYC documents, and guarantee 100% data confidentiality.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3 shrink-0">
-                <Button
-                  onClick={handlePrint}
-                  variant="outline"
-                  className="rounded-full bg-white/10 hover:bg-white/20 text-white border-white/20 h-10 px-4 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
-                >
-                  <Printer size={14} />
-                  <span>Print Policy</span>
-                </Button>
-              </div>
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/10 text-white border border-white/20 mb-3">
+                <Lock size={12} className="text-[#e1b808]" />
+                Data Security &amp; Trust
+              </span>
+              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white">
+                Privacy Policy &amp; Data Protection
+              </h1>
+              <p className="text-sm sm:text-base text-[#99989E] mt-2 max-w-2xl">
+                How we protect your identity, safely store driving license KYC documents with AES-256 encryption, and guarantee 100% data confidentiality under DPDPA 2023.
+              </p>
             </div>
           </div>
         </section>
 
         {/* Content Container */}
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 mt-8 sm:mt-12">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 mt-8 sm:mt-12 space-y-6">
           {/* Quick Notice Card */}
-          <div className="bg-white border border-[#DFDCE8] rounded-2xl sm:rounded-3xl p-5 sm:p-6 mb-8 shadow-xs flex items-start gap-4">
+          <div className="bg-white border border-[#DFDCE8] rounded-2xl sm:rounded-3xl p-5 sm:p-6 mb-4 shadow-xs flex items-start gap-4">
             <div className="w-10 h-10 rounded-2xl bg-[#CFDECA] text-[#4B8039] flex items-center justify-center shrink-0">
               <ShieldCheck size={20} />
             </div>
             <div>
               <h3 className="font-bold text-sm sm:text-base text-[#212121]">
-                Zero Third-Party Sharing Commitment
+                Zero Third-Party Data Selling Commitment
               </h3>
               <p className="text-xs sm:text-sm text-[#6F6E73] mt-0.5 leading-relaxed">
-                Your personal details, contact numbers, and KYC records are collected exclusively to manage vehicle dispatches in Solapur. We never monetize or distribute your information.
+                Your personal details, contact numbers, and driving license records are collected exclusively to manage vehicle dispatches in Solapur. We never monetize, sell, or distribute customer information.
               </p>
             </div>
           </div>
 
-          {/* Detailed Clauses */}
+          {/* Master Clauses */}
           <div className="space-y-6">
-            {PRIVACY_SECTIONS.map((sec) => {
+            {MASTER_PRIVACY_SECTIONS.map((sec) => {
               const Icon = sec.icon;
               return (
                 <div
                   key={sec.id}
                   id={sec.id}
-                  className="bg-white border border-[#DFDCE8] rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xs hover:border-[#212121]/30 transition-all text-left"
+                  className="bg-white border border-[#DFDCE8] rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xs hover:border-[#212121]/30 transition-all text-left scroll-mt-24"
                 >
                   <div className="flex items-center gap-3 pb-4 border-b border-[#DFDCE8] mb-4">
                     <div className="w-9 h-9 rounded-xl bg-[#F6F5FA] border border-[#DFDCE8] flex items-center justify-center text-[#212121] shrink-0">
@@ -233,14 +277,14 @@ export default function PrivacyPage() {
             <div>
               <h3 className="font-display text-lg font-bold">Data Protection &amp; Grievance Officer</h3>
               <p className="text-xs sm:text-sm text-[#99989E] mt-1 max-w-xl">
-                For questions regarding data processing or to request document deletion, please reach out to our team:
+                For questions regarding data processing or to request document deletion, please reach out to our team in Solapur:
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-4 text-xs font-mono text-[#e1b808]">
                 <span className="flex items-center gap-1.5">
                   <Mail size={13} /> rental.journeycars@gmail.com
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <MapPin size={13} /> Solapur Central Hub, Maharashtra
+                  <MapPin size={13} /> Solapur Central Hub, Maharashtra 413001
                 </span>
               </div>
             </div>
@@ -250,7 +294,7 @@ export default function PrivacyPage() {
                 className="inline-flex items-center gap-2 bg-white text-[#212121] hover:bg-[#F6F5FA] rounded-full px-5 py-2.5 text-xs font-bold transition-all shadow-sm"
               >
                 <Mail size={14} />
-                <span>Contact Officer</span>
+                <span>Contact Grievance Desk</span>
               </a>
             </div>
           </div>

@@ -11,8 +11,10 @@ export default function SEO({
   noindex = false,
 }) {
   const siteUrl = "https://journeyrentals.in";
-  const fullCanonical = canonical.startsWith("http") ? canonical : `${siteUrl}${canonical}`;
-  const fullOgImage = ogImage.startsWith("http") ? ogImage : `${siteUrl}${ogImage}`;
+  const safeCanonical = typeof canonical === "string" ? canonical : "/";
+  const safeOgImage = typeof ogImage === "string" ? ogImage : "/logo.png";
+  const fullCanonical = safeCanonical.startsWith("http") ? safeCanonical : `${siteUrl}${safeCanonical.startsWith("/") ? safeCanonical : `/${safeCanonical}`}`;
+  const fullOgImage = safeOgImage.startsWith("http") ? safeOgImage : `${siteUrl}${safeOgImage.startsWith("/") ? safeOgImage : `/${safeOgImage}`}`;
 
   const defaultSchema = {
     "@context": "https://schema.org",

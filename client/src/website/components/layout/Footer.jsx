@@ -1,6 +1,6 @@
 /* Brex / Urbanist Design System — Exact 1:1 DriveHub Goa Parity */
 import React, { useState } from "react";
-import { MapPin, Phone, Mail, FileText, Lock, Cookie, MessageCircle, HelpCircle } from "lucide-react";
+import { MapPin, Phone, Mail, FileText, Lock, Cookie, MessageCircle, HelpCircle, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import BrandLogo from "../BrandLogo";
 import { TermsModal, NdaModal } from "../LegalModals";
@@ -146,29 +146,24 @@ export default function Footer() {
           {/* Bottom Bar: Copyright & Compliance */}
           <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#99989E]">
             <div>
-              &copy; {new Date().getFullYear()} Journey Rentals. All rights reserved. Self-Drive Car &amp; Bike Rentals in Solapur, Maharashtra.
+              &copy; {new Date().getFullYear()} Journey Rentals. All rights reserved. Self-Drive Car &amp; Hourly Bike Rentals in Solapur, Maharashtra.
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 text-xs">
-              <Link
-                to="/terms"
-                className="hover:text-[#e1b808] hover:underline cursor-pointer flex items-center gap-1"
-              >
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs">
+              <Link to="/terms" className="hover:text-[#e1b808] hover:underline flex items-center gap-1">
                 <FileText size={12} className="text-[#e1b808]" /> Terms &amp; Conditions
               </Link>
               <span>•</span>
-              <Link
-                to="/privacy-policy"
-                className="hover:text-[#e1b808] hover:underline cursor-pointer flex items-center gap-1"
-              >
+              <Link to="/privacy-policy" className="hover:text-[#e1b808] hover:underline flex items-center gap-1">
                 <Lock size={12} className="text-[#e1b808]" /> Privacy Policy
               </Link>
               <span>•</span>
-              <Link
-                to="/about#faqs"
-                className="hover:text-[#e1b808] hover:underline cursor-pointer flex items-center gap-1"
-              >
-                <HelpCircle size={12} className="text-[#e1b808]" /> Help Center
+              <Link to="/cookie-policy" className="hover:text-[#e1b808] hover:underline flex items-center gap-1">
+                Cookie Policy
+              </Link>
+              <span>•</span>
+              <Link to="/accessibility" className="hover:text-[#e1b808] hover:underline flex items-center gap-1">
+                Accessibility
               </Link>
               <span>•</span>
               <button
@@ -179,6 +174,15 @@ export default function Footer() {
               >
                 <Cookie size={12} className="text-[#e1b808]" /> Cookie Preferences
               </button>
+            </div>
+          </div>
+
+          <div className="text-center sm:text-left text-[11px] text-[#99989E]/80 pt-4 mt-4 border-t border-white/5 w-full flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div>
+              MoRTH Registered · Unlimited Km Self-Drive Fleet · Solapur, MH
+            </div>
+            <div className="font-mono text-[10px] text-[#99989E]/60">
+              PCI-DSS Level 1 · DPDPA 2023 Compliant
             </div>
           </div>
         </div>
