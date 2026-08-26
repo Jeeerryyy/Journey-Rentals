@@ -8,7 +8,7 @@ import { Input } from "@/ui/input";
 import { Lock, Mail, User, Phone, Loader2, ArrowLeft, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import BrandLogo from "../components/BrandLogo";
-import api, { formatApiError } from "@/lib/api";
+import api, { API_BASE, formatApiError } from "@/lib/api";
 
 export function GoogleIcon({ className = "w-4 h-4" }) {
   return (
@@ -310,6 +310,27 @@ export default function CustomerAuth({ defaultSignup = false }) {
               </Button>
             </form>
           )}
+
+          {/* OAuth Divider */}
+          <div className="relative my-4 flex items-center justify-center">
+            <div className="border-t border-[#DFDCE8] w-full" />
+            <span className="bg-white px-3 text-[10px] font-bold text-[#99989E] uppercase tracking-wider shrink-0">
+              or continue with
+            </span>
+            <div className="border-t border-[#DFDCE8] w-full" />
+          </div>
+
+          {/* Google OAuth Button */}
+          <button
+            type="button"
+            onClick={() => {
+              window.location.href = `${API_BASE}/auth/google`;
+            }}
+            className="w-full h-11 rounded-full bg-white border border-[#DFDCE8] hover:bg-[#F6F5FA] hover:border-[#212121] text-[#212121] font-bold text-xs flex items-center justify-center gap-2.5 transition-all shadow-2xs cursor-pointer active:scale-[0.99]"
+          >
+            <GoogleIcon className="w-4 h-4 shrink-0" />
+            <span>{!isSignup ? "Sign In with Google" : "Sign Up with Google"}</span>
+          </button>
 
           {/* OTP Modal */}
           {showOtpModal && (
