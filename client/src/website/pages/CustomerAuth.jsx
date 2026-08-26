@@ -363,7 +363,7 @@ export default function CustomerAuth({ defaultSignup = false }) {
           )}
 
           <div className="mt-6 pt-4 border-t border-[#DFDCE8] text-[11px] text-[#99989E]">
-            By signing in, you agree to Journey Rentals <Link to="/about" className="text-[#212121] underline">Terms &amp; Conditions</Link>.
+            By signing in, you agree to Journey Rentals <Link to="/terms" className="text-[#212121] underline font-medium">Terms &amp; Conditions</Link> and <Link to="/privacy-policy" className="text-[#212121] underline font-medium">Privacy Policy</Link>.
           </div>
         </div>
       </main>

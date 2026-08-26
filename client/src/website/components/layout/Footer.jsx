@@ -150,21 +150,19 @@ export default function Footer() {
             </div>
 
             <div className="flex flex-wrap items-center gap-4 text-xs">
-              <button
-                type="button"
-                onClick={() => setShowTerms(true)}
+              <Link
+                to="/terms"
                 className="hover:text-[#e1b808] hover:underline cursor-pointer flex items-center gap-1"
               >
                 <FileText size={12} className="text-[#e1b808]" /> Terms &amp; Conditions
-              </button>
+              </Link>
               <span>•</span>
-              <button
-                type="button"
-                onClick={() => setShowNda(true)}
+              <Link
+                to="/privacy-policy"
                 className="hover:text-[#e1b808] hover:underline cursor-pointer flex items-center gap-1"
               >
                 <Lock size={12} className="text-[#e1b808]" /> Privacy Policy
-              </button>
+              </Link>
               <span>•</span>
               <Link
                 to="/about#faqs"

@@ -14,6 +14,8 @@ const Landing = lazy(() => import("./website/pages/Landing"));
 const FleetPage = lazy(() => import("./website/pages/FleetPage"));
 const CustomerAuth = lazy(() => import("./website/pages/CustomerAuth"));
 const AboutPage = lazy(() => import("./website/pages/AboutPage"));
+const TermsPage = lazy(() => import("./website/pages/TermsPage"));
+const PrivacyPage = lazy(() => import("./website/pages/PrivacyPage"));
 const BookingPage = lazy(() => import("./website/pages/BookingPage"));
 const BookingSuccess = lazy(() => import("./website/pages/BookingSuccess"));
 const CustomerProfile = lazy(() => import("./website/pages/CustomerProfile"));
@@ -132,11 +134,11 @@ function AppContent() {
         <Route path="/support" element={<Navigate to="/about" replace />} />
         <Route path="/contact" element={<Navigate to="/about" replace />} />
         <Route path="/contact-us" element={<Navigate to="/about" replace />} />
-        <Route path="/terms" element={<Navigate to="/about" replace />} />
-        <Route path="/terms-and-conditions" element={<Navigate to="/about" replace />} />
-        <Route path="/terms-conditions" element={<Navigate to="/about" replace />} />
-        <Route path="/privacy" element={<Navigate to="/about" replace />} />
-        <Route path="/privacy-policy" element={<Navigate to="/about" replace />} />
+        <Route path="/terms" element={<Suspense fallback={<CustomerSkeleton />}><TermsPage /></Suspense>} />
+        <Route path="/terms-and-conditions" element={<Navigate to="/terms" replace />} />
+        <Route path="/terms-conditions" element={<Navigate to="/terms" replace />} />
+        <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
+        <Route path="/privacy-policy" element={<Suspense fallback={<CustomerSkeleton />}><PrivacyPage /></Suspense>} />
         <Route path="/booking/:vehicleId" element={<Suspense fallback={<CustomerSkeleton />}><BookingPage /></Suspense>} />
         <Route path="/car-details/:id" element={<CarDetailsRedirect />} />
         <Route path="/book/:vehicleId" element={<BookRedirect />} />
