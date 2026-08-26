@@ -25,10 +25,10 @@ const COOKIE_OPTIONS = {
 }
 
 // ── Token durations ──
-const ACCESS_TOKEN_EXPIRY  = '15m'   // 15 minutes
-const REFRESH_TOKEN_EXPIRY = '7d'    // 7 days
-const ACCESS_COOKIE_MAX_AGE  = 15 * 60 * 1000          // 15 minutes
-const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000 // 7 days
+const ACCESS_TOKEN_EXPIRY  = '30d'   // 30 days active session
+const REFRESH_TOKEN_EXPIRY = '30d'   // 30 days active session
+const ACCESS_COOKIE_MAX_AGE  = 30 * 24 * 60 * 60 * 1000 // 30 days
+const REFRESH_COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000 // 30 days
 
 // ── In-memory store for invalidated refresh tokens ──
 // In production, use Redis for multi-instance deployment
@@ -156,6 +156,21 @@ export function requireAuth(req, res, next) {
   } catch {
     return res.status(401).json({ success: false, error: 'Session expired. Please login again.' })
   }
+}
+
+/**
+ * optionalAuth — extracts customer user if token present, otherwise continues as guest.
+ */
+export function optionalAuth(req, res, next) {
+  const token = getToken(req, 'jr_token') || getToken(req, 'jr_token_owner')
+  if (token) {
+    try {
+      req.user = verifyToken(token)
+    } catch {
+      // Continue as guest
+    }
+  }
+  next()
 }
 
 /**

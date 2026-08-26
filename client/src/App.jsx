@@ -1,129 +1,196 @@
-import React, { Suspense, lazy } from 'react'
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { AuthProvider, useAuth } from './context/AuthContext'
-import { SpeedInsights } from '@vercel/speed-insights/react'
+import React, { lazy, Suspense } from "react";
+import { Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { Toaster } from "@/ui/sonner";
+import ErrorBoundary from "./shared/components/ErrorBoundary";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
-const Home = lazy(() => import('./features/home/Home'))
-const Cars = lazy(() => import('./features/vehicles/Cars'))
-const CarDetails = lazy(() => import('./features/vehicles/CarDetails'))
-const Account = lazy(() => import('./features/bookings/MyBookings'))
-const Login = lazy(() => import('./features/auth/Login'))
-const OTPVerification = lazy(() => import('./features/auth/OTPVerification'))
-const HelpSupport = lazy(() => import('./features/support/HelpSupport'))
+import AdminSkeleton from "./crm/components/AdminSkeleton";
+import CustomerSkeleton from "./website/components/CustomerSkeleton";
+import CookieConsentBanner from "./website/components/CookieConsentBanner";
 
-const OwnerLogin = lazy(() => import('./features/owner/OwnerLogin'))
-const Layout = lazy(() => import('./features/owner/Layout'))
-const Dashboard = lazy(() => import('./features/owner/Dashboard'))
-const AddCar = lazy(() => import('./features/owner/AddCar'))
-const ManageCars = lazy(() => import('./features/owner/ManageCars'))
-const ManageBookings = lazy(() => import('./features/owner/ManageBookings'))
-const FleetEditor = lazy(() => import('./features/owner/FleetEditor'))
-const OwnerProfile = lazy(() => import('./features/owner/Profile'))
+// Lazy-loaded routes for optimal performance and code splitting
+const Landing = lazy(() => import("./website/pages/Landing"));
+const FleetPage = lazy(() => import("./website/pages/FleetPage"));
+const CustomerAuth = lazy(() => import("./website/pages/CustomerAuth"));
+const AboutPage = lazy(() => import("./website/pages/AboutPage"));
+const BookingPage = lazy(() => import("./website/pages/BookingPage"));
+const BookingSuccess = lazy(() => import("./website/pages/BookingSuccess"));
+const CustomerProfile = lazy(() => import("./website/pages/CustomerProfile"));
+const NotFound = lazy(() => import("./website/pages/NotFound"));
 
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
+const AdminLogin = lazy(() => import("./crm/pages/AdminLogin"));
+const AdminLayout = lazy(() => import("./crm/pages/AdminLayout"));
+const Dashboard = lazy(() => import("./crm/pages/Dashboard"));
+const FleetManage = lazy(() => import("./crm/pages/FleetManage"));
+const BookingsManage = lazy(() => import("./crm/pages/BookingsManage"));
+const CouponsManage = lazy(() => import("./crm/pages/CouponsManage"));
+const CalendarView = lazy(() => import("./crm/pages/CalendarView"));
+const AdminSettings = lazy(() => import("./crm/pages/AdminSettings"));
 
-// ── Error Boundary ──
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { hasError: false, error: null }
+function ProtectedAdmin({ children }) {
+  const { owner, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return <AdminSkeleton />;
   }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error }
+  if (!owner) {
+    return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
-  componentDidCatch(error, errorInfo) {
-    console.error('Crash caught by ErrorBoundary:', error, errorInfo)
+  return <>{children}</>;
+}
+
+function RequireCustomerAuth({ children }) {
+  const { customer, user, loading } = useAuth();
+  const activeCustomer = customer || user;
+  const location = useLocation();
+
+  if (loading) {
+    return <CustomerSkeleton />;
   }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0a0a', color: '#fff', fontFamily: 'sans-serif' }}>
-          <h1 style={{ fontSize: '32px', marginBottom: '16px' }}>SOMETHING WENT WRONG</h1>
-          <p style={{ color: '#888', marginBottom: '32px' }}>An unexpected error occurred. Please refresh the page to try again.</p>
-          <button onClick={() => window.location.reload()} style={{ padding: '12px 24px', background: '#ffd200', color: '#111', border: 'none', fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px' }}>
-            REFRESH PAGE
-          </button>
-        </div>
-      )
+  if (!activeCustomer) {
+    return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
+  }
+  return <>{children}</>;
+}
+
+function GuestRoute({ children }) {
+  const { customer, user, loading } = useAuth();
+  const activeCustomer = customer || user;
+  if (loading) return <CustomerSkeleton />;
+  if (activeCustomer) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
+function GuestAdminRoute({ children }) {
+  const { owner, loading } = useAuth();
+  if (loading) return <AdminSkeleton />;
+  if (owner) return <Navigate to="/admin" replace />;
+  return <>{children}</>;
+}
+
+function BookRedirect() {
+  const { vehicleId } = useParams();
+  const location = useLocation();
+  return <Navigate to={`/booking/${vehicleId || ''}${location.search}`} replace />;
+}
+
+function CarDetailsRedirect() {
+  const { id } = useParams();
+  const location = useLocation();
+  return <Navigate to={`/booking/${id || ''}${location.search}`} replace />;
+}
+
+function ScrollToTop() {
+  const { pathname, search, state } = useLocation();
+
+  React.useEffect(() => {
+    if (!state?.scrollTo && !window.location.hash) {
+      window.scrollTo(0, 0);
     }
-    return this.props.children
-  }
+  }, [pathname, search, state]);
+
+  return null;
 }
 
-// Protect customer-only routes
-const CustomerRoute = ({ children }) => {
-  const { customer, isLoaded } = useAuth()
-  const location = useLocation()
+function AppContent() {
+  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
 
-  if (!isLoaded) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '0.1em' }}>LOADING...</div>
-  if (!customer) return <Navigate to="/login" state={{ from: location.pathname }} replace />
-  return children
-}
+  React.useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
 
-// Protect owner routes
-const OwnerRoute = ({ children }) => {
-  const { owner, isLoaded } = useAuth()
-  if (!isLoaded) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '0.1em' }}>LOADING...</div>
-  if (!owner) return <Navigate to="/owner-login" replace />
-  return children
-}
-
-const GuestRoute = ({ children }) => {
-  const { customer, isLoaded } = useAuth()
-  if (!isLoaded) return null
-  if (customer) return <Navigate to="/" replace />
-  return children
-}
-
-const GuestOwnerRoute = ({ children }) => {
-  const { owner, isLoaded } = useAuth()
-  if (!isLoaded) return null
-  if (owner) return <Navigate to="/owner" replace />
-  return children
-}
-
-const AppInner = () => {
-  const location = useLocation()
-  const isOwnerPath = location.pathname.startsWith('/owner')
-  const isAuthPage = ['/login', '/owner-login', '/verify-otp'].includes(location.pathname)
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   return (
-    <div>
-      {!isOwnerPath && !isAuthPage && <Navbar />}
-      <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>LOADING...</div>}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/cars" element={<Cars />} />
-          <Route path="/car-details/:id" element={<CarDetails />} />
-          <Route path="/support" element={<HelpSupport />} />
-          <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
-          <Route path="/verify-otp" element={<OTPVerification />} />
-          <Route path="/owner-login" element={<GuestOwnerRoute><OwnerLogin /></GuestOwnerRoute>} />
-          <Route path="/account" element={<CustomerRoute><Account /></CustomerRoute>} />
-          <Route path="/owner" element={<OwnerRoute><Layout /></OwnerRoute>}>
-            <Route index element={<Dashboard />} />
-            <Route path="add-car" element={<AddCar />} />
-            <Route path="manage-cars" element={<ManageCars />} />
-            <Route path="manage-bookings" element={<ManageBookings />} />
-            <Route path="fleet-editor" element={<FleetEditor />} />
-            <Route path="profile" element={<OwnerProfile />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
-      {!isOwnerPath && !isAuthPage && <Footer />}
-    </div>
-  )
+    <ErrorBoundary>
+      <ScrollToTop />
+      {!isOnline && (
+        <div className="bg-[#E8826B] text-white font-mono text-xs font-bold text-center py-2 px-4 sticky top-0 z-50 shadow-md">
+          ⚠️ You are currently offline. Some live fleet availability data may not update automatically.
+        </div>
+      )}
+      <Routes>
+        {/* Customer Website Routes */}
+        <Route path="/" element={<Suspense fallback={<CustomerSkeleton />}><Landing /></Suspense>} />
+        <Route path="/fleet" element={<Suspense fallback={<CustomerSkeleton />}><FleetPage /></Suspense>} />
+        <Route path="/vehicles" element={<Navigate to="/fleet" replace />} />
+        <Route path="/cars" element={<Navigate to="/fleet" replace />} />
+        <Route path="/bikes" element={<Navigate to="/fleet?type=bike" replace />} />
+        <Route path="/about" element={<Suspense fallback={<CustomerSkeleton />}><AboutPage /></Suspense>} />
+        <Route path="/faq" element={<Navigate to="/about" replace />} />
+        <Route path="/faqs" element={<Navigate to="/about" replace />} />
+        <Route path="/help" element={<Navigate to="/about" replace />} />
+        <Route path="/help-center" element={<Navigate to="/about" replace />} />
+        <Route path="/support" element={<Navigate to="/about" replace />} />
+        <Route path="/contact" element={<Navigate to="/about" replace />} />
+        <Route path="/contact-us" element={<Navigate to="/about" replace />} />
+        <Route path="/terms" element={<Navigate to="/about" replace />} />
+        <Route path="/terms-and-conditions" element={<Navigate to="/about" replace />} />
+        <Route path="/terms-conditions" element={<Navigate to="/about" replace />} />
+        <Route path="/privacy" element={<Navigate to="/about" replace />} />
+        <Route path="/privacy-policy" element={<Navigate to="/about" replace />} />
+        <Route path="/booking/:vehicleId" element={<Suspense fallback={<CustomerSkeleton />}><BookingPage /></Suspense>} />
+        <Route path="/car-details/:id" element={<CarDetailsRedirect />} />
+        <Route path="/book/:vehicleId" element={<BookRedirect />} />
+        <Route path="/booking-success/:bookingId" element={<Suspense fallback={<CustomerSkeleton />}><BookingSuccess /></Suspense>} />
+        <Route path="/profile" element={<RequireCustomerAuth><Suspense fallback={<CustomerSkeleton />}><CustomerProfile /></Suspense></RequireCustomerAuth>} />
+        <Route path="/account" element={<Navigate to="/profile" replace />} />
+        <Route path="/login" element={<GuestRoute><Suspense fallback={<CustomerSkeleton />}><CustomerAuth defaultSignup={false} /></Suspense></GuestRoute>} />
+        <Route path="/signup" element={<GuestRoute><Suspense fallback={<CustomerSkeleton />}><CustomerAuth defaultSignup={true} /></Suspense></GuestRoute>} />
+        <Route path="/auth" element={<Navigate to="/login" replace />} />
+        <Route path="/verify-otp" element={<Suspense fallback={<CustomerSkeleton />}><CustomerAuth defaultSignup={false} /></Suspense>} />
+
+        {/* Admin / CRM Routes */}
+        <Route path="/admin/login" element={<GuestAdminRoute><Suspense fallback={<AdminSkeleton />}><AdminLogin /></Suspense></GuestAdminRoute>} />
+        <Route path="/owner-login" element={<Navigate to="/admin/login" replace />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedAdmin>
+              <Suspense fallback={<AdminSkeleton />}>
+                <AdminLayout />
+              </Suspense>
+            </ProtectedAdmin>
+          }
+        >
+          <Route index element={<Suspense fallback={<AdminSkeleton />}><Dashboard /></Suspense>} />
+          <Route path="calendar" element={<Suspense fallback={<AdminSkeleton />}><CalendarView /></Suspense>} />
+          <Route path="fleet" element={<Suspense fallback={<AdminSkeleton />}><FleetManage /></Suspense>} />
+          <Route path="bookings" element={<Suspense fallback={<AdminSkeleton />}><BookingsManage /></Suspense>} />
+          <Route path="coupons" element={<Suspense fallback={<AdminSkeleton />}><CouponsManage /></Suspense>} />
+          <Route path="settings" element={<Suspense fallback={<AdminSkeleton />}><AdminSettings /></Suspense>} />
+        </Route>
+
+        {/* Backward compatible redirects for owner routes */}
+        <Route path="/owner" element={<Navigate to="/admin" replace />} />
+        <Route path="/owner/add-car" element={<Navigate to="/admin/fleet" replace />} />
+        <Route path="/owner/manage-cars" element={<Navigate to="/admin/fleet" replace />} />
+        <Route path="/owner/manage-bookings" element={<Navigate to="/admin/bookings" replace />} />
+        <Route path="/owner/fleet-editor" element={<Navigate to="/admin/fleet" replace />} />
+        <Route path="/owner/profile" element={<Navigate to="/admin/settings" replace />} />
+
+        {/* 404 Catch-All */}
+        <Route path="*" element={<Suspense fallback={<CustomerSkeleton />}><NotFound /></Suspense>} />
+      </Routes>
+      <CookieConsentBanner />
+      <Toaster position="top-right" closeButton />
+      <SpeedInsights />
+    </ErrorBoundary>
+  );
 }
 
-const App = () => (
-  <ErrorBoundary>
+export default function App() {
+  return (
     <AuthProvider>
-      <AppInner />
-      <SpeedInsights />
+      <AppContent />
     </AuthProvider>
-  </ErrorBoundary>
-)
-
-export default App
+  );
+}

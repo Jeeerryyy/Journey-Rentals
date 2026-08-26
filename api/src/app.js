@@ -37,6 +37,8 @@ import bookingRoutes from './routes/bookings.js'
 import uploadRoutes  from './routes/upload.js'
 import ownerRoutes   from './routes/owner.js'
 import notificationsRoutes from './routes/notifications.js'
+import adminRoutes   from './routes/admin.js'
+import webhookRoutes from './routes/webhooks.js'
 
 const app = express()
 const isProduction = process.env.NODE_ENV === 'production'
@@ -187,6 +189,9 @@ app.use('/api/bookings',      bookingRoutes)
 app.use('/api/upload',        uploadRoutes)
 app.use('/api/owner',         ownerRoutes)
 app.use('/api/notifications', notificationsRoutes)
+app.use('/api/admin',         adminRoutes)
+app.use('/api/webhooks',      webhookRoutes)
+app.use('/api/webhook',       webhookRoutes)
 
 // ══════════════════════════════════════════════════════════════
 // Health Check

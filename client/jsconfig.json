@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/components/ui/*": ["src/shared/ui/*"],
+      "@/ui/*": ["src/shared/ui/*"],
+      "@/lib/*": ["src/shared/lib/*"],
+      "@/context/*": ["src/shared/context/*"],
+      "@/shared/*": ["src/shared/*"],
+      "@website/*": ["src/website/*"],
+      "@crm/*": ["src/crm/*"],
+      "@shared/*": ["src/shared/*"],
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}

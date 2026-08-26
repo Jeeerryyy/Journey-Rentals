@@ -40,8 +40,10 @@ const bookingSchema = new mongoose.Schema({
 
   // Documents
   documents: {
-    aadharUrl:  String,
-    licenseUrl: String,
+    aadharUrl:     String,
+    licenseUrl:    String,
+    aadharNumber:  String,
+    licenseNumber: String,
   },
 
   // Admin only

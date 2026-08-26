@@ -1,5 +1,7 @@
 import cloudinary from '../config/cloudinary.js'
 import { fileTypeFromBuffer } from 'file-type'
+import { createNotification } from '../services/notificationService.js'
+
 const uploadBase64 = (base64String, fieldname) => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(
@@ -25,48 +27,50 @@ export const uploadDocument = async (req, res) => {
   try {
     const { aadhar, license } = req.body
 
-    if (!aadhar || !license) {
-      return res.status(400).json({ success: false, error: 'Both aadhar and license are required.' })
+    if (!aadhar && !license) {
+      return res.status(200).json({ success: true, files: {} })
     }
 
-    // Validate size and typing strictly via magic numbers
-    for (const [name, doc] of [['Aadhar', aadhar], ['License', license]]) {
-      if (typeof doc !== 'string' || !ALLOWED_DOC_MIME.test(doc)) {
-        return res.status(400).json({ success: false, error: `${name}: Invalid format. Accepted: JPEG, PNG, WebP, PDF.` })
-      }
-      if (doc.length > MAX_DOC_SIZE) {
-        return res.status(400).json({ success: false, error: `${name}: File must be under 5MB.` })
-      }
-      const base64Data = doc.split(',')[1]
-      if (base64Data) {
-        const buffer = Buffer.from(base64Data, 'base64')
-        const type = await fileTypeFromBuffer(buffer)
-        if (!type || !['image/jpeg', 'image/png', 'image/webp', 'application/pdf'].includes(type.mime)) {
-          return res.status(400).json({ success: false, error: `${name}: Corrupted or invalid file content. Accepted: JPEG, PNG, WebP, PDF.` })
+    const files = {}
+
+    if (aadhar && typeof aadhar === 'string' && ALLOWED_DOC_MIME.test(aadhar)) {
+      if (aadhar.length <= MAX_DOC_SIZE) {
+        const aadharResult = await uploadBase64(aadhar, 'aadhar')
+        files.aadhar = {
+          url: aadharResult.secure_url,
+          publicId: aadharResult.public_id,
         }
       }
     }
 
-    const [aadharResult, licenseResult] = await Promise.all([
-      uploadBase64(aadhar,  'aadhar'),
-      uploadBase64(license, 'license')
-    ])
+    if (license && typeof license === 'string' && ALLOWED_DOC_MIME.test(license)) {
+      if (license.length <= MAX_DOC_SIZE) {
+        const licenseResult = await uploadBase64(license, 'license')
+        files.license = {
+          url: licenseResult.secure_url,
+          publicId: licenseResult.public_id,
+        }
+      }
+    }
+
+    // Trigger notification
+    if (files.aadhar || files.license) {
+      createNotification({
+        type: 'kyc',
+        title: 'Customer KYC Uploaded',
+        message: `Customer ${req.user?.email || ''} uploaded ${files.aadhar && files.license ? 'Aadhaar & Driving License' : files.aadhar ? 'Aadhaar Card' : 'Driving License'}.`,
+        link: '/admin/bookings',
+        data: { userId: req.user?.userId, files }
+      }).catch(() => {})
+    }
 
     return res.status(200).json({
       success: true,
-      files: {
-        aadhar: {
-          url:      aadharResult.secure_url,
-          publicId: aadharResult.public_id
-        },
-        license: {
-          url:      licenseResult.secure_url,
-          publicId: licenseResult.public_id
-        }
-      }
+      files,
     })
   } catch (err) {
     console.error('Upload error:', err.message)
     return res.status(500).json({ success: false, error: 'Document upload failed. Please try again.' })
   }
 }
+

@@ -13,6 +13,7 @@ import { validateEmail, validatePassword } from '../middleware/validators.js'
 import { generateOTP, storeOTP, verifyOTP } from '../services/otp.js'
 import { sendOTPEmail } from '../services/mailer.js'
 import { fileTypeFromBuffer } from 'file-type'
+import { createNotification } from '../services/notificationService.js'
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
 const BACKEND_URL  = process.env.BACKEND_URL  || 'http://localhost:5000'
@@ -121,6 +122,15 @@ export const verifyOtp = async (req, res) => {
     })
     setTokenCookie(res, 'jr_refresh', refreshToken)
 
+    // Notify CRM of new customer registration
+    createNotification({
+      type: 'user',
+      title: 'New Customer Registered',
+      message: `${user.name} (${user.email}) verified email & registered.`,
+      link: '/admin',
+      data: { userId: user._id, email: user.email, name: user.name },
+    }).catch(() => {})
+
     return res.status(200).json({
       success: true,
       message: 'Email verified — welcome aboard!',
@@ -219,6 +229,15 @@ export const login = async (req, res) => {
 
     const { token: refreshToken } = signRefreshToken(tokenPayload)
     setTokenCookie(res, 'jr_refresh', refreshToken)
+
+    // Notify CRM of customer login
+    createNotification({
+      type: 'auth',
+      title: 'Customer Login',
+      message: `${user.name} (${user.email}) logged in to their account.`,
+      link: '/admin',
+      data: { userId: user._id, email: user.email, name: user.name },
+    }).catch(() => {})
 
     return res.status(200).json({
       success: true,
@@ -381,6 +400,15 @@ export const updateProfile = async (req, res) => {
 
     await user.save()
 
+    // Notify CRM of profile update
+    createNotification({
+      type: 'user',
+      title: 'Profile Updated',
+      message: `${user.name} (${user.email}) updated profile information.`,
+      link: '/admin',
+      data: { userId: user._id, email: user.email },
+    }).catch(() => {})
+
     return res.status(200).json({
       success: true,
       user: {
@@ -443,6 +471,15 @@ export const ownerLogin = async (req, res) => {
     const token = signToken({ email, role: 'owner', name: 'Owner' })
     setTokenCookie(res, 'jr_token_owner', token)
 
+    // Notify CRM of Owner Portal Login
+    createNotification({
+      type: 'auth',
+      title: 'Owner Portal Login',
+      message: `Owner logged in to the CRM Console.`,
+      link: '/admin',
+      data: { email, role: 'owner' },
+    }).catch(() => {})
+
     return res.status(200).json({
       success: true,
       owner: { name: 'Owner', email, role: 'owner' },
@@ -456,6 +493,17 @@ export const ownerLogin = async (req, res) => {
 export const ownerLogout = (req, res) => {
   clearTokenCookie(res, 'jr_token_owner')
   return res.status(200).json({ success: true, message: 'Owner logged out.' })
+}
+
+export const getOwnerMe = (req, res) => {
+  return res.status(200).json({
+    success: true,
+    owner: {
+      name: req.user?.name || 'Owner',
+      email: req.user?.email || process.env.OWNER_EMAIL,
+      role: 'owner',
+    },
+  })
 }
 
 export const initiateGoogleAuth = (req, res) => {

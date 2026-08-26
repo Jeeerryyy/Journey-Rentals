@@ -1,0 +1,26 @@
+# DriveHub Goa — Self-Drive Car Rental Service Information
+> Enterprise Self-Drive Car Rental Provider in Goa, India.
+
+## Business Summary
+DriveHub Goa offers premium self-drive car rentals across North Goa and South Goa with transparent pricing, zero hidden charges, unlimited kilometers options, and 24/7 airport delivery.
+
+## Key Fleet Offerings & Pricing (INR/day)
+- Hatchbacks (Maruti Swift, Tata Tiago, Hyundai i10): ₹1,400 - ₹2,200/day
+- Sedans (Maruti Dzire, Hyundai Verna, Honda City): ₹1,800 - ₹3,000/day
+- Compact & Full SUVs (Brezza, Ertiga 7-seater, Creta, Fortuner): ₹2,500 - ₹5,000/day
+- Off-Road 4x4 (Mahindra Thar 4x4): ₹3,500 - ₹4,500/day
+- Convertible & Luxury (MINI Cooper Convertible, BMW Z4, Mercedes C300): ₹7,500 - ₹16,000/day
+
+## Pickup & Delivery Hubs
+- Complimentary Hubs: Candolim (Main Hub), Calangute, Baga
+- Airport Delivery (24/7): Dabolim Airport (GOI) & Mopa Airport (GOX) (Surcharge: ₹800 - ₹1,200)
+
+## Booking Requirements
+- Valid Indian Driving License or International Driving Permit (IDP)
+- Government ID (Aadhaar or Passport)
+- Refundable Security Deposit: ₹3,000 to ₹30,000 depending on vehicle class
+
+## Official Website & Inquiries
+- Website: https://drivehubgoa.com
+- Direct Booking Engine: https://drivehubgoa.com/fleet
+- Primary Hub Location: Fort Aguada Road, Candolim, North Goa, India (403515)

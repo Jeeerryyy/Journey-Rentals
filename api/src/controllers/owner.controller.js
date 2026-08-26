@@ -4,6 +4,7 @@ import Booking from '../models/Booking.js'
 import Vehicle from '../models/Vehicle.js'
 import User from '../models/User.js'
 import FleetSection from '../models/FleetSection.js'
+import Enquiry from '../models/Enquiry.js'
 import { fileTypeFromBuffer } from 'file-type'
 
 const uploadBase64 = (base64String, folder) => {
@@ -82,6 +83,9 @@ export const getDashboardStats = async (req, res) => {
       totalUsers,
       recentBookings,
       revenue,
+      grossRevenue,
+      dayDistribution,
+      allCustomerLeads,
       monthlyBookings,
       monthlyRevenue
     ] = await Promise.all([
@@ -101,6 +105,29 @@ export const getDashboardStats = async (req, res) => {
         { $match: { status: { $in: ['confirmed', 'completed'] } } },
         { $group: { _id: null, total: { $sum: '$advancePaid' } } }
       ]),
+      Booking.aggregate([
+        { $match: { status: { $in: ['confirmed', 'completed'] } } },
+        { $group: { _id: null, total: { $sum: '$totalPrice' } } }
+      ]),
+      // Day of week distribution from real verified bookings (4 orders)
+      Booking.aggregate([
+        { $match: { status: { $in: ['confirmed', 'completed'] } } },
+        {
+          $project: {
+            dayOfWeek: { $dayOfWeek: { $ifNull: ['$pickupDate', '$bikeDate', '$createdAt'] } }
+          }
+        },
+        {
+          $group: {
+            _id: '$dayOfWeek',
+            count: { $sum: 1 }
+          }
+        }
+      ]),
+      // All real customer inquiries/leads from MongoDB
+      Enquiry.find({})
+        .sort({ createdAt: -1 })
+        .lean(),
       // This month's bookings count
       Booking.countDocuments({
         status: { $in: ['confirmed', 'completed'] },
@@ -112,6 +139,58 @@ export const getDashboardStats = async (req, res) => {
         { $group: { _id: null, total: { $sum: '$advancePaid' } } }
       ])
     ])
+
+    const fleetUtil = totalVehicles > 0 ? Math.round(((totalVehicles - availableVehicles) / totalVehicles) * 100) : 0
+
+    // Build real weekly volume chart from MongoDB aggregation
+    const dayMap = { 1: "Sun", 2: "Mon", 3: "Tue", 4: "Wed", 5: "Thu", 6: "Fri", 7: "Sat" }
+    const dayCounts = { Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0 }
+    
+    if (Array.isArray(dayDistribution) && dayDistribution.length > 0) {
+      for (const item of dayDistribution) {
+        const dayName = dayMap[item._id]
+        if (dayName) dayCounts[dayName] = item.count
+      }
+    }
+
+    // Find peak day
+    let peakDay = "Daily Handover"
+    let maxCount = 0
+    const weeklyFleetBookings = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => {
+      const count = dayCounts[day] || 0
+      if (count > maxCount) {
+        maxCount = count
+        peakDay = day
+      }
+      return {
+        day,
+        vehicles: count,
+        peak: false,
+        active: count > 0
+      }
+    })
+
+    const peakIndex = weeklyFleetBookings.findIndex(d => d.day === peakDay)
+    if (peakIndex !== -1 && maxCount > 0) {
+      weeklyFleetBookings[peakIndex].peak = true
+    }
+
+    // Map real customer enquiries from MongoDB
+    const customerLeads = (allCustomerLeads || []).map(e => ({
+      id: e._id.toString(),
+      reference_id: `ENQ-${e._id.toString().slice(-6).toUpperCase()}`,
+      customer_name: e.customer_name,
+      phone: e.phone || "N/A",
+      email: e.email || "",
+      city: e.city || "Solapur",
+      car_model_interested: e.car_model_interested || "Self-Drive Vehicle",
+      source: e.source || "Phone Call",
+      status: e.status || "New",
+      raw_status: e.status || "New",
+      total_price: 0,
+      created_at: e.createdAt,
+      notes: e.notes || ""
+    }))
 
     return res.status(200).json({
       success: true,
@@ -128,17 +207,23 @@ export const getDashboardStats = async (req, res) => {
           available: availableVehicles,
           unavailable: totalVehicles - availableVehicles,
         },
+        utilization: fleetUtil,
         users: {
           total: totalUsers,
         },
         revenue: {
+          totalGross: grossRevenue[0]?.total || 0,
           totalAdvance: revenue[0]?.total || 0,
           thisMonth: monthlyRevenue[0]?.total || 0,
         },
+        weeklyFleetBookings,
+        peakDay,
+        peakCount: Math.max(maxCount, 0),
         monthly: {
           bookings: monthlyBookings,
         }
       },
+      customerLeads,
       recentBookings
     })
   } catch (error) {
@@ -287,12 +372,12 @@ export const getBookings = async (req, res) => {
   try {
     await connectDB()
 
-    const { status, cursor, limit = 20 } = req.query
-    const pageLimit = Math.min(Number(limit) || 20, 100)
-    const filter = { status: { $ne: 'pending' } }
+    const { status, cursor, limit = 50 } = req.query
+    const pageLimit = Math.min(Number(limit) || 50, 200)
+    const filter = {}
 
-    if (status && ['confirmed', 'completed', 'cancelled'].includes(status)) {
-      filter.status = status
+    if (status && status !== 'all' && ['pending', 'confirmed', 'completed', 'cancelled'].includes(status.toLowerCase())) {
+      filter.status = status.toLowerCase()
     }
 
     if (cursor) {
@@ -301,15 +386,15 @@ export const getBookings = async (req, res) => {
 
     const [bookings, total] = await Promise.all([
       Booking.find(filter)
-        .sort({ _id: -1 })
-        .limit(pageLimit + 1) // fetch one extra to check if there's a next page
+        .sort({ createdAt: -1, _id: -1 })
+        .limit(pageLimit + 1)
         .select('-__v')
         .lean(),
-      Booking.countDocuments(status && status !== 'pending' ? { status } : { status: { $ne: 'pending' } }),
+      Booking.countDocuments(filter),
     ])
 
     const hasMore = bookings.length > pageLimit
-    if (hasMore) bookings.pop() // remove the extra
+    if (hasMore) bookings.pop()
 
     const nextCursor = hasMore ? bookings[bookings.length - 1]._id : null
 

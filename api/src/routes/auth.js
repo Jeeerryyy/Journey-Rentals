@@ -6,10 +6,10 @@ import passport from 'passport'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import { connectDB } from '../config/db.js'
 import User from '../models/User.js'
-import { requireAuth, signToken, signRefreshToken, setTokenCookie } from '../middleware/auth.js'
+import { requireAuth, requireOwner, signToken, signRefreshToken, setTokenCookie } from '../middleware/auth.js'
 import {
   signup, verifyOtp, resendOtp, login, refreshToken, logout, getMe,
-  updateAvatar, updateProfile, deleteProfile, ownerLogin, ownerLogout,
+  updateAvatar, updateProfile, deleteProfile, ownerLogin, ownerLogout, getOwnerMe,
   initiateGoogleAuth
 } from '../controllers/auth.controller.js'
 
@@ -42,6 +42,8 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 const FRONTEND_URL         = process.env.FRONTEND_URL || 'http://localhost:5173'
 const BACKEND_URL          = process.env.BACKEND_URL  || 'http://localhost:5000'
 
+import { createNotification } from '../services/notificationService.js'
+
 if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
   passport.use(new GoogleStrategy(
     {
@@ -55,7 +57,9 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
         const email = profile.emails?.[0]?.value?.toLowerCase()
         if (!email) return done(new Error('No email from Google'), null)
         let user = await User.findOne({ email })
+        let isNew = false
         if (!user) {
+          isNew = true
           user = await User.create({
             name:         profile.displayName || profile.name?.givenName || 'Google User',
             email,
@@ -72,6 +76,16 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
           user.isVerified = true
           await user.save()
         }
+
+        // Notification for Google Signup / Login
+        createNotification({
+          type: isNew ? 'user' : 'auth',
+          title: isNew ? 'New Customer Registered (Google)' : 'Customer Login (Google)',
+          message: `${user.name} (${user.email}) signed in via Google OAuth.`,
+          link: '/admin',
+          data: { userId: user._id, email: user.email, provider: 'google' }
+        }).catch(() => {})
+
         return done(null, user)
       } catch (err) {
         return done(err, null)
@@ -122,6 +136,7 @@ router.post('/owner-login', authLimiter, [
 ], ownerLogin)
 
 router.post('/owner-logout', ownerLogout)
+router.get('/owner-me', requireOwner, getOwnerMe)
 
 router.get('/me', requireAuth, getMe)
 router.put('/profile/avatar', requireAuth, upload.single('avatar'), updateAvatar)
