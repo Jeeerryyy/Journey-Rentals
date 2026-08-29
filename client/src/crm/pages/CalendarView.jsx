@@ -51,8 +51,8 @@ export default function CalendarView() {
     try {
       setLoading(true);
       const [vRes, bRes] = await Promise.allSettled([
-        api.get("/api/admin/fleet").then((r) => r.data?.vehicles || r.data || []),
-        api.get("/api/admin/bookings").then((r) => r.data?.bookings || r.data || []),
+        api.get("/api/admin/fleet").then((r) => r.data?.vehicles || r.data || []).catch(() => api.owner.getVehicles().then(r => r.vehicles || [])),
+        api.get("/api/admin/bookings").then((r) => r.data?.bookings || r.data?.data || r.data || []).catch(() => api.owner.getBookings().then(r => r.bookings || r.data || [])),
       ]);
 
       if (vRes.status === "fulfilled" && vRes.value) {
@@ -324,6 +324,7 @@ export default function CalendarView() {
                         {daysInMonth.map((day) => {
                           const dayStr = ymd(day);
                           const matchedBooking = bookings.find((b) => {
+                            if (b.status === 'cancelled') return false;
                             const bVehId = b.vehicleId?._id || b.vehicleId || b.vehicle_id || b.vehicleSnapshot?._id;
                             if (bVehId && String(bVehId) !== String(vId)) return false;
                             const startStr = ymd(b.startDate || b.start_date || b.pickupDate || b.bikeDate);

@@ -1,0 +1,40 @@
+# Journey Rentals Solapur — Full System Specification & Documentation for LLMs
+
+## About the Company
+Journey Rentals is Solapur's premier verified self-drive vehicle and hourly bike rental enterprise. Headquartered in Solapur, Maharashtra, Journey Rentals operates an extensive fleet of sanitised, GPS-tracked, and commercially insured vehicles with dedicated dispatch hubs at the Solapur Railway Station, Hotgi Road, Vijapur Road, and Akkalkot Road.
+
+## Key Service Pillars
+1. 24/7 Railway Station Handover: Direct vehicle delivery at Solapur Railway Station (Platform 1 gate exit) synchronized with incoming express trains including Mumbai-Solapur Vande Bharat, Siddheshwar Express, and Hutatma Express.
+2. Complete Pilgrimage Focus: Turnkey self-drive solutions for the renowned temple circuit: Akkalkot (Shri Swami Samarth Temple), Pandharpur (Shri Vitthal-Rukmini Temple), and Tuljapur (Bhavani Mata Temple).
+3. Zero Deposit Anxiety: Transparent, minimal advance token (₹500) payable securely online via Razorpay, with the balance collected upon physical vehicle inspection and key handover.
+4. Flexible Hourly Two-Wheelers: Geared bikes and automatic scooters available on 3hr, 6hr, 12hr, and 24hr slots starting at ₹150 for 3 hours, complete with complimentary sanitized helmets.
+
+## Fleet Inventory & Pricing Reference (INR)
+
+| Vehicle Model | Category | Transmission | Fuel | Seating | Standard Daily Rate | Key Features |
+|---|---|---|---|---|---|---|
+| Maruti Suzuki Swift | Hatchback | Manual / Auto | CNG / Petrol | 5 Seater | ₹1,400 – ₹1,800/day | Best mileage, easy city maneuvering, touchscreen |
+| Hyundai i10 Nios | Hatchback | Automatic | Petrol | 5 Seater | ₹1,500 – ₹1,800/day | Smooth automatic drive, premium cabin, compact |
+| Maruti Suzuki Dzire | Sedan | Manual | CNG | 5 Seater | ₹1,800 – ₹2,200/day | Spacious boot for luggage, plush rear seating |
+| Hyundai Aura | Sedan | Manual | CNG | 5 Seater | ₹1,800 – ₹2,200/day | Economical CNG highway cruiser |
+| Tata Punch | Micro SUV | Manual | CNG | 5 Seater | ₹1,700 – ₹2,000/day | High 187mm ground clearance, rugged build |
+| Hyundai Venue | Compact SUV | Automatic | Petrol | 5 Seater | ₹2,000 – ₹2,400/day | Sunroof, wireless Android Auto / Apple CarPlay |
+| Kia Seltos | Midsize SUV | Automatic | Petrol | 5 Seater | ₹2,800 – ₹3,200/day | Ventilated seats, panoramic sunroof, cruise control |
+| Maruti Suzuki Ertiga | MPV | Manual | CNG | 7 Seater | ₹2,500 – ₹3,200/day | Best 7-seater for family temple tours with luggage |
+| Mahindra Thar 4x4 | Off-Road SUV | Automatic | Diesel | 4 Seater | ₹3,500 – ₹4,500/day | 4WD capability, commanding highway road presence |
+| Honda Activa 6G | Scooter | Automatic | Petrol | 2 Seater | ₹150 (3hr) / ₹500 (24hr) | Silent start, external fuel lid, lightweight |
+| TVS Jupiter | Scooter | Automatic | Petrol | 2 Seater | ₹150 (3hr) / ₹500 (24hr) | Spacious floorboard, USB charging, soft suspension |
+| Royal Enfield Classic 350 | Cruiser | Manual | Petrol | 2 Seater | ₹400 (6hr) / ₹900 (24hr) | Dual-channel ABS, iconic thump, comfortable saddle |
+
+## Important Travel Routes & Driving Times
+- Solapur to Akkalkot: 40 km via Akkalkot Road (45–55 mins). Excellent 2-lane highway with scenic rural stretches.
+- Solapur to Tuljapur: 45 km via NH-52 (45–50 mins). 4-lane national highway leading straight to Tuljapur bypass.
+- Solapur to Pandharpur: 72 km via NH-65 & Mohol bypass (1 hour 15 mins). Smooth 4-lane highway with multiple family food courts.
+- Solapur to Gangapur (Karnataka): 90 km via Akkalkot-Wagdari route (1 hour 45 mins). Famous for Shri Narasimha Saraswati Dattatreya Temple.
+
+## Customer Support & Business Contacts
+- Telephone: +91 96044 37794
+- WhatsApp Dispatch: https://wa.me/919604437794
+- Email: rental.journeycars@gmail.com
+- Main Address: Near Solapur Railway Station, Hotgi Road, Solapur, Maharashtra 413001
+- Business Hours: 06:00 AM – 11:00 PM IST (Daily, Monday to Sunday)

@@ -168,14 +168,14 @@ const MASTER_TERMS_SECTIONS = [
   {
     id: "disclaimers-speed",
     icon: Gauge,
-    title: "8. Speed Governors, Telemetry & Statutory Disclaimers",
+    title: "8. Statutory Speed Regulations, Insurance & Liability Disclaimers",
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
           Statutory motor vehicle compliance guidelines:
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
-          <li><strong>Speed Governor Mandate:</strong> In accordance with MoRTH statutory road safety regulations, commercial rental cars are equipped with speed governors restricted to <strong>80 km/h</strong>. Tampering with IoT speed telemetry is strictly prohibited.</li>
+          <li><strong>Speed Governor Compliance:</strong> In accordance with applicable statutory road safety regulations, commercial rental vehicles are equipped with speed limiters configured to <strong>80 km/h</strong>. Tampering with speed limiting devices or vehicle telematics is strictly prohibited and constitutes a material breach of contract.</li>
           <li><strong>Insurance Coverage:</strong> All vehicles carry comprehensive commercial insurance. In the event of an accidental damage claim, the hirer's maximum liability is strictly limited to the mandatory insurance deductible (₹5,000 for standard hatchbacks, ₹10,000 for SUVs) provided zero violations of clause 7 occurred.</li>
           <li><strong>Personal Belongings:</strong> Journey Rentals is not liable for loss or damage to personal items, cash, or electronics left inside the vehicle.</li>
         </ul>

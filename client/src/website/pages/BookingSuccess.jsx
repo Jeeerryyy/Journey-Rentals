@@ -154,9 +154,20 @@ export default function BookingSuccess() {
             <div className="bg-[#F6F5FA] p-4 rounded-2xl border border-[#DFDCE8]">
               <div className="text-[10px] uppercase tracking-wider text-[#6F6E73] font-bold font-mono">Advance Amount Paid</div>
               <div className="font-display text-xl sm:text-2xl font-extrabold text-[#212121] mt-1">{formatINR(advancePaid)}</div>
-              <div className="inline-flex items-center gap-1 text-[10px] font-bold text-[#4B8039] bg-[#CFDECA] px-2 py-0.5 rounded-full mt-1">
-                ● Online Verified &amp; Locked
-              </div>
+              {booking?.payment?.status === "paid" || booking?.status === "confirmed" ? (
+                <div className="inline-flex items-center gap-1 text-[10px] font-bold text-[#4B8039] bg-[#CFDECA] px-2 py-0.5 rounded-full mt-1">
+                  ● Verified via Razorpay
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-1 text-[10px] font-bold text-[#B37800] bg-[#FFFBE6] border border-[#FFE58F] px-2 py-0.5 rounded-full mt-1">
+                  ● Pay at Handover
+                </div>
+              )}
+              {booking?.payment?.razorpayPaymentId && (
+                <div className="text-[10px] text-[#6F6E73] font-mono mt-1">
+                  Txn: {booking.payment.razorpayPaymentId}
+                </div>
+              )}
             </div>
 
             <div className="bg-[#F6F5FA] p-4 rounded-2xl border border-[#DFDCE8]">

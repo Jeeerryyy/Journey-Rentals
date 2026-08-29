@@ -1,39 +1,73 @@
-# DriveHub Goa — Enterprise Robots.txt
+# Journey Rentals Solapur — Production Robots.txt
+# Allows full indexing for Search Engines (Google, Bing) and AI Answer Engines (ChatGPT, Perplexity, Claude, Gemini)
+
 User-agent: *
 Allow: /
 Allow: /fleet
-Allow: /login
-Allow: /signup
+Allow: /about
+Allow: /terms
+Allow: /privacy-policy
+Allow: /cookie-policy
+Allow: /accessibility
+Allow: /locations/
+Allow: /car-rental/
+Allow: /bike-rental/
+Allow: /guides/
 Allow: /llms.txt
+Allow: /llms-full.txt
 Allow: /sitemap.xml
 
-# Disallow Private Admin & Confirmation Routes
+# Disallow Private CRM, Customer Portal, and Checkout Callback Routes
 Disallow: /admin
 Disallow: /admin/
 Disallow: /api/admin/
+Disallow: /api/owner/
+Disallow: /owner/
 Disallow: /booking-success/
-Disallow: /booking-success/*
+Disallow: /profile
+Disallow: /account
+Disallow: /verify-otp
 
-# AI Crawlers & LLM Indexing (Expressly Allowed for GEO)
+# AI Crawlers & LLM Indexing (Explicitly Allowed for Generative Engine Optimization)
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
 User-agent: GPTBot
 Allow: /
-Allow: /llms.txt
 
-User-agent: ClaudeBot
+User-agent: OAI-SearchBot
 Allow: /
-Allow: /llms.txt
+
+User-agent: ChatGPT-User
+Allow: /
 
 User-agent: PerplexityBot
 Allow: /
-Allow: /llms.txt
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
 
 User-agent: Google-Extended
 Allow: /
-Allow: /llms.txt
+
+User-agent: CCBot
+Allow: /
 
 User-agent: Bytespider
 Allow: /
-Allow: /llms.txt
 
 # Sitemap Location
-Sitemap: https://drivehubgoa.in/sitemap.xml
+Sitemap: https://journeyrentals.in/sitemap.xml
+

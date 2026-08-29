@@ -49,9 +49,9 @@ router.post('/create-order', optionalAuth, createOrderLimiter, [
 // POST /api/bookings/verify-payment — Razorpay signature verification
 // ══════════════════════════════════════════════════════════════
 router.post('/verify-payment', optionalAuth, [
-  body('razorpay_order_id').notEmpty().withMessage('Missing payment verification fields.').escape(),
-  body('razorpay_payment_id').notEmpty().withMessage('Missing payment verification fields.').escape(),
-  body('razorpay_signature').notEmpty().withMessage('Missing payment verification fields.').escape(),
+  body('razorpay_order_id').notEmpty().withMessage('Missing payment verification order ID.').trim(),
+  body('razorpay_payment_id').notEmpty().withMessage('Missing payment verification payment ID.').trim(),
+  body('razorpay_signature').notEmpty().withMessage('Missing payment verification signature.').trim(),
   validateRequest
 ], verifyPayment)
 

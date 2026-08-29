@@ -1,37 +1,133 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Core Landing & Transactional Pages -->
   <url>
-    <loc>https://drivehubgoa.in/</loc>
-    <lastmod>2026-08-18</lastmod>
+    <loc>https://journeyrentals.in/</loc>
+    <lastmod>2026-08-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <image:image>
-      <image:loc>https://drivehubgoa.in/goa_hero_bg.png</image:loc>
-      <image:title>DriveHub Goa — Premium Self Drive Car Rentals in Goa</image:title>
-      <image:caption>Rent Thar 4x4, Fortuner, Creta, Swift &amp; Convertibles in Goa</image:caption>
-    </image:image>
   </url>
   <url>
-    <loc>https://drivehubgoa.in/fleet</loc>
-    <lastmod>2026-08-18</lastmod>
+    <loc>https://journeyrentals.in/fleet</loc>
+    <lastmod>2026-08-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
-    <image:image>
-      <image:loc>https://drivehubgoa.in/vehicles/mahindra_thar.webp</image:loc>
-      <image:title>Mahindra Thar 4x4 Rental Goa</image:title>
-    </image:image>
+  </url>
+
+  <!-- High-Intent Location Hubs -->
+  <url>
+    <loc>https://journeyrentals.in/locations/solapur-railway-station</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://drivehubgoa.in/login</loc>
-    <lastmod>2026-08-18</lastmod>
+    <loc>https://journeyrentals.in/locations/pandharpur-temple-trip</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/locations/akkalkot-temple-trip</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/locations/tuljapur-temple-trip</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/locations/hotgi-road-airport</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/locations/vijapur-road</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Vehicle Category Pages -->
+  <url>
+    <loc>https://journeyrentals.in/car-rental/suv-7-seater</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/car-rental/hatchback-economy</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/car-rental/sedan</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/bike-rental/hourly-bikes</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- High-Authority Comparison & Advice Guides -->
+  <url>
+    <loc>https://journeyrentals.in/guides/self-drive-vs-chauffeur-car-rental</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/guides/documents-required-self-drive-car-rental</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/guides/solapur-to-akkalkot-pandharpur-road-trip</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Authority, Trust & Legal Hubs -->
+  <url>
+    <loc>https://journeyrentals.in/about</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/terms</loc>
+    <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://drivehubgoa.in/signup</loc>
-    <lastmod>2026-08-18</lastmod>
+    <loc>https://journeyrentals.in/privacy-policy</loc>
+    <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/cookie-policy</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://journeyrentals.in/accessibility</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
   </url>
 </urlset>
+

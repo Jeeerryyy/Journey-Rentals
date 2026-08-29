@@ -28,7 +28,6 @@ export default function AccessibilityPage() {
       <BreadcrumbStructuredData
         items={[
           { name: "Home", url: "/" },
-          { name: "Legal Hub", url: "/legal" },
           { name: "Accessibility", url: "/accessibility" },
         ]}
       />
@@ -42,8 +41,6 @@ export default function AccessibilityPage() {
             {/* Breadcrumb Navigation */}
             <div className="flex items-center gap-2 text-xs font-mono text-[#99989E] mb-4">
               <Link to="/" className="hover:text-white transition-colors">Home</Link>
-              <ChevronRight size={12} />
-              <Link to="/legal" className="hover:text-white transition-colors">Legal Hub</Link>
               <ChevronRight size={12} />
               <span className="text-white font-bold">Accessibility Statement</span>
             </div>

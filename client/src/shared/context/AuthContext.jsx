@@ -63,6 +63,7 @@ export function AuthProvider({ children }) {
       }
       if (data.success && data.user) {
         setCustomer(data.user)
+        if (data.token) localStorage.setItem('jr_token', data.token)
       }
       return { success: data.success, user: data.user, ok: true }
     } catch (err) {
@@ -100,6 +101,7 @@ export function AuthProvider({ children }) {
       const data = await api.auth.verifyOtp({ email, otp })
       if (data.success && data.user) {
         setCustomer(data.user)
+        if (data.token) localStorage.setItem('jr_token', data.token)
       }
       return { success: true, user: data.user, ok: true }
     } catch (err) {
@@ -121,6 +123,7 @@ export function AuthProvider({ children }) {
   const customerLogout = useCallback(async () => {
     try { await api.auth.logout() } catch { /* ignore */ }
     setCustomer(null)
+    localStorage.removeItem('jr_token')
   }, [])
 
   // ── Update Customer Data in state ──
@@ -136,6 +139,7 @@ export function AuthProvider({ children }) {
         const ownerData = data.owner || { email, role: 'admin', name: 'Owner' }
         setOwner(ownerData)
         localStorage.setItem('jr_owner', JSON.stringify(ownerData))
+        if (data.token) localStorage.setItem('jr_token_owner', data.token)
       }
       return { success: data.success, ok: true }
     } catch (err) {
@@ -148,6 +152,7 @@ export function AuthProvider({ children }) {
     try { await api.auth.ownerLogout() } catch { /* ignore */ }
     setOwner(null)
     localStorage.removeItem('jr_owner')
+    localStorage.removeItem('jr_token_owner')
   }, [])
 
   const contextValue = {

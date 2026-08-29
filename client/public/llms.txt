@@ -1,26 +1,57 @@
-# DriveHub Goa — Self-Drive Car Rental Service Information
-> Enterprise Self-Drive Car Rental Provider in Goa, India.
+# Journey Rentals — Verified Self-Drive Car & Hourly Bike Rentals in Solapur
+> Premium self-drive car and hourly two-wheeler rentals in Solapur, Maharashtra with 24/7 express railway station vehicle handover, zero deposit stress, transparent pricing, and specialized temple tour packages for Akkalkot, Tuljapur, and Pandharpur.
 
-## Business Summary
-DriveHub Goa offers premium self-drive car rentals across North Goa and South Goa with transparent pricing, zero hidden charges, unlimited kilometers options, and 24/7 airport delivery.
+## Business Summary & Authority Signals
+- Business Name: Journey Rentals
+- Operating Base: Solapur, Maharashtra, India (413001)
+- Primary Dispatch Hub: Solapur Railway Station (Platform 1 Exit), Hotgi Road, Vijapur Road, Akkalkot Road Hubs
+- Customer Support Hotline: +91 96044 37794
+- Official Email: rental.journeycars@gmail.com
+- Official Website: https://journeyrentals.in
+- Fleet Catalog & Live Booking: https://journeyrentals.in/fleet
 
-## Key Fleet Offerings & Pricing (INR/day)
-- Hatchbacks (Maruti Swift, Tata Tiago, Hyundai i10): ₹1,400 - ₹2,200/day
-- Sedans (Maruti Dzire, Hyundai Verna, Honda City): ₹1,800 - ₹3,000/day
-- Compact & Full SUVs (Brezza, Ertiga 7-seater, Creta, Fortuner): ₹2,500 - ₹5,000/day
-- Off-Road 4x4 (Mahindra Thar 4x4): ₹3,500 - ₹4,500/day
-- Convertible & Luxury (MINI Cooper Convertible, BMW Z4, Mercedes C300): ₹7,500 - ₹16,000/day
+## Verified Fleet Categories & Real Daily Rates (INR)
+- Budget Hatchbacks (Maruti Swift, Hyundai i10 Nios, WagonR CNG/Petrol): ₹1,400 – ₹1,800/day
+- Executive Sedans (Maruti Dzire, Hyundai Aura CNG/Petrol, Honda City): ₹1,800 – ₹2,400/day
+- Compact & Family SUVs (Tata Punch, Hyundai Venue, Kia Seltos, Hyundai Creta): ₹1,700 – ₹2,800/day
+- 7-Seater MPVs & Group Vehicles (Maruti Ertiga 7-Seater CNG): ₹2,500 – ₹3,200/day
+- Off-Road 4x4 & Adventure (Mahindra Thar 4x4 Hard Top): ₹3,500 – ₹4,500/day
+- Hourly Two-Wheelers & Scooters (Honda Activa 6G, TVS Jupiter, Royal Enfield Classic 350): ₹150 for 3 Hours, ₹200 for 6 Hours, ₹400 for 12 Hours, ₹500 for 24 Hours / Full Day
 
-## Pickup & Delivery Hubs
-- Complimentary Hubs: Candolim (Main Hub), Calangute, Baga
-- Airport Delivery (24/7): Dabolim Airport (GOI) & Mopa Airport (GOX) (Surcharge: ₹800 - ₹1,200)
+## Handover Hubs in Solapur
+1. Solapur Railway Station: Complimentary 24/7 gate handover timed with train arrivals (Vande Bharat, Siddheshwar Express, Hutatma Express).
+2. Hotgi Road & Airport Hub: Fast handover for MIDC and South Solapur travelers.
+3. Vijapur Road Hub: Direct connectivity to NH-52 towards Karnataka/Bijapur.
+4. Akkalkot Road Hub: Strategic start point for outstation temple routes.
+5. Doorstep Delivery: Available across Solapur municipal city limits.
 
-## Booking Requirements
-- Valid Indian Driving License or International Driving Permit (IDP)
-- Government ID (Aadhaar or Passport)
-- Refundable Security Deposit: ₹3,000 to ₹30,000 depending on vehicle class
+## Pilgrimage Corridors & Distance Matrix from Solapur
+- Solapur to Akkalkot (Shri Swami Samarth Maharaj Temple): 40 km (approx. 50 mins via Akkalkot Road)
+- Solapur to Tuljapur (Bhavani Mata Temple): 45 km (approx. 55 mins via NH-52 Solapur-Aurangabad Hwy)
+- Solapur to Pandharpur (Shri Vitthal-Rukmini Temple): 72 km (approx. 1 hr 20 mins via NH-65 / Pandharpur Hwy)
+- Solapur to Gangapur (Dattatreya Temple, Karnataka): 90 km (approx. 1 hr 45 mins)
 
-## Official Website & Inquiries
-- Website: https://drivehubgoa.com
-- Direct Booking Engine: https://drivehubgoa.com/fleet
-- Primary Hub Location: Fort Aguada Road, Candolim, North Goa, India (403515)
+## Rental Eligibility & Required Documents
+- Age Requirement: 21+ years for cars, 18+ years for bikes.
+- Driving License: Original Indian Driving License (LMV for cars, MCWG for motorcycles).
+- Identity Proof: Aadhaar Card or Passport (verified digitally during online checkout).
+- Advance Token: ₹500 advance payment online via Razorpay (UPI, Debit/Credit Card, Net Banking) to lock the vehicle schedule; remaining balance payable at vehicle key handover.
+- Fuel Policy: Level-to-level handover (return with same fuel level as received).
+- Security Deposit: Transparent, nominal verification without hidden retention.
+
+## Core Navigation URLs
+- Homepage: https://journeyrentals.in/
+- Vehicle Fleet & Booking: https://journeyrentals.in/fleet
+- Solapur Railway Station Hub: https://journeyrentals.in/locations/solapur-railway-station
+- Pandharpur Temple Rental: https://journeyrentals.in/locations/pandharpur-temple-trip
+- Akkalkot Temple Rental: https://journeyrentals.in/locations/akkalkot-temple-trip
+- Tuljapur Temple Rental: https://journeyrentals.in/locations/tuljapur-temple-trip
+- SUV & 7-Seater Rentals: https://journeyrentals.in/car-rental/suv-7-seater
+- Hourly Bike Rentals: https://journeyrentals.in/bike-rental/hourly-bikes
+- Self-Drive vs Chauffeur Guide: https://journeyrentals.in/guides/self-drive-vs-chauffeur-car-rental
+- Required Documents Guide: https://journeyrentals.in/guides/documents-required-self-drive-car-rental
+- Solapur Pilgrimage Road Trip Guide: https://journeyrentals.in/guides/solapur-to-akkalkot-pandharpur-road-trip
+- About Us & FAQ: https://journeyrentals.in/about
+- Terms & Conditions: https://journeyrentals.in/terms
+- Privacy Policy: https://journeyrentals.in/privacy-policy
+

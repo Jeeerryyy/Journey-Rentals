@@ -23,6 +23,25 @@ const BookingSuccess = lazy(() => import("./website/pages/BookingSuccess"));
 const CustomerProfile = lazy(() => import("./website/pages/CustomerProfile"));
 const NotFound = lazy(() => import("./website/pages/NotFound"));
 
+// Programmatic SEO Location Hubs
+const SolapurRailwayStation = lazy(() => import("./website/pages/locations/SolapurRailwayStation"));
+const PandharpurTempleTrip = lazy(() => import("./website/pages/locations/PandharpurTempleTrip"));
+const AkkalkotTempleTrip = lazy(() => import("./website/pages/locations/AkkalkotTempleTrip"));
+const TuljapurTempleTrip = lazy(() => import("./website/pages/locations/TuljapurTempleTrip"));
+const HotgiRoadAirport = lazy(() => import("./website/pages/locations/HotgiRoadAirport"));
+const VijapurRoadHub = lazy(() => import("./website/pages/locations/VijapurRoadHub"));
+
+// Vehicle Category Landing Hubs
+const SuvCarRental = lazy(() => import("./website/pages/categories/SuvCarRental"));
+const HatchbackCarRental = lazy(() => import("./website/pages/categories/HatchbackCarRental"));
+const SedanCarRental = lazy(() => import("./website/pages/categories/SedanCarRental"));
+const HourlyBikeRental = lazy(() => import("./website/pages/categories/HourlyBikeRental"));
+
+// High-Citation Comparison & Advice Guides
+const SelfDriveVsChauffeurGuide = lazy(() => import("./website/pages/guides/SelfDriveVsChauffeurGuide"));
+const DocumentsRequiredGuide = lazy(() => import("./website/pages/guides/DocumentsRequiredGuide"));
+const SolapurTempleRoadTripGuide = lazy(() => import("./website/pages/guides/SolapurTempleRoadTripGuide"));
+
 const AdminLogin = lazy(() => import("./crm/pages/AdminLogin"));
 const AdminLayout = lazy(() => import("./crm/pages/AdminLayout"));
 const Dashboard = lazy(() => import("./crm/pages/Dashboard"));
@@ -128,6 +147,47 @@ function AppContent() {
         <Route path="/vehicles" element={<Navigate to="/fleet" replace />} />
         <Route path="/cars" element={<Navigate to="/fleet" replace />} />
         <Route path="/bikes" element={<Navigate to="/fleet?type=bike" replace />} />
+
+        {/* Location Landing Hubs */}
+        <Route path="/locations/solapur-railway-station" element={<Suspense fallback={<CustomerSkeleton />}><SolapurRailwayStation /></Suspense>} />
+        <Route path="/solapur-railway-station" element={<Navigate to="/locations/solapur-railway-station" replace />} />
+        <Route path="/station" element={<Navigate to="/locations/solapur-railway-station" replace />} />
+
+        <Route path="/locations/pandharpur-temple-trip" element={<Suspense fallback={<CustomerSkeleton />}><PandharpurTempleTrip /></Suspense>} />
+        <Route path="/pandharpur" element={<Navigate to="/locations/pandharpur-temple-trip" replace />} />
+
+        <Route path="/locations/akkalkot-temple-trip" element={<Suspense fallback={<CustomerSkeleton />}><AkkalkotTempleTrip /></Suspense>} />
+        <Route path="/akkalkot" element={<Navigate to="/locations/akkalkot-temple-trip" replace />} />
+
+        <Route path="/locations/tuljapur-temple-trip" element={<Suspense fallback={<CustomerSkeleton />}><TuljapurTempleTrip /></Suspense>} />
+        <Route path="/tuljapur" element={<Navigate to="/locations/tuljapur-temple-trip" replace />} />
+
+        <Route path="/locations/hotgi-road-airport" element={<Suspense fallback={<CustomerSkeleton />}><HotgiRoadAirport /></Suspense>} />
+        <Route path="/hotgi-road" element={<Navigate to="/locations/hotgi-road-airport" replace />} />
+
+        <Route path="/locations/vijapur-road" element={<Suspense fallback={<CustomerSkeleton />}><VijapurRoadHub /></Suspense>} />
+        <Route path="/vijapur-road" element={<Navigate to="/locations/vijapur-road" replace />} />
+
+        {/* Vehicle Category Landing Hubs */}
+        <Route path="/car-rental/suv-7-seater" element={<Suspense fallback={<CustomerSkeleton />}><SuvCarRental /></Suspense>} />
+        <Route path="/suv" element={<Navigate to="/car-rental/suv-7-seater" replace />} />
+        <Route path="/7-seater" element={<Navigate to="/car-rental/suv-7-seater" replace />} />
+
+        <Route path="/car-rental/hatchback-economy" element={<Suspense fallback={<CustomerSkeleton />}><HatchbackCarRental /></Suspense>} />
+        <Route path="/hatchback" element={<Navigate to="/car-rental/hatchback-economy" replace />} />
+
+        <Route path="/car-rental/sedan" element={<Suspense fallback={<CustomerSkeleton />}><SedanCarRental /></Suspense>} />
+        <Route path="/sedan" element={<Navigate to="/car-rental/sedan" replace />} />
+
+        <Route path="/bike-rental/hourly-bikes" element={<Suspense fallback={<CustomerSkeleton />}><HourlyBikeRental /></Suspense>} />
+        <Route path="/scooters" element={<Navigate to="/bike-rental/hourly-bikes" replace />} />
+        <Route path="/bike-rental" element={<Navigate to="/bike-rental/hourly-bikes" replace />} />
+
+        {/* High-Citation Comparison & Advice Guides */}
+        <Route path="/guides/self-drive-vs-chauffeur-car-rental" element={<Suspense fallback={<CustomerSkeleton />}><SelfDriveVsChauffeurGuide /></Suspense>} />
+        <Route path="/guides/documents-required-self-drive-car-rental" element={<Suspense fallback={<CustomerSkeleton />}><DocumentsRequiredGuide /></Suspense>} />
+        <Route path="/guides/solapur-to-akkalkot-pandharpur-road-trip" element={<Suspense fallback={<CustomerSkeleton />}><SolapurTempleRoadTripGuide /></Suspense>} />
+
         <Route path="/about" element={<Suspense fallback={<CustomerSkeleton />}><AboutPage /></Suspense>} />
         <Route path="/faq" element={<Navigate to="/about" replace />} />
         <Route path="/faqs" element={<Navigate to="/about" replace />} />

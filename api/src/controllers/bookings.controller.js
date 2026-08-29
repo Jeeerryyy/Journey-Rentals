@@ -14,16 +14,14 @@ import { trackEvent, trackError } from '../middleware/errorTracker.js'
 import { createNotification } from '../services/notificationService.js'
 
 // ── Razorpay SDK instantiation ──
-const RAZORPAY_KEY_ID     = process.env.RAZORPAY_KEY_ID
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET
-
-let razorpay = null
-if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
-  razorpay = new Razorpay({
-    key_id:     RAZORPAY_KEY_ID,
-    key_secret: RAZORPAY_KEY_SECRET,
-  })
-}
+export const getRazorpayInstance = () => {
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  if (keyId && keySecret) {
+    return new Razorpay({ key_id: keyId, key_secret: keySecret });
+  }
+  return null;
+};
 
 const ADVANCE = 500
 
@@ -234,12 +232,13 @@ export const createOrder = async (req, res) => {
     }
 
     // ── Razorpay order creation ──
-    if (razorpay) {
-      const rzpOrder = await razorpay.orders.create({
-        amount:   advanceAmount * 100, // Razorpay uses paise
+    const rzp = getRazorpayInstance()
+    if (rzp) {
+      const rzpOrder = await rzp.orders.create({
+        amount:   Math.round(advanceAmount * 100), // Razorpay uses paise
         currency: 'INR',
-        receipt:  referenceId,
-        notes:    { vehicleId: vehicle._id.toString(), bookingType },
+        receipt:  `rcpt_${String(referenceId).slice(-30)}`,
+        notes:    { vehicleId: vehicle._id.toString(), bookingType, referenceId: String(referenceId) },
       })
 
       bookingData.payment = {
@@ -248,6 +247,33 @@ export const createOrder = async (req, res) => {
       }
 
       const booking = await Booking.create(bookingData)
+
+      // Notify CRM immediately of new website booking
+      const vName = `${vehicle.brand} ${vehicle.model}`
+      const cName = String(customerInfo.name || 'Customer').trim()
+      createNotification({
+        type: 'booking',
+        title: `New Web Reservation #${booking.referenceId}`,
+        message: `${cName} reserved ${vName} (${booking.pickupLocation || 'Solapur'}) • ₹${Number(booking.totalPrice || 0).toLocaleString('en-IN')}`,
+        link: '/admin/bookings',
+        data: {
+          bookingId: booking._id,
+          referenceId: booking.referenceId,
+          customer: cName,
+          status: booking.status,
+          vehicle: vName,
+        }
+      }).catch(() => {})
+
+      if (booking.documents && (booking.documents.aadharUrl || booking.documents.licenseUrl || booking.documents.aadharNumber || booking.documents.licenseNumber)) {
+        createNotification({
+          type: 'kyc',
+          title: `KYC Submitted #${booking.referenceId}`,
+          message: `${cName} uploaded identity verification documents.`,
+          link: '/admin/bookings',
+          data: { bookingId: booking._id, referenceId: booking.referenceId },
+        }).catch(() => {})
+      }
 
       return res.status(201).json({
         success: true,
@@ -262,7 +288,7 @@ export const createOrder = async (req, res) => {
           orderId:  rzpOrder.id,
           amount:   rzpOrder.amount,
           currency: rzpOrder.currency,
-          keyId:    RAZORPAY_KEY_ID, // Public key — safe to send
+          keyId:    process.env.RAZORPAY_KEY_ID || 'rzp_live_SVnQN5zASbc3XW',
         },
       })
     }
@@ -296,15 +322,16 @@ export const verifyPayment = async (req, res) => {
   try {
     await connectDB()
 
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingId } = req.body
 
-    if (!RAZORPAY_KEY_SECRET) {
-      return res.status(500).json({ success: false, error: 'Payment gateway not configured.' })
+    const secret = process.env.RAZORPAY_KEY_SECRET
+    if (!secret) {
+      return res.status(500).json({ success: false, error: 'Payment gateway secret not configured.' })
     }
 
     // ── Signature verification using HMAC SHA256 ──
     const generatedSignature = crypto
-      .createHmac('sha256', RAZORPAY_KEY_SECRET)
+      .createHmac('sha256', secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest('hex')
 
@@ -313,13 +340,21 @@ export const verifyPayment = async (req, res) => {
     }
 
     // ── Update booking status ──
+    const query = {
+      $or: [
+        { 'payment.razorpayOrderId': razorpay_order_id },
+        ...(bookingId ? [{ _id: bookingId }] : [])
+      ]
+    }
+
     const booking = await Booking.findOneAndUpdate(
-      { 'payment.razorpayOrderId': razorpay_order_id },
+      query,
       {
         status: 'confirmed',
         'payment.razorpayPaymentId': razorpay_payment_id,
         'payment.razorpaySignature': razorpay_signature,
         'payment.status': 'paid',
+        'payment.paidAt': new Date(),
       },
       { new: true }
     )
@@ -327,6 +362,19 @@ export const verifyPayment = async (req, res) => {
     if (!booking) {
       return res.status(404).json({ success: false, error: 'Booking not found for this payment.' })
     }
+
+    // Notify CRM of verified advance payment
+    createNotification({
+      type: 'booking',
+      title: `Payment Received #${booking.referenceId}`,
+      message: `Advance ₹${Number(booking.advancePaid || 500).toLocaleString('en-IN')} paid via Razorpay by ${booking.userSnapshot?.name || 'Customer'}.`,
+      link: '/admin/bookings',
+      data: {
+        bookingId: booking._id,
+        referenceId: booking.referenceId,
+        paymentId: razorpay_payment_id,
+      }
+    }).catch(() => {})
 
     await triggerBookingConfirmation(booking)
 

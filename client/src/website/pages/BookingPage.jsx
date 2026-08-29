@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import CustomSelect from "../components/CustomSelect";
 import api, { formatApiError, formatINR, getOptimizedImageUrl, safeFormatDate } from "@/lib/api";
+import { loadRazorpayScript } from "@/lib/razorpay";
 
 const STEPS = ["Dates & Add-ons", "Your Details & KYC", "Review & Payment"];
 const SOLAPUR_LOCATIONS = [
@@ -372,47 +373,76 @@ export default function BookingPage() {
 
       if (res.success && res.booking) {
         const booking = res.booking;
+        const razorpayData = res.razorpay || {};
+        const razorpayOrderId = razorpayData.orderId || booking.payment?.razorpayOrderId;
 
-        if (window.Razorpay && booking.payment?.razorpayOrderId) {
-          const options = {
-            key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_live_SVnQN5zASbc3XW",
-            amount: advanceRequired * 100,
-            currency: "INR",
-            name: "Journey Rentals Solapur",
-            description: `Advance for ${title} (#${booking.referenceId})`,
-            order_id: booking.payment.razorpayOrderId,
-            prefill: {
-              name: customerForm.name,
-              email: customerForm.email,
-              contact: customerForm.phone,
-            },
-            theme: { color: "#212121" },
-            handler: async (response) => {
-              try {
-                await api.bookings.verifyPayment({
-                  bookingId: booking._id,
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                });
-                toast.success("Payment verified! Booking confirmed.");
-                navigate(`/booking-success/${booking._id || booking.referenceId}`);
-              } catch (verErr) {
-                toast.error("Payment verification failed. Please check with support.");
-              }
-            },
-            modal: {
-              ondismiss: () => {
-                navigate(`/booking-success/${booking._id || booking.referenceId}`);
-              }
-            }
-          };
-          const rzp = new window.Razorpay(options);
-          rzp.open();
-        } else {
-          toast.success("Booking placed successfully!");
-          navigate(`/booking-success/${booking._id || booking.referenceId}`);
+        if (razorpayOrderId) {
+          const isLoaded = await loadRazorpayScript();
+          if (isLoaded && window.Razorpay) {
+            const keyId = razorpayData.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_live_SVnQN5zASbc3XW";
+            const options = {
+              key: keyId,
+              amount: razorpayData.amount || advanceRequired * 100,
+              currency: razorpayData.currency || "INR",
+              name: "Journey Rentals Solapur",
+              description: `Advance Token for ${title} (#${booking.referenceId})`,
+              image: "/favicon.png",
+              order_id: razorpayOrderId,
+              prefill: {
+                name: customerForm.name,
+                email: customerForm.email,
+                contact: customerForm.phone,
+              },
+              notes: {
+                bookingId: booking._id,
+                referenceId: booking.referenceId,
+                pickupLocation: pickupLocation,
+              },
+              theme: { color: "#212121" },
+              handler: async (response) => {
+                try {
+                  setPayProcessing(true);
+                  const verRes = await api.bookings.verifyPayment({
+                    bookingId: booking._id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                  });
+                  if (verRes.success) {
+                    toast.success("Payment verified! Booking confirmed.");
+                    navigate(`/booking-success/${booking._id || booking.referenceId}`);
+                  } else {
+                    toast.error(verRes.error || "Payment verification failed.");
+                    navigate(`/booking-success/${booking._id || booking.referenceId}`);
+                  }
+                } catch (verErr) {
+                  toast.error("Payment verification encountered an issue. Support is reviewing.");
+                  navigate(`/booking-success/${booking._id || booking.referenceId}`);
+                } finally {
+                  setPayProcessing(false);
+                }
+              },
+              modal: {
+                ondismiss: () => {
+                  toast.info("Payment window dismissed. Your reservation is pending.");
+                  navigate(`/booking-success/${booking._id || booking.referenceId}`);
+                },
+              },
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.on("payment.failed", function (response) {
+              console.error("Razorpay payment failure:", response.error);
+              toast.error(response.error?.description || "Payment was declined.");
+            });
+            rzp.open();
+            return;
+          }
         }
+
+        // Direct confirmation or Razorpay fallback
+        toast.success("Booking placed successfully!");
+        navigate(`/booking-success/${booking._id || booking.referenceId}`);
       } else {
         throw new Error(res.error || "Failed to create reservation order");
       }

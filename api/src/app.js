@@ -215,7 +215,57 @@ app.get('/health', (req, res) => {
 
 app.get('/robots.txt', (req, res) => {
   res.type('text/plain')
-  res.send(`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /owner\nDisallow: /owner-login\nDisallow: /admin\nDisallow: /healthz\nDisallow: /health\n`)
+  res.send(`User-agent: *\nAllow: /\nAllow: /fleet\nAllow: /locations/\nAllow: /car-rental/\nAllow: /bike-rental/\nAllow: /guides/\nAllow: /llms.txt\nAllow: /sitemap.xml\nDisallow: /api/\nDisallow: /owner\nDisallow: /admin\nDisallow: /booking-success/\nDisallow: /profile\n\nSitemap: https://journeyrentals.in/sitemap.xml\n`)
+})
+
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const { default: Vehicle } = await import('./models/Vehicle.js').catch(() => ({ default: null }))
+    let vehicles = []
+    if (Vehicle) {
+      vehicles = await Vehicle.find({ isAvailable: { $ne: false } }).select('_id brand model type updatedAt').lean().catch(() => [])
+    }
+
+    const staticRoutes = [
+      { loc: 'https://journeyrentals.in/', priority: '1.0', changefreq: 'daily' },
+      { loc: 'https://journeyrentals.in/fleet', priority: '0.9', changefreq: 'daily' },
+      { loc: 'https://journeyrentals.in/locations/solapur-railway-station', priority: '0.9', changefreq: 'weekly' },
+      { loc: 'https://journeyrentals.in/locations/pandharpur-temple-trip', priority: '0.9', changefreq: 'weekly' },
+      { loc: 'https://journeyrentals.in/locations/akkalkot-temple-trip', priority: '0.9', changefreq: 'weekly' },
+      { loc: 'https://journeyrentals.in/locations/tuljapur-temple-trip', priority: '0.9', changefreq: 'weekly' },
+      { loc: 'https://journeyrentals.in/locations/hotgi-road-airport', priority: '0.8', changefreq: 'weekly' },
+      { loc: 'https://journeyrentals.in/locations/vijapur-road', priority: '0.8', changefreq: 'weekly' },
+      { loc: 'https://journeyrentals.in/car-rental/suv-7-seater', priority: '0.8', changefreq: 'weekly' },
+      { loc: 'https://journeyrentals.in/car-rental/hatchback-economy', priority: '0.8', changefreq: 'weekly' },
+      { loc: 'https://journeyrentals.in/car-rental/sedan', priority: '0.8', changefreq: 'weekly' },
+      { loc: 'https://journeyrentals.in/bike-rental/hourly-bikes', priority: '0.8', changefreq: 'weekly' },
+      { loc: 'https://journeyrentals.in/guides/self-drive-vs-chauffeur-car-rental', priority: '0.7', changefreq: 'monthly' },
+      { loc: 'https://journeyrentals.in/guides/documents-required-self-drive-car-rental', priority: '0.7', changefreq: 'monthly' },
+      { loc: 'https://journeyrentals.in/guides/solapur-to-akkalkot-pandharpur-road-trip', priority: '0.7', changefreq: 'monthly' },
+      { loc: 'https://journeyrentals.in/about', priority: '0.7', changefreq: 'monthly' },
+      { loc: 'https://journeyrentals.in/terms', priority: '0.5', changefreq: 'monthly' },
+      { loc: 'https://journeyrentals.in/privacy-policy', priority: '0.5', changefreq: 'monthly' },
+      { loc: 'https://journeyrentals.in/cookie-policy', priority: '0.4', changefreq: 'monthly' },
+      { loc: 'https://journeyrentals.in/accessibility', priority: '0.4', changefreq: 'monthly' },
+    ]
+
+    const today = new Date().toISOString().split('T')[0]
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`
+
+    for (const r of staticRoutes) {
+      xml += `  <url>\n    <loc>${r.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${r.changefreq}</changefreq>\n    <priority>${r.priority}</priority>\n  </url>\n`
+    }
+
+    for (const v of vehicles) {
+      const vDate = v.updatedAt ? new Date(v.updatedAt).toISOString().split('T')[0] : today
+      xml += `  <url>\n    <loc>https://journeyrentals.in/booking/${v._id}</loc>\n    <lastmod>${vDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`
+    }
+
+    xml += `</urlset>`
+    res.type('application/xml').send(xml)
+  } catch (e) {
+    res.status(500).send('Error generating sitemap')
+  }
 })
 
 app.use((err, req, res, _next) => {

@@ -210,14 +210,14 @@ export default function FleetPage() {
   return (
     <div className="no-scroll-x min-h-screen bg-[#FCFCFD] text-[#212121] relative overflow-x-hidden font-body">
       <SEO
-        title="Self-Drive Fleet in Solapur — Cars & Hourly Bikes | Journey Rentals"
-        description="Browse Journey Rentals full fleet of self-drive cars and hourly bikes in Solapur. Filter by SUV, Sedan, Hatchback & Bikes. Direct railway station handover."
+        title="Browse Rental Fleet in Solapur — Rates, Models & Availability | Journey Rentals"
+        description="Compare 30+ verified rental cars and bikes in Solapur. Filter 7-seater Ertigas, Thar 4x4, Swift hatchbacks & Activa scooters with transparent daily rates and live availability."
         canonical="/fleet"
       />
       <BreadcrumbStructuredData
         items={[
           { name: "Home", url: "/" },
-          { name: "Our Fleet", url: "/fleet" },
+          { name: "Fleet Catalog", url: "/fleet" },
         ]}
       />
       <Navbar />
@@ -228,16 +228,16 @@ export default function FleetPage() {
         <div className="flex items-center gap-2 text-xs text-[#6F6E73] mb-3 sm:mb-4">
           <Link to="/" className="hover:text-[#212121] transition-colors">Home</Link>
           <ChevronRight size={13} className="text-[#99989E]" />
-          <span className="text-[#212121] font-bold">Our Fleet</span>
+          <span className="text-[#212121] font-bold">Fleet Catalog &amp; Rates</span>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-4xl md:text-5xl text-[#212121] font-bold tracking-tight font-display">
-              Choose Your Self-Drive Vehicle
+              Verified Rental Fleet &amp; Rates in Solapur
             </h1>
             <p className="text-xs sm:text-sm text-[#6F6E73] mt-1 max-w-xl font-normal">
-              Verified sanitized cars &amp; hourly bikes delivered to Solapur Railway Station or your hotel with zero security deposit hassle.
+              Compare 30+ sanitized cars &amp; hourly bikes delivered to Solapur Railway Station or your hotel with zero security deposit hassle.
             </p>
           </div>
 

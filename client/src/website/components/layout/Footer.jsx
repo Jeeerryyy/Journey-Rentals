@@ -52,82 +52,100 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Col 3: Quick Links */}
+            {/* Col 3: Vehicle Categories */}
             <div className="space-y-3.5 text-left">
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#FFFFFF]">
-                Quick Links
+                Vehicle Classes
               </h4>
-              <ul className="space-y-2.5 text-xs text-[#99989E] font-normal">
+              <ul className="space-y-2 text-xs text-[#99989E] font-normal">
                 <li>
-                  <Link to="/" className="hover:text-[#e1b808] hover:underline transition-colors">Home</Link>
+                  <Link to="/fleet" className="hover:text-[#e1b808] hover:underline transition-colors">Complete 30+ Fleet</Link>
+                </li>
+                <li>
+                  <Link to="/car-rental/suv-7-seater" className="hover:text-[#e1b808] hover:underline transition-colors">7-Seater MPVs &amp; Thar 4x4</Link>
+                </li>
+                <li>
+                  <Link to="/car-rental/hatchback-economy" className="hover:text-[#e1b808] hover:underline transition-colors">Budget Swift &amp; Hatchbacks</Link>
+                </li>
+                <li>
+                  <Link to="/car-rental/sedan" className="hover:text-[#e1b808] hover:underline transition-colors">Executive Dzire &amp; Sedans</Link>
+                </li>
+                <li>
+                  <Link to="/bike-rental/hourly-bikes" className="hover:text-[#e1b808] hover:underline transition-colors">Hourly Scooters &amp; Bikes</Link>
                 </li>
                 <li>
                   <Link to="/about" className="hover:text-[#e1b808] hover:underline transition-colors">About Us &amp; FAQs</Link>
                 </li>
-                <li>
-                  <Link to="/fleet" className="hover:text-[#e1b808] hover:underline transition-colors">All Vehicles</Link>
-                </li>
-                <li>
-                  <Link to="/fleet?category=SUV" className="hover:text-[#e1b808] hover:underline transition-colors">SUVs &amp; 4x4 Thar</Link>
-                </li>
-                <li>
-                  <Link to="/fleet?category=Hatchback" className="hover:text-[#e1b808] hover:underline transition-colors">Hatchbacks</Link>
-                </li>
-                <li>
-                  <Link to="/fleet?type=bike" className="hover:text-[#e1b808] hover:underline transition-colors">Hourly &amp; Daily Bikes</Link>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    onClick={openCookiePreferences}
-                    className="hover:text-[#e1b808] hover:underline transition-colors text-left flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Cookie Preferences</span>
-                  </button>
-                </li>
               </ul>
             </div>
 
-            {/* Col 4: Service Areas */}
+            {/* Col 4: Handover Hubs & Temple Routes */}
             <div className="space-y-3.5 text-left">
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#FFFFFF]">
-                Solapur Coverage
+                Hubs &amp; Temple Routes
               </h4>
               <ul className="space-y-2 text-xs text-[#99989E] font-normal">
-                <li className="flex items-center gap-1.5">
-                  <MapPin size={13} className="text-[#e1b808] shrink-0" />
-                  <span>Solapur Railway Station</span>
+                <li>
+                  <Link to="/locations/solapur-railway-station" className="hover:text-[#e1b808] hover:underline transition-colors flex items-center gap-1.5">
+                    <MapPin size={12} className="text-[#e1b808] shrink-0" />
+                    <span>Solapur Railway Station</span>
+                  </Link>
                 </li>
-                <li className="flex items-center gap-1.5">
-                  <MapPin size={13} className="text-[#e1b808] shrink-0" />
-                  <span>Hotgi Road &amp; Airport Hub</span>
+                <li>
+                  <Link to="/locations/pandharpur-temple-trip" className="hover:text-[#e1b808] hover:underline transition-colors flex items-center gap-1.5">
+                    <MapPin size={12} className="text-[#e1b808] shrink-0" />
+                    <span>Pandharpur Vitthal Mandir</span>
+                  </Link>
                 </li>
-                <li className="flex items-center gap-1.5">
-                  <MapPin size={13} className="text-[#e1b808] shrink-0" />
-                  <span>Vijapur Road Hub</span>
+                <li>
+                  <Link to="/locations/akkalkot-temple-trip" className="hover:text-[#e1b808] hover:underline transition-colors flex items-center gap-1.5">
+                    <MapPin size={12} className="text-[#e1b808] shrink-0" />
+                    <span>Akkalkot Swami Samarth</span>
+                  </Link>
                 </li>
-                <li className="flex items-center gap-1.5">
-                  <MapPin size={13} className="text-[#e1b808] shrink-0" />
-                  <span>Akkalkot Swami Samarth</span>
+                <li>
+                  <Link to="/locations/tuljapur-temple-trip" className="hover:text-[#e1b808] hover:underline transition-colors flex items-center gap-1.5">
+                    <MapPin size={12} className="text-[#e1b808] shrink-0" />
+                    <span>Tuljapur Bhavani Mata</span>
+                  </Link>
                 </li>
-                <li className="flex items-center gap-1.5">
-                  <MapPin size={13} className="text-[#e1b808] shrink-0" />
-                  <span>Pandharpur Vitthal Temple</span>
+                <li>
+                  <Link to="/locations/hotgi-road-airport" className="hover:text-[#e1b808] hover:underline transition-colors flex items-center gap-1.5">
+                    <MapPin size={12} className="text-[#e1b808] shrink-0" />
+                    <span>Hotgi Road &amp; Airport Hub</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/locations/vijapur-road" className="hover:text-[#e1b808] hover:underline transition-colors flex items-center gap-1.5">
+                    <MapPin size={12} className="text-[#e1b808] shrink-0" />
+                    <span>Vijapur Road Hub</span>
+                  </Link>
                 </li>
               </ul>
             </div>
 
-            {/* Col 5: Contact & Operations */}
+            {/* Col 5: Travel Guides & Contact */}
             <div className="space-y-3.5 text-left">
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#FFFFFF]">
-                Direct Contact
+                Guides &amp; Contact
               </h4>
-              <div className="space-y-2.5 text-xs text-[#99989E]">
-                <div className="text-[#FFFFFF] font-medium flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#CFDECA]" />
-                  <span>Journey Rentals <span className="text-[11px] text-[#99989E] font-normal">(Solapur HQ)</span></span>
+              <div className="space-y-2 text-xs text-[#99989E]">
+                <div>
+                  <Link to="/guides/self-drive-vs-chauffeur-car-rental" className="hover:text-[#e1b808] hover:underline transition-colors block">
+                    Self-Drive vs Chauffeur Cab
+                  </Link>
                 </div>
                 <div>
+                  <Link to="/guides/documents-required-self-drive-car-rental" className="hover:text-[#e1b808] hover:underline transition-colors block">
+                    Documents &amp; KYC Guide
+                  </Link>
+                </div>
+                <div>
+                  <Link to="/guides/solapur-to-akkalkot-pandharpur-road-trip" className="hover:text-[#e1b808] hover:underline transition-colors block">
+                    Temple Pilgrimage Circuit
+                  </Link>
+                </div>
+                <div className="pt-2">
                   <a href="tel:+919604437794" className="hover:text-[#e1b808] transition-colors flex items-center gap-2 font-bold text-[#FFFFFF]">
                     <Phone size={13} className="text-[#e1b808]" />
                     <span>+91 96044 37794</span>
@@ -181,8 +199,22 @@ export default function Footer() {
             <div>
               MoRTH Registered · Unlimited Km Self-Drive Fleet · Solapur, MH
             </div>
-            <div className="font-mono text-[10px] text-[#99989E]/60">
-              PCI-DSS Level 1 · DPDPA 2023 Compliant
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <span>
+                Designed by{" "}
+                <a
+                  href="https://nirvanaastudious.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white hover:text-[#e1b808] font-semibold transition-colors underline decoration-white/20 hover:decoration-[#e1b808]"
+                >
+                  Nirvanaa Studios
+                </a>
+              </span>
+              <span className="hidden sm:inline">•</span>
+              <span className="font-mono text-[10px] text-[#99989E]/60">
+                PCI-DSS Level 1 · DPDPA 2023 Compliant
+              </span>
             </div>
           </div>
         </div>

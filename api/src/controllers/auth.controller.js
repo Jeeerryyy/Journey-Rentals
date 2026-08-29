@@ -241,6 +241,7 @@ export const login = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      token,
       user: {
         id:        user._id,
         name:      user.name,
@@ -248,6 +249,8 @@ export const login = async (req, res) => {
         phone:     user.phone,
         role:      user.role,
         avatarUrl: user.avatarUrl || '',
+      },
+    })
       },
     })
   } catch (err) {
@@ -482,6 +485,7 @@ export const ownerLogin = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      token,
       owner: { name: 'Owner', email, role: 'owner' },
     })
   } catch (err) {

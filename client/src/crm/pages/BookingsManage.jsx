@@ -28,8 +28,9 @@ export default function BookingsManage() {
     try {
       setLoading(true);
       const res = await api.get("/api/admin/bookings").catch(() => api.owner.getBookings());
-      const list = res.data?.bookings || res.bookings || res.data || (Array.isArray(res) ? res : []);
-      setBookings(list);
+      const raw = res?.data || res;
+      const list = raw?.bookings || raw?.data || (Array.isArray(raw) ? raw : []);
+      setBookings(Array.isArray(list) ? list : []);
     } catch (err) {
       toast.error("Failed to load reservations");
     } finally {
@@ -39,6 +40,13 @@ export default function BookingsManage() {
 
   useEffect(() => {
     fetchBookings();
+    // Real-time polling for instant web booking reflection
+    const interval = setInterval(fetchBookings, 15000);
+    window.addEventListener("focus", fetchBookings);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", fetchBookings);
+    };
   }, [fetchBookings]);
 
   const filteredBookings = bookings.filter((b) => {
@@ -46,16 +54,20 @@ export default function BookingsManage() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const name = (b.userSnapshot?.name || b.customerInfo?.name || '').toLowerCase();
+      const phone = (b.userSnapshot?.phone || b.customerInfo?.phone || '').toLowerCase();
       const ref = (b.referenceId || '').toLowerCase();
       const loc = (b.pickupLocation || '').toLowerCase();
-      return name.includes(q) || ref.includes(q) || loc.includes(q);
+      const vTitle = (b.vehicleSnapshot ? `${b.vehicleSnapshot.brand || ''} ${b.vehicleSnapshot.model || ''}` : '').toLowerCase();
+      return name.includes(q) || phone.includes(q) || ref.includes(q) || loc.includes(q) || vTitle.includes(q);
     }
     return true;
   });
 
   const handleStatusChange = async (bookingId, newStatus) => {
     try {
-      await api.owner.updateBooking(bookingId, newStatus);
+      await api.patch(`/api/admin/bookings/${bookingId}`, { status: newStatus }).catch(() =>
+        api.owner.updateBooking(bookingId, { status: newStatus })
+      );
       toast.success(`Booking status changed to ${newStatus}`);
       fetchBookings();
     } catch (err) {

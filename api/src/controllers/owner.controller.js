@@ -89,7 +89,7 @@ export const getDashboardStats = async (req, res) => {
       monthlyBookings,
       monthlyRevenue
     ] = await Promise.all([
-      Booking.countDocuments({ status: { $ne: 'pending' } }),
+      Booking.countDocuments({}),
       Booking.countDocuments({ status: 'pending' }),
       Booking.countDocuments({ status: 'confirmed' }),
       Booking.countDocuments({ status: 'completed' }),
@@ -97,10 +97,11 @@ export const getDashboardStats = async (req, res) => {
       Vehicle.countDocuments(),
       Vehicle.countDocuments({ isAvailable: true }),
       User.countDocuments({ role: 'customer' }),
-      Booking.find({ status: { $ne: 'pending' } })
+      Booking.find({})
         .sort({ createdAt: -1 })
-        .limit(5)
-        .select('referenceId vehicleSnapshot userSnapshot status totalPrice createdAt'),
+        .limit(10)
+        .select('referenceId vehicleSnapshot userSnapshot status totalPrice advancePaid balanceDue pickupLocation createdAt')
+        .lean(),
       Booking.aggregate([
         { $match: { status: { $in: ['confirmed', 'completed'] } } },
         { $group: { _id: null, total: { $sum: '$advancePaid' } } }
@@ -448,7 +449,8 @@ export const updateBookingStatus = async (req, res) => {
   try {
     await connectDB()
 
-    const { status, extensionStatus } = req.body
+    const bodyObj = typeof req.body === 'string' ? { status: req.body } : (req.body || {})
+    const { status, extensionStatus } = bodyObj
     
     const updateData = {}
     
@@ -475,9 +477,17 @@ export const updateBookingStatus = async (req, res) => {
       return res.status(404).json({ error: 'Booking not found.' })
     }
 
+    createNotification({
+      type: 'booking',
+      title: `Booking #${booking.referenceId} Updated`,
+      message: `Reservation status changed to ${booking.status?.toUpperCase()}`,
+      link: '/admin/bookings',
+      data: { bookingId: booking._id, referenceId: booking.referenceId, status: booking.status }
+    }).catch(() => {})
+
     return res.status(200).json({
       success: true,
-      message: `Booking marked as ${status}.`,
+      message: `Booking marked as ${booking.status}.`,
       booking
     })
   } catch (error) {

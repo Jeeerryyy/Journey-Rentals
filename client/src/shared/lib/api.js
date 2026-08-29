@@ -48,12 +48,17 @@ export async function request(endpoint, options = {}, isRetry = false) {
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
   const isFormData = options.body instanceof FormData
+  const ownerToken = typeof localStorage !== 'undefined' ? localStorage.getItem('jr_token_owner') : null
+  const custToken = typeof localStorage !== 'undefined' ? (localStorage.getItem('jr_token') || localStorage.getItem('token')) : null
+  const activeToken = (endpoint.includes('/admin') || endpoint.includes('/owner')) ? (ownerToken || custToken) : (custToken || ownerToken)
+
   const config = {
     method,
     signal: controller.signal,
     credentials: 'include',
     headers: {
       ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      ...(activeToken && !options.headers?.Authorization && !options.headers?.authorization ? { 'Authorization': `Bearer ${activeToken}` } : {}),
       ...options.headers,
     },
     ...(options.body ? { body: isFormData ? options.body : (typeof options.body === 'string' ? options.body : JSON.stringify(options.body)) } : {}),
@@ -166,7 +171,7 @@ export const api = {
       if (cursor) params.set('cursor', cursor)
       return request(`/api/owner/bookings?${params.toString()}`)
     },
-    updateBooking:   (id, body)     => request(`/api/owner/bookings/${id}`,          { method: 'PATCH', body }),
+    updateBooking:   (id, body)     => request(`/api/owner/bookings/${id}`,          { method: 'PATCH', body: typeof body === 'string' ? { status: body } : body }),
     getVehicles:     ()             => request('/api/owner/vehicles'),
     addVehicle:      (body)         => request('/api/owner/vehicles',                { method: 'POST',  body }),
     updateVehicle:   (id, body)     => request(`/api/owner/vehicles-item/${id}`,     { method: 'PATCH', body }),

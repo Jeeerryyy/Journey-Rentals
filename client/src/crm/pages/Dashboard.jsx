@@ -9,10 +9,11 @@ import {
   TrendingUp, ClipboardList, Car, Bike, ArrowUpRight, Plus,
   MessageSquarePlus, MapPin, Search, Trash2, Sparkles, Filter,
   ArrowRight, ShieldAlert, Zap, Layers, CheckCircle2, ChevronDown,
-  FileText, Loader2, Download
+  FileText, Loader2, Download, MessageCircle, Eye, ExternalLink, ShieldCheck, Clock, Phone
 } from "lucide-react";
 import { Button } from "@/ui/button";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
 import OfflineBookingModal from "../components/OfflineBookingModal";
 import EnquiryModal from "../components/EnquiryModal";
 import ConfirmModal from "../components/common/ConfirmModal";
@@ -109,6 +110,12 @@ export default function Dashboard() {
   const [cityFilter, setCityFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [enqLoading, setEnqLoading] = useState(false);
+
+  // Live Bookings & KYC state
+  const [liveBookings, setLiveBookings] = useState([]);
+  const [selectedKycBooking, setSelectedKycBooking] = useState(null);
+  const [bksQuery, setBksQuery] = useState("");
+  const [bksStatusFilter, setBksStatusFilter] = useState("all");
 
   // In-app delete confirm state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -293,20 +300,21 @@ export default function Dashboard() {
       setAnalyticsLoading(true);
       setEnqLoading(true);
       const [dashRes, bksRes, vehsRes, enqRes] = await Promise.allSettled([
-        api.get("/api/admin/dashboard").then((r) => r.data || {}),
-        api.get("/api/admin/bookings").then((r) => r.data?.bookings || r.data || []),
-        api.get("/api/admin/fleet").then((r) => r.data?.vehicles || r.data || []),
-        api.get("/api/admin/enquiries").then((r) => r.data?.items || r.data?.enquiries || r.data || []),
+        api.get("/api/admin/dashboard").then((r) => r.data || {}).catch(() => api.owner.dashboard()),
+        api.get("/api/admin/bookings").then((r) => r.data?.bookings || r.data?.data || r.data || []).catch(() => api.owner.getBookings().then(r => r.bookings || r.data || [])),
+        api.get("/api/admin/fleet").then((r) => r.data?.vehicles || r.data || []).catch(() => api.owner.getVehicles().then(r => r.vehicles || [])),
+        api.get("/api/admin/enquiries").then((r) => r.data?.items || r.data?.enquiries || r.data || []).catch(() => []),
       ]);
 
       const bks = bksRes.status === "fulfilled" && Array.isArray(bksRes.value) ? bksRes.value : [];
+      setLiveBookings(bks);
       const vehs = vehsRes.status === "fulfilled" && Array.isArray(vehsRes.value) ? vehsRes.value : [];
       const rawEnqs = enqRes.status === "fulfilled" && Array.isArray(enqRes.value) ? enqRes.value : [];
       const dashData = dashRes.status === "fulfilled" && dashRes.value ? dashRes.value : {};
       const stats = dashData.stats || {};
 
       const confirmedList = bks.filter((b) => b.status === "confirmed" || b.status === "completed");
-      const totalBookings = stats?.bookings?.total ?? bks.length;
+      const totalBookings = bks.length || stats?.bookings?.total || 0;
       const totalVehicles = stats?.vehicles?.total ?? vehs.length;
       const availableVehicles = stats?.vehicles?.available ?? vehs.filter((v) => v.isAvailable !== false).length;
       const bookedVehicles = totalVehicles - availableVehicles;
@@ -400,14 +408,40 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadAnalytics();
-    // Dynamic live polling: auto-refresh every 30 seconds and on window focus
-    const interval = setInterval(loadAnalytics, 30000);
+    // Dynamic live polling: auto-refresh every 15 seconds and on window focus
+    const interval = setInterval(loadAnalytics, 15000);
     window.addEventListener("focus", loadAnalytics);
     return () => {
       clearInterval(interval);
       window.removeEventListener("focus", loadAnalytics);
     };
   }, [loadAnalytics]);
+
+  async function handleBookingStatusChange(bookingId, newStatus) {
+    try {
+      await api.patch(`/api/admin/bookings/${bookingId}`, { status: newStatus }).catch(() =>
+        api.owner.updateBooking(bookingId, { status: newStatus })
+      );
+      toast.success(`Booking status changed to ${newStatus}`);
+      loadAnalytics();
+    } catch (e) {
+      toast.error("Failed to update booking status");
+    }
+  }
+
+  const filteredLiveBookings = liveBookings.filter((b) => {
+    if (bksStatusFilter !== "all" && (b.status || 'pending').toLowerCase() !== bksStatusFilter.toLowerCase()) return false;
+    if (bksQuery.trim()) {
+      const q = bksQuery.toLowerCase();
+      const name = (b.userSnapshot?.name || b.customerInfo?.name || '').toLowerCase();
+      const phone = (b.userSnapshot?.phone || b.customerInfo?.phone || '').toLowerCase();
+      const ref = (b.referenceId || '').toLowerCase();
+      const loc = (b.pickupLocation || '').toLowerCase();
+      const vTitle = (b.vehicleSnapshot ? `${b.vehicleSnapshot.brand || ''} ${b.vehicleSnapshot.model || ''}` : '').toLowerCase();
+      return name.includes(q) || phone.includes(q) || ref.includes(q) || loc.includes(q) || vTitle.includes(q);
+    }
+    return true;
+  });
 
   async function updateEnquiryStatus(id, newStatus) {
     try {
@@ -657,7 +691,201 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── 4. CUSTOMER LEAD & ENQUIRY TRACKER ───────────────────────── */}
+      {/* ── 4. LIVE WEBSITE RESERVATIONS & BOOKINGS ───────────────────────── */}
+      <div className="bg-white border border-[#DFDCE8] rounded-[1.8rem] sm:rounded-[2rem] p-5 sm:p-7 shadow-sm space-y-5">
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-[#DFDCE8]">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="font-display text-lg sm:text-xl font-bold text-[#212121]">Live Website Reservations &amp; Bookings</h2>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#82C4B7]/20 text-[#4B8039]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#4B8039] animate-pulse" />
+                Live Sync
+              </span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-[#6F6E73] mt-0.5">Real-time incoming customer vehicle reservations from journeyrentals.in</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <div className="bg-[#F6F5FA] border border-[#DFDCE8] px-3 sm:px-4 py-2 rounded-2xl text-xs text-[#6F6E73]">
+              <span className="text-[10px] uppercase text-[#9896A1] block">Total Orders</span>
+              <strong className="text-[#212121] font-extrabold text-sm">{liveBookings.length} Bookings</strong>
+            </div>
+            <Link
+              to="/admin/bookings"
+              className="bg-[#212121] hover:bg-[#141414] text-white rounded-full px-4 sm:px-5 py-2 text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+            >
+              <span>Manage All</span>
+              <ArrowRight size={13} className="text-[#e1b808]" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Filter Bar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#F6F5FA] p-3 rounded-2xl border border-[#DFDCE8]">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 flex-1">
+            {/* Search */}
+            <div className="relative w-full sm:w-72">
+              <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9896A1]" />
+              <input
+                type="text"
+                placeholder="Search booking ref, customer, car..."
+                value={bksQuery}
+                onChange={(e) => setBksQuery(e.target.value)}
+                className="w-full bg-white border border-[#DFDCE8] rounded-xl pl-9 pr-3 py-2 text-xs text-[#212121] outline-none focus:border-[#212121] transition-all"
+              />
+            </div>
+
+            {/* Status Tabs */}
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-white border border-[#DFDCE8] overflow-x-auto">
+              {["all", "pending", "confirmed", "completed", "cancelled"].map((st) => (
+                <button
+                  key={st}
+                  onClick={() => setBksStatusFilter(st)}
+                  className={`px-3 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                    bksStatusFilter === st ? "bg-[#212121] text-white shadow-2xs" : "text-[#6F6E73] hover:text-[#212121]"
+                  }`}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <Button
+            onClick={() => loadAnalytics()}
+            className="bg-white hover:bg-[#F6F5FA] text-[#212121] border border-[#DFDCE8] rounded-xl px-4 py-2 h-auto text-xs font-bold cursor-pointer"
+          >
+            Refresh
+          </Button>
+        </div>
+
+        {/* Bookings Table */}
+        <div className="overflow-x-auto overflow-y-auto max-h-[420px] rounded-2xl border border-[#DFDCE8] -mx-1">
+          <table className="w-full min-w-[720px] text-left text-xs font-body">
+            <thead className="sticky top-0 z-10">
+              <tr className="bg-[#F6F5FA] border-b border-[#DFDCE8] text-[#6F6E73] text-[11px] uppercase tracking-wider font-bold">
+                <th className="py-3.5 pl-4 pr-2">Booking Ref</th>
+                <th className="py-3.5 px-2">Customer Info</th>
+                <th className="py-3.5 px-2">Vehicle &amp; Hub</th>
+                <th className="py-3.5 px-2">Schedule</th>
+                <th className="py-3.5 px-2">Pricing</th>
+                <th className="py-3.5 px-2">KYC</th>
+                <th className="py-3.5 px-2">Status</th>
+                <th className="py-3.5 pr-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#DFDCE8]">
+              {analyticsLoading && liveBookings.length === 0 ? (
+                [...Array(3)].map((_, idx) => (
+                  <tr key={idx} className="animate-pulse">
+                    <td colSpan={8} className="py-4 px-4">
+                      <div className="h-8 bg-[#F6F5FA] rounded-xl" />
+                    </td>
+                  </tr>
+                ))
+              ) : filteredLiveBookings.length > 0 ? (
+                filteredLiveBookings.map((b) => {
+                  const custName = b.userSnapshot?.name || b.customerInfo?.name || "Customer";
+                  const custPhone = b.userSnapshot?.phone || b.customerInfo?.phone || "";
+                  const vTitle = b.vehicleSnapshot ? `${b.vehicleSnapshot.brand || ''} ${b.vehicleSnapshot.model || ''}`.trim() : "Vehicle";
+                  const isBike = b.bookingType === "bike";
+
+                  return (
+                    <tr key={b._id || b.referenceId} className="hover:bg-[#F6F5FA]/60 transition-colors">
+                      {/* Ref */}
+                      <td className="py-3.5 pl-4 pr-2 whitespace-nowrap">
+                        <div className="font-bold text-[#212121] font-mono">#{b.referenceId}</div>
+                        <div className="text-[10px] text-[#6F6E73]">{safeFormatDate(b.createdAt, "dd MMM yyyy")}</div>
+                      </td>
+
+                      {/* Customer & WhatsApp */}
+                      <td className="py-3.5 px-2 whitespace-nowrap">
+                        <div className="font-bold text-[#212121]">{custName}</div>
+                        {custPhone && (
+                          <a
+                            href={`https://wa.me/${custPhone.replace(/\D/g, '')}?text=Hello%20${encodeURIComponent(custName)},%20regarding%20your%20Journey%20Rentals%20booking%20${b.referenceId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[11px] text-[#4B8039] hover:underline flex items-center gap-1 font-mono mt-0.5"
+                          >
+                            <MessageCircle size={11} />
+                            <span>{custPhone}</span>
+                          </a>
+                        )}
+                      </td>
+
+                      {/* Vehicle & Hub */}
+                      <td className="py-3.5 px-2">
+                        <div className="font-bold text-[#212121] truncate max-w-[180px]">{vTitle}</div>
+                        <div className="text-[10px] text-[#3F5F8C] truncate max-w-[180px]">{b.pickupLocation || "Solapur Station"}</div>
+                      </td>
+
+                      {/* Schedule */}
+                      <td className="py-3.5 px-2 font-mono text-[11px] text-[#6F6E73] whitespace-nowrap">
+                        {isBike
+                          ? `${safeFormatDate(b.bikeDate, "dd MMM")} (${b.bikeSlot || 'Slot'})`
+                          : `${safeFormatDate(b.pickupDate, "dd MMM")} – ${safeFormatDate(b.returnDate, "dd MMM")}`}
+                      </td>
+
+                      {/* Pricing */}
+                      <td className="py-3.5 px-2 font-mono whitespace-nowrap">
+                        <div className="font-bold text-[#212121]">{formatINR(b.totalPrice)}</div>
+                        <div className="text-[10px] text-[#4B8039]">Adv: {formatINR(b.advancePaid || 500)}</div>
+                      </td>
+
+                      {/* KYC */}
+                      <td className="py-3.5 px-2 whitespace-nowrap">
+                        <button
+                          onClick={() => setSelectedKycBooking(b)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#F6F5FA] border border-[#DFDCE8] hover:bg-white text-[11px] font-bold text-[#212121] cursor-pointer"
+                        >
+                          <Eye size={12} />
+                          <span>Docs</span>
+                        </button>
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-3.5 px-2 whitespace-nowrap min-w-[130px]">
+                        <CustomSelect
+                          value={b.status || "pending"}
+                          onChange={(val) => handleBookingStatusChange(b._id, val)}
+                          options={[
+                            { value: "pending", label: "Pending" },
+                            { value: "confirmed", label: "Confirmed" },
+                            { value: "completed", label: "Completed" },
+                            { value: "cancelled", label: "Cancelled" },
+                          ]}
+                          placeholder="Status"
+                        />
+                      </td>
+
+                      {/* Action */}
+                      <td className="py-3.5 pr-4 text-right whitespace-nowrap">
+                        <Link
+                          to="/admin/bookings"
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-[#212121] hover:underline"
+                        >
+                          <span>Manage</span>
+                          <ArrowRight size={11} />
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-xs text-[#6F6E73]">
+                    No website reservations found matching your filters.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ── 5. CUSTOMER LEAD & ENQUIRY TRACKER ───────────────────────── */}
       <div className="bg-white border border-[#DFDCE8] rounded-[1.8rem] sm:rounded-[2rem] p-5 sm:p-7 shadow-sm space-y-5">
 
         {/* Section Header */}
@@ -887,6 +1115,55 @@ export default function Dashboard() {
         subtitle={selectedNote.subtitle}
         notes={selectedNote.text}
       />
+
+      {/* KYC Viewer Modal */}
+      {selectedKycBooking && (
+        <Dialog open={!!selectedKycBooking} onOpenChange={() => setSelectedKycBooking(null)}>
+          <DialogContent className="max-w-md bg-white rounded-[24px] border border-[#DFDCE8] p-6 text-left font-body">
+            <DialogHeader>
+              <DialogTitle className="text-base font-bold font-display text-[#212121]">
+                Driver KYC Documents — #{selectedKycBooking.referenceId}
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4 pt-2">
+              <div>
+                <span className="text-[11px] font-bold uppercase text-[#6F6E73] block mb-1">Aadhar Card</span>
+                {selectedKycBooking.documents?.aadharUrl ? (
+                  <a
+                    href={selectedKycBooking.documents.aadharUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-3 rounded-xl bg-[#F6F5FA] border border-[#DFDCE8] flex items-center justify-between hover:bg-white text-xs font-bold text-[#3F5F8C]"
+                  >
+                    <span>View Aadhar Document</span>
+                    <ExternalLink size={14} />
+                  </a>
+                ) : (
+                  <p className="text-xs text-[#99989E]">No Aadhar document attached</p>
+                )}
+              </div>
+
+              <div>
+                <span className="text-[11px] font-bold uppercase text-[#6F6E73] block mb-1">Driving License</span>
+                {selectedKycBooking.documents?.licenseUrl ? (
+                  <a
+                    href={selectedKycBooking.documents.licenseUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-3 rounded-xl bg-[#F6F5FA] border border-[#DFDCE8] flex items-center justify-between hover:bg-white text-xs font-bold text-[#3F5F8C]"
+                  >
+                    <span>View Driving License</span>
+                    <ExternalLink size={14} />
+                  </a>
+                ) : (
+                  <p className="text-xs text-[#99989E]">No License document attached</p>
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

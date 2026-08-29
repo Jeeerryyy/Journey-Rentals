@@ -25,18 +25,18 @@ import {
 const SUBPROCESSORS_LIST = [
   {
     name: "Razorpay Software Pvt. Ltd.",
-    purpose: "RBI-regulated Payment Gateway, UPI rails, Card processing & Automated Refund Settlements",
-    location: "India (PCI-DSS Level 1)",
+    purpose: "RBI-authorized Payment Gateway, UPI transaction processing & automated refund disbursement",
+    location: "India (PCI-DSS Level 1 Compliant)",
   },
   {
-    name: "Cloudflare / AWS Cloud Services",
-    purpose: "Web Application Firewall (WAF), AES-256 KYC Document Storage Vaults, DDoS mitigation",
-    location: "Mumbai (India Region)",
+    name: "Enterprise Cloud Infrastructure Provider",
+    purpose: "Secure data hosting, encrypted document storage, and network resilience",
+    location: "India Region (ISO 27001 / SOC 2 Certified)",
   },
   {
-    name: "Meta Platforms (WhatsApp Cloud API)",
-    purpose: "Transactional Booking Slips, Invoice Delivery & Real-Time Handover Notifications",
-    location: "Global Data Centers (TLS 1.3)",
+    name: "Authorized Messaging Provider",
+    purpose: "Transactional booking receipts, invoice delivery & automated customer notifications",
+    location: "Enterprise Secure Rails (Encrypted In-Transit)",
   },
 ];
 
@@ -48,13 +48,13 @@ const MASTER_PRIVACY_SECTIONS = [
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
-          To facilitate self-drive reservations and comply with Indian statutory motor vehicle regulations, Journey Rentals collects the following customer details:
+          In connection with providing self-drive vehicle rental services and ensuring compliance with applicable motor vehicle laws, Journey Rentals collects the following categories of information:
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
-          <li><strong>Identity &amp; Contact Details:</strong> Full legal name, verified mobile number, email address, and residential city.</li>
-          <li><strong>Driving License &amp; KYC Documents:</strong> Digital copies or photographs of your original Indian Driving License, Aadhaar Card, Passport, or Voter ID for zero-deposit verification.</li>
-          <li><strong>Trip &amp; Telemetry Metadata:</strong> Selected pickup hub, vehicle model, reservation time window, and statutory speed compliance telemetry (80 km/h limiter status).</li>
-          <li><strong>Payment Transaction Records:</strong> Razorpay payment order IDs, timestamp receipts, and transaction status. <em>(Note: Raw debit/credit card numbers and UPI PINs are processed directly by RBI-authorized PCI-DSS payment gateways and are never stored on our servers).</em></li>
+          <li><strong>Identity &amp; Contact Information:</strong> Legal name, verified telephone number, email address, and residential city.</li>
+          <li><strong>Driver Verification &amp; KYC Records:</strong> Copies of your valid Indian Driving License, government photo identification (such as Aadhaar Card, Passport, or Voter ID), and related eligibility credentials.</li>
+          <li><strong>Booking &amp; Reservation Details:</strong> Selected vehicle model, rental duration, pickup hub, and statutory fleet speed governor compliance records (80 km/h regulatory limit).</li>
+          <li><strong>Transactional Records:</strong> Payment reference identifiers, transaction timestamps, and invoice settlement statuses. <em>(Note: Financial credentials such as card numbers and banking PINs are processed directly by authorized payment gateways and are never stored on our systems).</em></li>
         </ul>
       </>
     ),
@@ -62,17 +62,17 @@ const MASTER_PRIVACY_SECTIONS = [
   {
     id: "how-we-use",
     icon: FileCheck,
-    title: "2. How We Use Your Information",
+    title: "2. Purpose of Data Processing",
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
-          Customer information is used strictly for legitimate self-drive rental operations:
+          Personal data is processed solely for legitimate operational and statutory compliance purposes:
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
-          <li><strong>Vehicle Dispatch &amp; Station Handover:</strong> Staging and delivering sanitized vehicles on time at Solapur Railway Station or doorstep locations.</li>
-          <li><strong>Digital KYC Risk Validation:</strong> Validating driving license authenticity to protect vehicle assets and maintain our zero security deposit promise.</li>
-          <li><strong>Instant WhatsApp &amp; Email Notifications:</strong> Sending automated booking confirmation slips, tax invoices, vehicle inspection walkaround photos, and return reminders.</li>
-          <li><strong>FASTag &amp; Toll Reconciliations:</strong> Accurately calculating electronic toll deductions incurred during your specific rental window.</li>
+          <li><strong>Vehicle Reservation &amp; Dispatch:</strong> Fulfilling vehicle preparation, station platform handovers, and scheduled doorstep delivery logistics.</li>
+          <li><strong>Driver Verification &amp; Risk Assessment:</strong> Authenticating driving credentials to maintain vehicle asset security and offer zero-deposit self-drive rentals.</li>
+          <li><strong>Operational Communications:</strong> Providing automated booking confirmations, digital tax invoices, vehicle inspection records, and trip conclusion summaries.</li>
+          <li><strong>Toll &amp; Statutory Reconciliations:</strong> Processing electronic toll (FASTag) reconciliations and resolving relevant traffic authority queries.</li>
         </ul>
       </>
     ),
@@ -80,16 +80,16 @@ const MASTER_PRIVACY_SECTIONS = [
   {
     id: "kyc-encryption",
     icon: Lock,
-    title: "3. Document Storage & AES-256 Encryption (Zero Data Sales Guarantee)",
+    title: "3. Information Security & Confidentiality (Zero Data Selling)",
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
-          We employ banking-grade security protocols to protect your documents:
+          We implement industry-standard technical, administrative, and physical safeguards:
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
-          <li><strong>Encrypted Document Vaults:</strong> All uploaded KYC driving licenses and identity documents are stored in secure cloud storage with strict server-side encryption (AES-256) and time-limited access tokens.</li>
-          <li><strong>Strict Role-Based Access (RBAC):</strong> Only authorized Journey Rentals dispatch supervisors can inspect KYC documents during active handover verification.</li>
-          <li><strong>Zero Data Selling Commitment:</strong> We have a strict zero-tolerance policy against data sharing. We <strong>NEVER</strong> sell, rent, or trade your personal information to third-party advertisers or marketing brokers.</li>
+          <li><strong>Encrypted Data Storage:</strong> Identity and driving license records are stored in secure cloud environments utilizing strong cryptographic controls and restricted access protocols.</li>
+          <li><strong>Controlled Access:</strong> Data access is strictly limited to authorized personnel directly involved in customer verification and vehicle dispatch.</li>
+          <li><strong>No Commercial Data Monetization:</strong> We maintain a strict policy against commercializing customer information. Journey Rentals does not sell, rent, or trade personal data to third-party marketing brokers.</li>
         </ul>
       </>
     ),
@@ -97,16 +97,16 @@ const MASTER_PRIVACY_SECTIONS = [
   {
     id: "payment-security",
     icon: ShieldCheck,
-    title: "4. Payment Rails & Razorpay PCI-DSS Level 1 Compliance",
+    title: "4. Payment Processing & Financial Safeguards",
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
-          All online financial transactions are executed via <strong>Razorpay</strong>:
+          All financial transactions are conducted through certified payment infrastructure:
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
-          <li>Compliant with the highest international security benchmark: <strong>PCI-DSS Level 1</strong>.</li>
-          <li>Protected with 256-bit TLS 1.3 encryption and mandatory 2-Factor Authentication (OTP / 3D-Secure).</li>
-          <li>Journey Rentals does not retain or log credit/debit card numbers or UPI PINs.</li>
+          <li>Processed via RBI-regulated payment partners compliant with <strong>PCI-DSS Level 1</strong> standards.</li>
+          <li>Protected with standard transport encryption and mandatory two-factor authentication (OTP / 3D-Secure).</li>
+          <li>Journey Rentals does not retain or access credit/debit card numbers or confidential banking passwords.</li>
         </ul>
       </>
     ),
@@ -114,19 +114,19 @@ const MASTER_PRIVACY_SECTIONS = [
   {
     id: "data-processing-agreement",
     icon: Server,
-    title: "5. Data Processing & Authorized Sub-Processors (DPA Compliance)",
+    title: "5. Third-Party Service Providers & Sub-Processors",
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
-          In accordance with the <strong>Digital Personal Data Protection Act, 2023 (DPDPA)</strong>, Journey Rentals acts as a Data Fiduciary. We engage only vetted, compliant sub-processors:
+          In accordance with the <strong>Digital Personal Data Protection Act, 2023 (DPDPA)</strong>, Journey Rentals engages authorized sub-processors bound by contractual confidentiality obligations:
         </p>
         <div className="overflow-x-auto my-3">
           <table className="w-full text-left text-xs border border-[#DFDCE8] rounded-xl overflow-hidden">
             <thead className="bg-[#F6F5FA] border-b border-[#DFDCE8] text-[#212121] font-bold">
               <tr>
-                <th className="p-3">Partner</th>
-                <th className="p-3">Role &amp; Purpose</th>
-                <th className="p-3">Location / Standards</th>
+                <th className="p-3">Partner / Category</th>
+                <th className="p-3">Function &amp; Scope</th>
+                <th className="p-3">Compliance Standard</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#DFDCE8] text-[#6F6E73]">
@@ -146,16 +146,16 @@ const MASTER_PRIVACY_SECTIONS = [
   {
     id: "your-rights-erasure",
     icon: KeyRound,
-    title: "6. User Rights, Data Retention & Erasure Requests",
+    title: "6. User Rights, Data Retention & Deletion",
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
-          Under Indian data protection guidelines, you retain full ownership of your data:
+          Subject to statutory obligations under Indian law, customers retain rights regarding their personal data:
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#212121]">
-          <li><strong>Right to Review:</strong> You can view and update your profile details at any time from your <Link to="/profile" className="font-bold underline text-[#212121]">Customer Profile</Link>.</li>
-          <li><strong>Right to Erasure / Deletion:</strong> Upon completion of your trip and settlement of all dues, you may request the complete deletion of your uploaded KYC documents and customer profile by emailing our Grievance Officer.</li>
-          <li><strong>Data Retention Duration:</strong> KYC records are kept only for the statutory minimum duration required to verify driving legitimacy and settle potential traffic e-challans.</li>
+          <li><strong>Right to Access &amp; Correction:</strong> You may review and update your account details directly via the <Link to="/profile" className="font-bold underline text-[#212121]">Customer Profile</Link>.</li>
+          <li><strong>Data Retention:</strong> Information is retained only as long as necessary to fulfill rental agreements, resolve traffic challans, and satisfy statutory tax and motor vehicle record-keeping requirements.</li>
+          <li><strong>Right to Request Erasure:</strong> Following completion of your rental and settlement of all obligations, you may request account and document deletion by contacting our Grievance Desk.</li>
         </ul>
       </>
     ),
@@ -163,14 +163,14 @@ const MASTER_PRIVACY_SECTIONS = [
   {
     id: "security-disclosure",
     icon: Bug,
-    title: "7. Security Architecture & Responsible Disclosure (Bug Bounty)",
+    title: "7. System Security & Responsible Disclosure",
     content: (
       <>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed mb-3">
-          Our engineering infrastructure utilizes end-to-end TLS 1.3, strict Content Security Policies (CSP), and HTTP-only JWT session tokens.
+          Journey Rentals maintains appropriate organizational and technical safeguards designed to ensure platform integrity and prevent unauthorized data access.
         </p>
         <p className="text-xs sm:text-sm text-[#6F6E73] leading-relaxed">
-          If you are an ethical security researcher and discover a potential vulnerability, please report it directly to <strong className="text-[#212121]">rental.journeycars@gmail.com</strong> with reproducible proof-of-concept steps. We review and acknowledge valid security reports within 24 hours under our safe harbor policy.
+          Security researchers who identify potential vulnerabilities are encouraged to disclose them responsibly to <strong className="text-[#212121]">rental.journeycars@gmail.com</strong> with reproducible details. Valid disclosures will be reviewed promptly under our responsible disclosure guidelines.
         </p>
       </>
     ),
