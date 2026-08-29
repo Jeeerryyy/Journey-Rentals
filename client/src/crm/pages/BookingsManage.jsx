@@ -2,13 +2,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import api, { formatINR, formatApiError, safeFormatDate } from "@/lib/api";
 import {
   Search, Check, X, Shield, Phone, Mail, FileText, Camera,
-  MessageCircle, ExternalLink, Calendar, MapPin, Eye, Upload
+  MessageCircle, ExternalLink, Calendar, MapPin, Eye, Upload, MessageSquare
 } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
 import CustomSelect from "@/website/components/CustomSelect";
 import { openBookingInvoiceInNewTab } from "@/website/utils/invoiceGenerator";
 import { Skeleton } from "@/ui/skeleton";
+import WhatsAppBookingModal from "@/shared/components/WhatsAppBookingModal";
 
 export default function BookingsManage() {
   const [bookings, setBookings] = useState([]);
@@ -16,6 +17,8 @@ export default function BookingsManage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
+  // Selected Booking for WhatsApp Dispatch Modal
+  const [selectedWhatsAppBooking, setSelectedWhatsAppBooking] = useState(null);
   // Selected Booking for KYC modal
   const [selectedKycBooking, setSelectedKycBooking] = useState(null);
   // Selected Booking for Photo Inspection Upload
@@ -230,15 +233,15 @@ export default function BookingsManage() {
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="font-bold text-[#212121]">{custName}</div>
                         {custPhone && (
-                          <a
-                            href={`https://wa.me/${custPhone.replace(/\D/g, '')}?text=Hello%20${custName},%20regarding%20your%20Journey%20Rentals%20booking%20${b.referenceId}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-[11px] text-[#4B8039] hover:underline flex items-center gap-1 font-mono mt-0.5"
+                          <button
+                            type="button"
+                            onClick={() => setSelectedWhatsAppBooking(b)}
+                            className="text-[11px] text-[#4B8039] hover:text-[#38622a] hover:underline flex items-center gap-1 font-mono mt-0.5 cursor-pointer"
+                            title="Open WhatsApp Dispatch & Templates"
                           >
-                            <MessageCircle size={11} />
+                            <MessageCircle size={12} className="fill-[#4B8039]/20" />
                             <span>{custPhone}</span>
-                          </a>
+                          </button>
                         )}
                       </td>
 
@@ -286,9 +289,17 @@ export default function BookingsManage() {
                         />
                       </td>
 
-                      {/* Photo Inspection & Invoice Actions */}
+                      {/* Photo Inspection, Invoice & WhatsApp Actions */}
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => setSelectedWhatsAppBooking(b)}
+                            className="p-1.5 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 cursor-pointer transition-colors shadow-2xs flex items-center gap-1 font-bold text-[11px]"
+                            title="Dispatch WhatsApp Notification / Reminder"
+                          >
+                            <MessageSquare size={13} className="text-emerald-600" />
+                            <span className="hidden xl:inline">WhatsApp</span>
+                          </button>
                           <button
                             onClick={() => openBookingInvoiceInNewTab(b)}
                             className="p-1.5 rounded-lg border border-[#DFDCE8] bg-[#F6F5FA] hover:bg-white text-[#212121] cursor-pointer transition-colors shadow-2xs"
@@ -320,46 +331,63 @@ export default function BookingsManage() {
       {/* KYC Viewer Modal */}
       {selectedKycBooking && (
         <Dialog open={!!selectedKycBooking} onOpenChange={() => setSelectedKycBooking(null)}>
-          <DialogContent className="max-w-md bg-white rounded-[24px] border border-[#DFDCE8] p-6 text-left font-body">
+          <DialogContent className="max-w-2xl bg-white border border-[#DFDCE8] rounded-2xl p-6">
             <DialogHeader>
-              <DialogTitle className="text-base font-bold font-display text-[#212121]">
-                Driver KYC Documents — #{selectedKycBooking.referenceId}
+              <DialogTitle className="font-syne font-bold text-lg text-[#212121] flex items-center gap-2">
+                <Shield className="text-[#4B8039]" size={18} />
+                <span>Customer Identity Verification (KYC)</span>
               </DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4 pt-2">
-              <div>
-                <span className="text-[11px] font-bold uppercase text-[#6F6E73] block mb-1">Aadhar Card</span>
-                {selectedKycBooking.documents?.aadharUrl ? (
-                  <a
-                    href={selectedKycBooking.documents.aadharUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-3 rounded-xl bg-[#F6F5FA] border border-[#DFDCE8] flex items-center justify-between hover:bg-white text-xs font-bold text-[#3F5F8C]"
-                  >
-                    <span>View Aadhar Document</span>
-                    <ExternalLink size={14} />
-                  </a>
-                ) : (
-                  <p className="text-xs text-[#99989E]">No Aadhar document attached</p>
-                )}
+              <div className="grid grid-cols-2 gap-3 text-xs bg-[#F6F5FA] p-3 rounded-xl border border-[#DFDCE8]">
+                <div>
+                  <span className="text-[#6F6E73] block text-[10px] uppercase font-bold font-mono">Customer</span>
+                  <span className="font-bold text-[#212121]">{selectedKycBooking.userSnapshot?.name || selectedKycBooking.customerInfo?.name || "N/A"}</span>
+                </div>
+                <div>
+                  <span className="text-[#6F6E73] block text-[10px] uppercase font-bold font-mono">Phone Number</span>
+                  <span className="font-bold text-[#212121] font-mono">{selectedKycBooking.userSnapshot?.phone || selectedKycBooking.customerInfo?.phone || "N/A"}</span>
+                </div>
               </div>
 
-              <div>
-                <span className="text-[11px] font-bold uppercase text-[#6F6E73] block mb-1">Driving License</span>
-                {selectedKycBooking.documents?.licenseUrl ? (
-                  <a
-                    href={selectedKycBooking.documents.licenseUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-3 rounded-xl bg-[#F6F5FA] border border-[#DFDCE8] flex items-center justify-between hover:bg-white text-xs font-bold text-[#3F5F8C]"
-                  >
-                    <span>View Driving License</span>
-                    <ExternalLink size={14} />
-                  </a>
-                ) : (
-                  <p className="text-xs text-[#99989E]">No License document attached</p>
-                )}
+              {/* Document Images */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <span className="text-xs font-bold text-[#212121]">Driving License</span>
+                  <div className="aspect-4/3 rounded-xl overflow-hidden border border-[#DFDCE8] bg-black/5 flex items-center justify-center">
+                    {selectedKycBooking.licensePhotoUrl || selectedKycBooking.kycDocs?.drivingLicense ? (
+                      <img
+                        src={selectedKycBooking.licensePhotoUrl || selectedKycBooking.kycDocs?.drivingLicense}
+                        alt="Driving License"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center p-4 text-[#6F6E73] text-xs">
+                        <FileText size={24} className="mx-auto mb-1 opacity-40" />
+                        <span>No DL Uploaded</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <span className="text-xs font-bold text-[#212121]">Aadhaar / ID Card</span>
+                  <div className="aspect-4/3 rounded-xl overflow-hidden border border-[#DFDCE8] bg-black/5 flex items-center justify-center">
+                    {selectedKycBooking.aadhaarPhotoUrl || selectedKycBooking.kycDocs?.aadhaarCard ? (
+                      <img
+                        src={selectedKycBooking.aadhaarPhotoUrl || selectedKycBooking.kycDocs?.aadhaarCard}
+                        alt="Aadhaar Card"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center p-4 text-[#6F6E73] text-xs">
+                        <FileText size={24} className="mx-auto mb-1 opacity-40" />
+                        <span>No Aadhaar Uploaded</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </DialogContent>
@@ -369,10 +397,11 @@ export default function BookingsManage() {
       {/* Inspection Photo Upload Modal */}
       {selectedPhotoBooking && (
         <Dialog open={!!selectedPhotoBooking} onOpenChange={() => setSelectedPhotoBooking(null)}>
-          <DialogContent className="max-w-md bg-white rounded-[24px] border border-[#DFDCE8] p-6 text-left font-body">
+          <DialogContent className="max-w-md bg-white border border-[#DFDCE8] rounded-2xl p-6">
             <DialogHeader>
-              <DialogTitle className="text-base font-bold font-display text-[#212121]">
-                Handover Photo Inspection — #{selectedPhotoBooking.referenceId}
+              <DialogTitle className="font-syne font-bold text-lg text-[#212121] flex items-center gap-2">
+                <Camera className="text-[#3F5F8C]" size={18} />
+                <span>Vehicle Inspection Photo</span>
               </DialogTitle>
             </DialogHeader>
 
@@ -420,6 +449,15 @@ export default function BookingsManage() {
             </form>
           </DialogContent>
         </Dialog>
+      )}
+
+      {/* WhatsApp Dispatch & Notification Modal */}
+      {selectedWhatsAppBooking && (
+        <WhatsAppBookingModal
+          isOpen={Boolean(selectedWhatsAppBooking)}
+          onClose={() => setSelectedWhatsAppBooking(null)}
+          booking={selectedWhatsAppBooking}
+        />
       )}
 
     </div>

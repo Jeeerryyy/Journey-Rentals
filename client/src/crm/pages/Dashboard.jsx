@@ -20,6 +20,7 @@ import ConfirmModal from "../components/common/ConfirmModal";
 import NotesModal from "../components/common/NotesModal";
 import CustomSelect from "@/website/components/CustomSelect";
 import { Skeleton } from "@/ui/skeleton";
+import WhatsAppBookingModal from "@/shared/components/WhatsAppBookingModal";
 
 // ─── 3D Interactive Character Banner ──────────────────────────────────────────
 function Live3DCharacterGesture() {
@@ -113,6 +114,7 @@ export default function Dashboard() {
 
   // Live Bookings & KYC state
   const [liveBookings, setLiveBookings] = useState([]);
+  const [selectedWhatsAppBooking, setSelectedWhatsAppBooking] = useState(null);
   const [selectedKycBooking, setSelectedKycBooking] = useState(null);
   const [bksQuery, setBksQuery] = useState("");
   const [bksStatusFilter, setBksStatusFilter] = useState("all");
@@ -803,15 +805,15 @@ export default function Dashboard() {
                       <td className="py-3.5 px-2 whitespace-nowrap">
                         <div className="font-bold text-[#212121]">{custName}</div>
                         {custPhone && (
-                          <a
-                            href={`https://wa.me/${custPhone.replace(/\D/g, '')}?text=Hello%20${encodeURIComponent(custName)},%20regarding%20your%20Journey%20Rentals%20booking%20${b.referenceId}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-[11px] text-[#4B8039] hover:underline flex items-center gap-1 font-mono mt-0.5"
+                          <button
+                            type="button"
+                            onClick={() => setSelectedWhatsAppBooking(b)}
+                            className="text-[11px] text-[#4B8039] hover:text-[#38622a] hover:underline flex items-center gap-1 font-mono mt-0.5 cursor-pointer"
+                            title="Open WhatsApp Dispatch"
                           >
-                            <MessageCircle size={11} />
+                            <MessageCircle size={11} className="fill-[#4B8039]/20" />
                             <span>{custPhone}</span>
-                          </a>
+                          </button>
                         )}
                       </td>
 
@@ -862,13 +864,24 @@ export default function Dashboard() {
 
                       {/* Action */}
                       <td className="py-3.5 pr-4 text-right whitespace-nowrap">
-                        <Link
-                          to="/admin/bookings"
-                          className="inline-flex items-center gap-1 text-[11px] font-bold text-[#212121] hover:underline"
-                        >
-                          <span>Manage</span>
-                          <ArrowRight size={11} />
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedWhatsAppBooking(b)}
+                            className="p-1.5 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 cursor-pointer transition-colors shadow-2xs flex items-center gap-1 font-bold text-[11px]"
+                            title="Dispatch WhatsApp Notification"
+                          >
+                            <MessageCircle size={12} className="text-emerald-600 fill-emerald-600/30" />
+                            <span className="hidden md:inline">WhatsApp</span>
+                          </button>
+                          <Link
+                            to="/admin/bookings"
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-[#212121] hover:underline"
+                          >
+                            <span>Manage</span>
+                            <ArrowRight size={11} />
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1163,6 +1176,14 @@ export default function Dashboard() {
             </div>
           </DialogContent>
         </Dialog>
+      )}
+      {/* WhatsApp Dispatch & Notification Modal */}
+      {selectedWhatsAppBooking && (
+        <WhatsAppBookingModal
+          isOpen={Boolean(selectedWhatsAppBooking)}
+          onClose={() => setSelectedWhatsAppBooking(null)}
+          booking={selectedWhatsAppBooking}
+        />
       )}
     </div>
   );

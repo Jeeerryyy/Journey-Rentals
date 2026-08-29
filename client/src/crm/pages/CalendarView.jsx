@@ -16,6 +16,7 @@ import OfflineBookingModal from "../components/OfflineBookingModal";
 import { openBookingInvoiceInNewTab } from "@/website/utils/invoiceGenerator";
 import CustomSelect from "@/website/components/CustomSelect";
 import { Skeleton } from "@/ui/skeleton";
+import WhatsAppBookingModal from "@/shared/components/WhatsAppBookingModal";
 
 function ymd(d) {
   if (!d) return "";
@@ -44,6 +45,7 @@ export default function CalendarView() {
   // Dialog states
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedWhatsAppBooking, setSelectedWhatsAppBooking] = useState(null);
   const [offlineModalOpen, setOfflineModalOpen] = useState(false);
   const [quickBookingData, setQuickBookingData] = useState(null);
 
@@ -607,6 +609,14 @@ export default function CalendarView() {
               {/* Action Buttons */}
               <div className="flex items-center justify-end gap-2 pt-2">
                 <Button
+                  onClick={() => setSelectedWhatsAppBooking(selectedBooking)}
+                  className="rounded-full px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                >
+                  <MessageCircle size={13} className="fill-white/20" />
+                  <span>WhatsApp Dispatch</span>
+                </Button>
+
+                <Button
                   onClick={() => openBookingInvoiceInNewTab(selectedBooking)}
                   variant="outline"
                   className="rounded-full px-4 py-2 text-xs font-bold border-[#DFDCE8] bg-white hover:bg-[#F6F5FA] text-[#212121] flex items-center gap-1.5 cursor-pointer shadow-2xs"
@@ -634,6 +644,15 @@ export default function CalendarView() {
         initialData={quickBookingData}
         onSuccess={loadData}
       />
+
+      {/* WhatsApp Dispatch Modal */}
+      {selectedWhatsAppBooking && (
+        <WhatsAppBookingModal
+          isOpen={Boolean(selectedWhatsAppBooking)}
+          onClose={() => setSelectedWhatsAppBooking(null)}
+          booking={selectedWhatsAppBooking}
+        />
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { CheckCircle2, MessageCircle, MapPin, Calendar, Car, Bike, Phone, User, 
 import api, { formatINR, safeFormatDate } from "@/lib/api";
 import { openBookingInvoiceInNewTab } from "@/website/utils/invoiceGenerator";
 import { Skeleton } from "@/ui/skeleton";
+import { createCustomerBookingDispatchUrl } from "@/shared/utils/whatsappTemplates";
 
 export default function BookingSuccess() {
   const { bookingId } = useParams();
@@ -65,9 +66,19 @@ export default function BookingSuccess() {
   const discount = booking?.discount || 0;
   const couponApplied = booking?.couponApplied;
 
-  const waLink = `https://wa.me/919604437794?text=${encodeURIComponent(
-    `Hi Journey Rentals Solapur! My booking is confirmed.\nBooking Ref: #${refId}\nVehicle: ${vTitle}\nDates: ${datesFormatted}\nCustomer: ${customerName}`
-  )}`;
+  const waLink = createCustomerBookingDispatchUrl(
+    booking || {
+      referenceId: refId,
+      vehicleName: vTitle,
+      pickupLocation: pickupLoc,
+      pickupDate: booking?.pickupDate,
+      pickupTime: booking?.pickupTime,
+      dropoffDate: booking?.returnDate,
+      dropoffTime: booking?.returnTime,
+      userSnapshot: { name: customerName, phone: customerPhone },
+      pricing: { totalPrice, advancePaid }
+    }
+  );
 
   return (
     <div className="min-h-screen bg-[#F6F5FA] text-[#212121] font-body flex flex-col justify-between">

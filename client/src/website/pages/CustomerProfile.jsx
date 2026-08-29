@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import api, { formatINR, safeFormatDate, formatApiError } from "@/lib/api";
 import { openBookingInvoiceInNewTab } from "@/website/utils/invoiceGenerator";
+import { createCustomerBookingDispatchUrl } from "@/shared/utils/whatsappTemplates";
 
 export default function CustomerProfile() {
   const { customer, user, customerLogout, refreshCustomer } = useAuth();
@@ -364,10 +365,11 @@ export default function CustomerProfile() {
 
                         <div className="flex items-center gap-2">
                           <a
-                            href={`https://wa.me/919604437794?text=Hi%20Journey%20Rentals,%20checking%20status%20for%20Booking%20%23${refId}`}
+                            href={createCustomerBookingDispatchUrl(b)}
                             target="_blank"
                             rel="noreferrer"
                             className="px-3.5 py-2 rounded-full bg-[#EBF7EE] text-[#1E7E34] hover:bg-[#25D366] hover:text-white border border-[#C3E6CB] text-xs font-bold flex items-center gap-1.5 transition-all"
+                            title="Chat with Solapur Dispatch on WhatsApp"
                           >
                             <MessageSquare size={13} />
                             <span>WhatsApp Dispatch</span>
