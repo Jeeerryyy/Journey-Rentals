@@ -21,9 +21,7 @@ const DEFAULT_FORM = {
   sittingCapacity: 5,
   pricePerDay: 2000,
   bikeSlots: {
-    price3hr: 150,
-    price6hr: 250,
-    price12hr: 450,
+    price24hr: 500,
   },
   image: "",
   images: [],
@@ -90,9 +88,7 @@ export default function FleetManage() {
       sittingCapacity: v.sittingCapacity || (v.type === "bike" ? 2 : 5),
       pricePerDay: v.pricePerDay || 2000,
       bikeSlots: {
-        price3hr: v.bikeSlots?.price3hr || 150,
-        price6hr: v.bikeSlots?.price6hr || 250,
-        price12hr: v.bikeSlots?.price12hr || 450,
+        price24hr: v.bikeSlots?.price24hr || v.bikeSlots?.price12hr || v.pricePerDay || 500,
       },
       image: v.image || (v.images?.[0] || ""),
       images: v.images || [],
@@ -334,8 +330,7 @@ export default function FleetManage() {
                       <td className="py-3.5 px-4 font-mono font-bold text-[#212121]">
                         {isB ? (
                           <div className="space-y-0.5 text-[11px]">
-                            <div>3h: {formatINR(v.bikeSlots?.price3hr || 150)}</div>
-                            <div className="text-[#6F6E73]">6h: {formatINR(v.bikeSlots?.price6hr || 250)}</div>
+                            <div>24h: {formatINR(v.bikeSlots?.price24hr || v.bikeSlots?.price12hr || v.pricePerDay || 500)}</div>
                           </div>
                         ) : (
                           <div>{formatINR(v.pricePerDay || 2000)}/day</div>
@@ -481,43 +476,22 @@ export default function FleetManage() {
                 />
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <label className="block text-[10px] font-bold text-[#6F6E73] mb-1">3hr Slot (₹)</label>
-                  <input
-                    type="number"
-                    placeholder="150"
-                    value={formData.bikeSlots.price3hr}
-                    onChange={(e) => setFormData(p => ({
-                      ...p, bikeSlots: { ...p.bikeSlots, price3hr: e.target.value === "" ? "" : Number(e.target.value) }
-                    }))}
-                    className="w-full h-10 px-2.5 rounded-xl bg-[#F6F5FA] border border-[#DFDCE8] text-xs font-medium font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-[#6F6E73] mb-1">6hr Slot (₹)</label>
-                  <input
-                    type="number"
-                    placeholder="250"
-                    value={formData.bikeSlots.price6hr}
-                    onChange={(e) => setFormData(p => ({
-                      ...p, bikeSlots: { ...p.bikeSlots, price6hr: e.target.value === "" ? "" : Number(e.target.value) }
-                    }))}
-                    className="w-full h-10 px-2.5 rounded-xl bg-[#F6F5FA] border border-[#DFDCE8] text-xs font-medium font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-[#6F6E73] mb-1">12hr Slot (₹)</label>
-                  <input
-                    type="number"
-                    placeholder="450"
-                    value={formData.bikeSlots.price12hr}
-                    onChange={(e) => setFormData(p => ({
-                      ...p, bikeSlots: { ...p.bikeSlots, price12hr: e.target.value === "" ? "" : Number(e.target.value) }
-                    }))}
-                    className="w-full h-10 px-2.5 rounded-xl bg-[#F6F5FA] border border-[#DFDCE8] text-xs font-medium font-mono"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-[#6F6E73] mb-1">24hr Slot Rate (₹)</label>
+                <input
+                  type="number"
+                  placeholder="500"
+                  value={formData.bikeSlots.price24hr}
+                  onChange={(e) => {
+                    const val = e.target.value === "" ? "" : Number(e.target.value);
+                    setFormData(p => ({
+                      ...p,
+                      pricePerDay: val,
+                      bikeSlots: { ...p.bikeSlots, price24hr: val, price12hr: val }
+                    }));
+                  }}
+                  className="w-full h-10 px-3 rounded-xl bg-[#F6F5FA] border border-[#DFDCE8] text-xs font-medium font-mono"
+                />
               </div>
             )}
 

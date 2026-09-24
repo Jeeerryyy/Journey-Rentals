@@ -92,7 +92,7 @@ export default function BookingPage() {
   const [dropoffTime, setDropoffTime] = useState("09:00");
   const [startCalendarOpen, setStartCalendarOpen] = useState(false);
   const [endCalendarOpen, setEndCalendarOpen] = useState(false);
-  const [bikeSlot, setBikeSlot] = useState(params.get("slot") || "6hr");
+  const [bikeSlot, setBikeSlot] = useState(params.get("slot") || "24hr");
 
   // Customer KYC State
   const [customerForm, setCustomerForm] = useState({
@@ -186,7 +186,7 @@ export default function BookingPage() {
   const grossPrice = useMemo(() => {
     if (!vehicle) return 0;
     if (isBike) {
-      return vehicle.bikeSlots?.[`price${bikeSlot}`] || vehicle.pricePerDay || 250;
+      return vehicle.bikeSlots?.price24hr || vehicle.bikeSlots?.[`price${bikeSlot}`] || vehicle.bikeSlots?.price12hr || vehicle.pricePerDay || 500;
     }
     const daily = vehicle.pricePerDay || vehicle.daily_rate || 2000;
     return daily * durationDays;
@@ -572,7 +572,7 @@ export default function BookingPage() {
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#212121]">Dates &amp; Hubs</h2>
                   <div className="text-xs font-mono font-bold text-[#212121] bg-[#e1b808] px-3.5 py-1 rounded-full border border-[#e1b808]">
-                    {isBike ? `Bike Slot (${bikeSlot})` : `${durationDays} ${durationDays === 1 ? "Day Rental (24h)" : `Days Rental (${durationDays * 24}h)`}`}
+                    {isBike ? `Bike Slot (${bikeSlot === "24hr" ? "24h" : bikeSlot})` : `${durationDays} ${durationDays === 1 ? "Day Rental (24h)" : `Days Rental (${durationDays * 24}h)`}`}
                   </div>
                 </div>
 
@@ -781,24 +781,22 @@ export default function BookingPage() {
                         <div className="flex items-center justify-between">
                           <Label className="text-xs font-bold uppercase tracking-wider text-[#6F6E73] font-mono flex items-center gap-1.5">
                             <Clock size={14} className="text-[#3F5F8C]" />
-                            Select Hourly Slot
+                            Select Slot Duration
                           </Label>
                           <span className="text-[10px] font-bold text-[#212121] bg-[#e1b808] px-2 py-0.5 rounded-full">
-                            Quick Ride
+                            Full Day
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-1 gap-2">
                           {[
-                            { id: "3hr", label: "3 Hours", price: vehicle.bikeSlots?.price3hr || 150 },
-                            { id: "6hr", label: "6 Hours", price: vehicle.bikeSlots?.price6hr || 250 },
-                            { id: "12hr", label: "12 Hours", price: vehicle.bikeSlots?.price12hr || 450 },
+                            { id: "24hr", label: "24 Hours (Full Day)", price: vehicle.bikeSlots?.price24hr || vehicle.bikeSlots?.price12hr || vehicle.pricePerDay || 500 },
                           ].map((slot) => (
                             <button
                               key={slot.id}
                               type="button"
                               onClick={() => setBikeSlot(slot.id)}
-                              className={`p-2.5 rounded-xl text-center transition-all cursor-pointer border ${
+                              className={`p-3 rounded-xl text-center transition-all cursor-pointer border ${
                                 bikeSlot === slot.id
                                   ? "bg-[#212121] text-white border-[#212121] shadow-xs"
                                   : "bg-white text-[#212121] border-[#DFDCE8] hover:border-[#212121]"
@@ -1082,7 +1080,7 @@ export default function BookingPage() {
                   <div className="flex justify-between border-b border-[#DFDCE8] pb-2">
                     <span className="text-[#6F6E73]">Schedule</span>
                     <span className="font-bold text-[#212121]">
-                      {isBike ? `${format(start, "dd MMM yyyy")} (${bikeSlot})` : `${format(start, "dd MMM")} – ${format(end, "dd MMM yyyy")} (${durationDays}d)`}
+                      {isBike ? `${format(start, "dd MMM yyyy")} (${bikeSlot === "24hr" ? "24 Hours" : bikeSlot})` : `${format(start, "dd MMM")} – ${format(end, "dd MMM yyyy")} (${durationDays}d)`}
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-[#DFDCE8] pb-2">

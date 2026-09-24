@@ -31,7 +31,7 @@ const bookingSchema = new mongoose.Schema({
 
   // Bike fields
   bikeDate: Date,
-  bikeSlot: { type: String, enum: ['3hr', '6hr', '12hr'] },
+  bikeSlot: { type: String, enum: ['3hr', '6hr', '12hr', '24hr'] },
 
   // Financials
   totalPrice:  { type: Number, required: true },

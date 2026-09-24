@@ -20,10 +20,7 @@ const SOLAPUR_LOCATIONS = [
 ];
 
 const BIKE_SLOTS = [
-  { id: "3hr", label: "3 Hours Slot" },
-  { id: "6hr", label: "6 Hours Slot" },
-  { id: "12hr", label: "12 Hours Slot" },
-  { id: "24hr", label: "Full Day (24h)" },
+  { id: "24hr", label: "24 Hours (Full Day)" },
 ];
 
 const TIME_OPTIONS = [
@@ -63,7 +60,7 @@ export default function SearchWidget({ variant = "hero" }) {
 
   // Bike Booking Dates & Slots
   const [bikeDate, setBikeDate] = useState(new Date());
-  const [bikeSlot, setBikeSlot] = useState("6hr");
+  const [bikeSlot, setBikeSlot] = useState("24hr");
   const [bikeCalendarOpen, setBikeCalendarOpen] = useState(false);
 
   const handleSearch = (e) => {

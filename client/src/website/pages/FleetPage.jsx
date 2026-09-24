@@ -182,14 +182,14 @@ export default function FleetPage() {
     // Sort order
     if (sortBy === "price-asc") {
       list.sort((a, b) => {
-        const pA = a.type === "bike" ? (a.bikeSlots?.price3hr || 150) : (a.pricePerDay || 2000);
-        const pB = b.type === "bike" ? (b.bikeSlots?.price3hr || 150) : (b.pricePerDay || 2000);
+        const pA = a.type === "bike" ? (a.bikeSlots?.price24hr || a.bikeSlots?.price12hr || a.pricePerDay || 500) : (a.pricePerDay || 2000);
+        const pB = b.type === "bike" ? (b.bikeSlots?.price24hr || b.bikeSlots?.price12hr || b.pricePerDay || 500) : (b.pricePerDay || 2000);
         return pA - pB;
       });
     } else if (sortBy === "price-desc") {
       list.sort((a, b) => {
-        const pA = a.type === "bike" ? (a.bikeSlots?.price3hr || 150) : (a.pricePerDay || 2000);
-        const pB = b.type === "bike" ? (b.bikeSlots?.price3hr || 150) : (b.pricePerDay || 2000);
+        const pA = a.type === "bike" ? (a.bikeSlots?.price24hr || a.bikeSlots?.price12hr || a.pricePerDay || 500) : (a.pricePerDay || 2000);
+        const pB = b.type === "bike" ? (b.bikeSlots?.price24hr || b.bikeSlots?.price12hr || b.pricePerDay || 500) : (b.pricePerDay || 2000);
         return pB - pA;
       });
     } else if (sortBy === "seats") {

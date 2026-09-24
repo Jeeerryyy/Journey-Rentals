@@ -75,7 +75,7 @@ export default function VehicleCard({ v, index = 0, queryParams = "" }) {
   };
 
   const currentImage = imageList[activeIdx] || imageList[0];
-  const displayRate = isBike ? (v.bikeSlots?.price3hr || 150) : (v.pricePerDay || v.daily_rate || 2000);
+  const displayRate = isBike ? (v.bikeSlots?.price24hr || v.bikeSlots?.price12hr || v.pricePerDay || 500) : (v.pricePerDay || v.daily_rate || 2000);
 
   return (
     <Tilt3DCard maxTilt={3} scale={1.015} className="rounded-[24px] h-full font-body">
@@ -206,11 +206,11 @@ export default function VehicleCard({ v, index = 0, queryParams = "" }) {
           <div className="flex items-center justify-between gap-3">
             <div className="text-left shrink-0 min-w-0">
               <div className="text-[10px] uppercase tracking-wider font-bold text-[#6F6E73] leading-none mb-1 font-mono">
-                {isBike ? "Starting Slot" : "Daily Rate"}
+                {isBike ? "24 Hours Rate" : "Daily Rate"}
               </div>
               <div className="text-lg sm:text-xl font-extrabold text-[#212121] leading-tight font-mono">
                 {formatINR(displayRate)}
-                <span className="text-xs text-[#6F6E73] font-normal ml-0.5">{isBike ? "/3h" : "/day"}</span>
+                <span className="text-xs text-[#6F6E73] font-normal ml-0.5">{isBike ? "/24h" : "/day"}</span>
               </div>
             </div>
 

@@ -251,8 +251,6 @@ export const login = async (req, res) => {
         avatarUrl: user.avatarUrl || '',
       },
     })
-      },
-    })
   } catch (err) {
     console.error('Login error:', err.message)
     return res.status(500).json({ success: false, error: 'Something went wrong on our end. Please try again.' })

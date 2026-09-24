@@ -150,7 +150,7 @@ export const createOrder = async (req, res) => {
     const days = bookingType === 'car' ? Math.max(1, Number(totalDays) || 1) : 1
     let serverGross = 0
     if (bookingType === 'bike') {
-      serverGross = (vehicle.hourlyRates && vehicle.hourlyRates[bikeSlot]) || vehicle.pricePerDay || 499
+      serverGross = (vehicle.bikeSlots && (vehicle.bikeSlots[`price${bikeSlot}`] || vehicle.bikeSlots[bikeSlot] || vehicle.bikeSlots.price24hr || vehicle.bikeSlots.price12hr)) || (vehicle.hourlyRates && vehicle.hourlyRates[bikeSlot]) || vehicle.pricePerDay || 499
     } else {
       serverGross = (vehicle.pricePerDay || 2000) * days
     }

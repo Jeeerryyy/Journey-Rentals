@@ -74,7 +74,8 @@ const vehicles = [
     description: 'The Honda Activa 6G is the most trusted scooter in India. Perfect for quick city errands, easy to ride with automatic transmission and excellent fuel economy.',
     features: ['Auto Headlamp On', 'Mobile Charging Port', 'External Fuel Lid', 'Combi Brake System', 'Silent Start', 'LED DRL'],
     locations: ['Solapur Station', 'Hotgi Road', 'Vijapur Road', 'Akkalkot Road'],
-    bikeSlots: { price3hr: 150, price6hr: 200, price12hr: 400 },
+    pricePerDay: 400,
+    bikeSlots: { price24hr: 400, price12hr: 400 },
   },
   {
     type: 'bike', brand: 'TVS', model: 'Jupiter', year: 2023,
@@ -84,7 +85,8 @@ const vehicles = [
     description: 'The TVS Jupiter is a premium scooter packed with convenience features. Known for its smooth ride quality and spacious under-seat storage.',
     features: ['Body Balance Technology', 'USB Charging', 'Econometer', 'External Fuel Lid', 'Park Assist', 'LED Tail Lamp'],
     locations: ['Solapur Station', 'Akkalkot Road'],
-    bikeSlots: { price3hr: 150, price6hr: 200, price12hr: 400 },
+    pricePerDay: 400,
+    bikeSlots: { price24hr: 400, price12hr: 400 },
   },
   {
     type: 'bike', brand: 'Royal Enfield', model: 'Classic 350', year: 2022,
@@ -94,7 +96,8 @@ const vehicles = [
     description: 'The Royal Enfield Classic 350 is an iconic cruiser motorcycle offering a vintage feel with modern reliability. Perfect for leisure rides around Solapur.',
     features: ['Tripper Navigation', 'Dual Channel ABS', 'LED Headlamp', 'USB Charging', 'Halogen Tail Lamp', 'Classic Design'],
     locations: ['Solapur Station', 'Hotgi Road'],
-    bikeSlots: { price3hr: 150, price6hr: 200, price12hr: 400 },
+    pricePerDay: 400,
+    bikeSlots: { price24hr: 400, price12hr: 400 },
   },
   {
     type: 'bike', brand: 'Bajaj', model: 'Pulsar 150', year: 2023,
@@ -104,7 +107,8 @@ const vehicles = [
     description: 'The Bajaj Pulsar 150 is a sporty commuter bike with aggressive styling and punchy performance. Great for riders who want a bit more thrill.',
     features: ['Twin Spark Technology', 'DTS-i Engine', 'Digital Console', 'Split Seat', 'Alloy Wheels', 'Disc Brake'],
     locations: ['Vijapur Road', 'Akkalkot Road'],
-    bikeSlots: { price3hr: 150, price6hr: 200, price12hr: 400 },
+    pricePerDay: 400,
+    bikeSlots: { price24hr: 400, price12hr: 400 },
   },
   {
     type: 'bike', brand: 'Honda', model: 'CB Shine', year: 2023,
@@ -114,7 +118,8 @@ const vehicles = [
     description: 'The Honda CB Shine is a reliable and fuel-efficient commuter bike. Ideal for daily use with its proven engine and comfortable ergonomics.',
     features: ['Honda Eco Technology', 'CBS Braking', 'Digital-Analogue Meter', 'Long Seat', 'Tubeless Tyres', 'Engine Start Stop'],
     locations: ['Hotgi Road', 'Vijapur Road', 'Akkalkot Road'],
-    bikeSlots: { price3hr: 150, price6hr: 200, price12hr: 400 },
+    pricePerDay: 400,
+    bikeSlots: { price24hr: 400, price12hr: 400 },
   },
 ]
 

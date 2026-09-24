@@ -128,7 +128,7 @@ export function VehicleProductSchema({ vehicle }) {
   if (!vehicle) return null;
   const isBike = vehicle.type === 'bike';
   const title = vehicle.title || `${vehicle.brand || ''} ${vehicle.model || ''}`.trim() || 'Vehicle';
-  const price = isBike && vehicle.bikeSlots?.price3hr ? vehicle.bikeSlots.price3hr : (vehicle.pricePerDay || 1500);
+  const price = isBike ? (vehicle.bikeSlots?.price24hr || vehicle.bikeSlots?.price12hr || vehicle.pricePerDay || 500) : (vehicle.pricePerDay || 1500);
 
   const schema = {
     "@context": "https://schema.org",

@@ -19,7 +19,8 @@ const vehicleSchema = new mongoose.Schema({
   bikeSlots: {
     price3hr:  { type: Number },
     price6hr:  { type: Number },
-    price12hr: { type: Number }
+    price12hr: { type: Number },
+    price24hr: { type: Number },
   },
   createdAt: { type: Date, default: Date.now }
 })
